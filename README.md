@@ -3,7 +3,11 @@ A Biostatistical tool for Transcriptomics Analysis
 ## How to set up
 1. Install Rstudio from https://www.rstudio.com/ 
 2. Download ABioTrans-master.zip on GitHub and unzip it. Please do not modify www inside ABioTrans folder.
-3. Open Rstudio. Run the following code in R command: 
+3. Open R or Rstudio, set ABioTrans folder as the working directory by clicking `Session` -> `Set Working Directory` -> `Choose Directory`. Or run the following code in command line:
+```R 
+setwd("your_directory_path")
+```
+4. Open Rstudio. Run the following code in R command: 
 ```R
 runApp('ABioTrans.R')
 ```
