@@ -1,15 +1,15 @@
 # ABioTrans
 A Biostatistical tool for Transcriptomics Analysis
 ## How to set up
-1. Install R or Rstudio.
+1. Install Rstudio from https://www.rstudio.com/ 
 2. Download ABioTrans-master.zip on GitHub and unzip it. Please do not modify www inside ABioTrans folder.
-3. Open R or Rstudio, set ABioTrans folder as the working directory by clicking `Session` -> `Set Working Directory` -> `Choose Directory`. Or run the following code in command line:
-```R 
-setwd("your_directory_path")
-```
-4. Run the code: 
+3. Open Rstudio. Run the following code in R command: 
 ```R
 runApp('ABioTrans.R')
+```
+Or, if you want to lauch ABioTrans on web browser:
+```R
+runApp('ABioTrans.R', launch.browser = TRUE)
 ```
  You can start your analysis now!
 
@@ -65,10 +65,9 @@ runApp('ABioTrans.R')
 * Otherwise, if it is a time series data, specify the number of time points. For example, if the number of time points is 6, then sample 1 to 6 will be regarded as genotype A time 1 - time 6, sample 7 to 12 will be genotype B time 1- time 6, and so on and so forth. For a line chart, the entropy of each genotype will be shown in one line. 
 
 ### Gene ontology
-* Provide a list of genes for each cluster in either Entrez id, Ensembl id or gene symbol (in .csv format) and select the proper gene identifier.
-* Select the species, subontology and ontology level.
+* Provide a list of genes for each cluster in NCBI gene ID format (in one-column .csv format), select the proper organism and gene identifier.
 * Click Plot button and wait for around 15 to 20 seconds for the result to be generated. Please avoid launching a new analysis when the system is still in a busy state. 
-* The gene list panel shows the gene ids under each ontology category. 
+* The gene list panel shows the gene ids under each gene ontology term. 
 
 ## Download instructions
 1. Scatter plot, distribution fit, correlation plot and heatmap can be saved as PDF by clicking `Download as PDF`. You can name the file before saving it. Also, you can directly drag the plot from the GUI to a folder on the computer.
