@@ -31,14 +31,14 @@ wd <- dirname(rstudioapi::getActiveDocumentContext()$path)  #set wd as the curre
 setwd(wd)
 # 
 # ## sourcing util files
-source("utils.R")
+source(paste0(wd,"/www/utils.R"))
 # source("ui.R")
 # 
 loadPkg()
 
 species.choices <<- c("Homo sapiens"='org.Hs.eg.db',"Mus musculus"='org.Mm.eg.db',"Rattus norvegicus"='org.Rn.eg.db',"Gallus gallus"='org.Gg.eg.db',"Danio rerio"='org.Dr.eg.db',"Drosophila melanogaster"='org.Dm.eg.db',"Caenorhabditis elegans"='org.Ce.eg.db',"Saccharomyces cereviasiae"='org.Sc.sgd.db',"Arabidopsis thaliana"='org.At.tair.db',"Escherichia coli (strain K12)"='org.EcK12.eg.db',"Escherichia coli (strain Sakai)"='org.EcSakai.eg.db',"Anopheles gambiae"='org.Ag.eg.db',"Bos taurus"='org.Bt.eg.db',"Canis familiaris"='org.Cf.eg.db',"Macaca mulatta"='org.Mmu.eg.db',"Plasmodium falciparum"='org.Pf.plasmo.db',"Pan troglodytes"='org.Pt.eg.db',"Sus scrofa"='org.Ss.eg.db',"Xenopus tropicalis"='org.Xl.eg.db')
 DBS <<- list('org.Hs.eg.db'=org.Hs.eg.db,'org.Mm.eg.db'=org.Mm.eg.db,'org.Rn.eg.db'=org.Rn.eg.db,"org.Gg.eg.db"=org.Gg.eg.db,"org.Dr.eg.db"=org.Dr.eg.db,"org.Dm.eg.db"=org.Dm.eg.db,"org.Ce.eg.db"=org.Ce.eg.db,"org.Sc.sgd.db"=org.Sc.sgd.db,"org.At.tair.db"=org.At.tair.db,"org.EcK12.eg.db"=org.EcK12.eg.db,"org.EcSakai.eg.db"=org.EcSakai.eg.db,"org.Ag.eg.db"=org.Ag.eg.db,"org.Bt.eg.db"=org.Bt.eg.db,"org.Cf.eg.db"=org.Cf.eg.db,"org.Mmu.eg.db"=org.Mmu.eg.db,"org.Pf.plasmo.db"=org.Pf.plasmo.db,"org.Pt.eg.db"=org.Pt.eg.db,"org.Ss.eg.db"=org.Ss.eg.db,"org.Xl.eg.db"=org.Xl.eg.db)
-enrichRdbs <<- enrichR::listEnrichrDbs()$libraryName
+enrichRdbs <- as.character(read.csv(paste0(wd,"/www/enrichRdbs.csv"))[,1])
 
 
 ##### UI from here ###########
@@ -99,11 +99,11 @@ ui <- navbarPage(id = "navbar",
            mainPanel(
              tabsetPanel(type = "tabs",id="preprocessing_tabs",
                          tabPanel("RLE plot",
+                                  plotOutput("RLE.plot2"),
                                   conditionalPanel(
                                     condition = "input.file_type=='raw'",
-                                    plotOutput("RLE.plot2")
-                                  ),
-                                  plotOutput("RLE.plot")
+                                    plotOutput("RLE.plot")
+                                  )
                          ),
                          tabPanel("Data table",
                                   h3("Normalized data"),
@@ -266,7 +266,7 @@ ui <- navbarPage(id = "navbar",
              h5("DE criteria"),
              splitLayout(
                numericInput("p_val","FDR",min=0.01,max=1,value=0.05,step=0.01),
-               numericInput("fc","Fold Change",min=1,max=5,value=2,step=0.1)
+               numericInput("fc","Fold Change",min=1,value=2,step=0.1)
              ),
              fluidRow(
                column(4,
@@ -297,13 +297,24 @@ ui <- navbarPage(id = "navbar",
              tabsetPanel(type = "tabs", id= "DE_tabs",
                          tabPanel("DE genes",
                                   # h3("Differential Expression Analysis"),
-                                  DT::dataTableOutput("DE_table")
+                                  conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                   div(img(src="load.gif",width=240,height=180),
+                                                       h4("Processing ... Please wait"),style="text-align: center;")
+                                  ), 
+                                  conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                   DT::dataTableOutput("DE_table")
+                                  )
                          ),
                          tabPanel("Volcano plot",    # for DESeq and edgeR
                                   conditionalPanel(
                                     condition = "input.n_rep=='1' && input.method1!='NOISeq'",
-                                    # h3("Volcano plot"),
-                                    plotOutput("volcano_plot") 
+                                    conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                     div(img(src="load.gif",width=240,height=180),
+                                                         h4("Processing ... Please wait"),style="text-align: center;")
+                                    ), 
+                                    conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                     plotOutput("volcano_plot") 
+                                    )
                                   ),
                                   conditionalPanel(
                                     condition = "input.method0=='NOISeq' || input.method1=='NOISeq'",
@@ -314,17 +325,18 @@ ui <- navbarPage(id = "navbar",
                                   conditionalPanel(
                                     condition = "input.n_rep=='1' && input.method1!='NOISeq'",
                                     # h3("Dispersion plot"),
-                                    plotOutput("dispersion_plot")
+                                    conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                     div(img(src="load.gif",width=240,height=180),
+                                                         h4("Processing ... Please wait"),style="text-align: center;")
+                                    ), 
+                                    conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                     plotOutput("dispersion_plot")
+                                    )
                                   ),
                                   conditionalPanel(
                                     condition = "input.method0=='NOISeq' || input.method1=='NOISeq'",
                                     h6("Dispersion Plot is only applicable to DESeq2 and edgeR")
                                   )
-                         ),
-                         tabPanel("Heatmap plot",
-                                  br(),
-                                  br(),
-                                  plotOutput("heatmap_plot")
                          )
              )
            )
@@ -333,17 +345,32 @@ ui <- navbarPage(id = "navbar",
            sidebarPanel(
              conditionalPanel(
                condition = "input.heatmap_tabs=='Heatmap'",
-               selectInput('numOfGeno',"Number of genotypes (mutants)",choices=c(1)),
-               textInput('numOfCluster',"Number of clusters on rows",value=1),
-               textInput('fold',"Fold change threshold ( >=1 )",value=2),
-               uiOutput("refGeno"),
-               radioButtons('heatmap_value',"Values",
-                            c('Fold change','Log fold change')),
+               
+               radioButtons("heatmap_de_ind",label="Choose data",choices=c("Indenpendent"="ind","DE result"="de")),
+               numericInput('numOfCluster',"Number of clusters on rows",value=2,min=2,max=30,step=1),
+               conditionalPanel(
+                 condition = "input.heatmap_de_ind == 'ind' ",
+                 # selectInput('numOfGeno',"Number of genotypes (mutants)",choices=c(1)),
+                 splitLayout(
+                   numericInput('fold',"Fold change",value=2,min=1,step=1),
+                   numericInput("fold_ncol", "min. column",value=2,min=1,step=1)
+                 )
+                 
+                 # uiOutput("refGeno"),
+                 # radioButtons('heatmap_value',"Values",
+                 #              c('Fold change','Log fold change'))
+               ),
+               
                downloadButton("downloadheatmap","Download as PDF"),
-               actionButton('heatmap_plot',"Plot",width='65px',style="color: #fff; background-color: #337ab7; border-color: #337ab7;float:right"),
-               h5('Specify names of the genotypes'),
-               uiOutput("expand_genonames")
+               actionButton('heatmap_plot',"Plot",width='65px',style="color: #fff; background-color: #337ab7; border-color: #337ab7;float:right")
+               
+               # conditionalPanel(
+               #   condition = "input.heatmap_de_ind == 'ind' ",
+               #   h5('Specify names of the genotypes'),
+               #   uiOutput("expand_genonames")
+               # )
              ),
+             
              conditionalPanel(
                condition = "input.heatmap_tabs=='Gene clusters'",
                uiOutput("heatmap_display"),
@@ -367,6 +394,9 @@ ui <- navbarPage(id = "navbar",
                          tabPanel("Gene clusters", dataTableOutput('cluster.info'))
              )
            )),
+  
+  ######## NOISE ######
+  #############################################
   tabPanel('Noise',
            sidebarPanel(
              radioButtons('noise_situation',"Select desired noise plot between",choices = c('replicates'='a','genotypes (average of replicates)'='b','genotypes (no replicate)'='c')),
@@ -401,6 +431,10 @@ ui <- navbarPage(id = "navbar",
                               plotlyOutput('noise.plot')
              )
            )),
+  
+  
+  ###### ENTROPY #############
+  #########################################
   tabPanel('Entropy',
            sidebarPanel(
              checkboxInput('tsflag',strong("Time series data"),FALSE),
@@ -423,6 +457,10 @@ ui <- navbarPage(id = "navbar",
              plotlyOutput('entropy.plot')
            )
   ),
+  
+  
+  ################## GO analysis ###################
+  ##################################################
   tabPanel("GO Analysis",
            # useShinyjs(),
            sidebarPanel(
@@ -484,6 +522,7 @@ ui <- navbarPage(id = "navbar",
            )
   )
 )
+  ####################################################
 
 server <- function(input,output,session){
   
@@ -737,9 +776,28 @@ server <- function(input,output,session){
     raw_ds <- na.omit(raw_ds)
     raw_ds <- raw_ds[!duplicated(raw_ds[,1]),]   # remove duplicated gene names
     
+    # raw_ds <- as.data.frame(raw_ds)
+    if(ncol(raw_ds)<=1){
+      showModal(modalDialog(
+        title = "Error",
+        "Data file must contain at least 2 columns. Please check raw data format and try again!"
+      ))
+      return(NULL)
+    }
+    
     row_names <- raw_ds[,1]
     rownames(raw_ds) <- row_names
     raw_DS <- raw_ds[,-1]  # remove the first column, which is gene Id
+    
+    for (i in 1:ncol(raw_DS)){
+      if(class(raw_DS[,i])!="numeric" & class(raw_DS[,i])!="integer"){
+        showModal(modalDialog(
+          title = "Error",
+          "Raw counts must be integer. Please check raw data formate and try again!"
+        ))
+        return(NULL)
+      }
+    }
     return(raw_DS)
   })
   
@@ -796,9 +854,6 @@ server <- function(input,output,session){
       }
     }
     f <- as.factor(make.names(f))
-    print("from group names line 395")
-    print(groups)
-    print(f)
     # return(as.factor(f))
     return(f)
   })
@@ -858,7 +913,7 @@ server <- function(input,output,session){
   ####################################
   
   # filter normalized counts
-  df_shiny <- reactive({
+  df_shiny <- eventReactive(input$submit_preprocessing, {
     DS_norm <- df_norm()
     min_val <- input$min_val
     min_col <- input$min_col
@@ -869,7 +924,7 @@ server <- function(input,output,session){
   })
   
   # filter raw counts
-  df_raw_filt <- reactive({
+  df_raw_filt <- eventReactive(input$submit_preprocessing, {
     DS_raw <- df_raw()
     min_val <- input$min_val
     min_col <- input$min_col
@@ -936,10 +991,10 @@ server <- function(input,output,session){
   })
   
   
-  ##############################################
+  ######### ANALYSIS FROM HERE ############
   ######## RLEplot and Preprocessing ###########
   #############################################
-  output$RLE.plot <- renderPlot({
+  RLE.plot <- reactive({
     type <- input$file_type
     if(type=='norm'){
       DS <- df_shiny()
@@ -958,11 +1013,22 @@ server <- function(input,output,session){
     }
   })
   
-  output$RLE.plot2 <- renderPlot({
-    raw_DS <- df_raw()
+  output$RLE.plot <- renderPlot({
+    RLE.plot()
+  })
+  
+  output$RLE.plot2 <- renderPlot({   # for raw data
+    type <- input$file_type
+    if(type=='norm'){
+      raw_DS <- df_shiny()
+      main_title <- "Input data"
+    }else if(type=='raw'){
+      raw_DS <- df_raw()
+      main_title <- "Raw data"
+    }
     set1 <- newSeqExpressionSet(as.matrix(raw_DS))
     if(input$submit_preprocessing != 0)
-      plotRLE(set1, ylim=c(-2.5,2.5),outline=FALSE, main="Raw data")
+      plotRLE(set1, ylim=c(-2.5,2.5),outline=FALSE, main=main_title)
   })
   
   
@@ -1637,7 +1703,7 @@ server <- function(input,output,session){
   })
   
   ##### volcano plot ######
-  volcano_plot <- function(){
+  volcano_plot <- eventReactive(input$submit_DE, {
     rep_number <- input$n_rep
     if( rep_number == 0)
       return (NULL)
@@ -1665,14 +1731,14 @@ server <- function(input,output,session){
            legend=c("FDR < FDR limit","FC > FC limit","Both","Other"))
     # library(calibrate)
     # with(subset(res, FDR<.05 & abs(log2FC)>1), textxy(log2FC, -log10(PValue), labs=Gene, cex=.8))
-  }
+  })
   
   output$volcano_plot <- renderPlot({
     volcano_plot()
   })
   
   ##### dispersion plot ######
-  dispersion_plot <- reactive({
+  dispersion_plot <- eventReactive(input$submit_DE, {
     f_de <- group_names_de()  # for edgeR >> f=f_de[,1]; for the rest factors=f_de
     if(is.null(f_de) )
       return (NULL)
@@ -1694,52 +1760,8 @@ server <- function(input,output,session){
     dispersion_plot()
   })
   
-  ##### heatmap plot ######
-  heatmap_plot <- reactive ({
-    type <- input$file_type
-    if(type=='norm'){
-      raw_DS <- df_shiny()         # filtered and normalized
-    }else if(type=='raw'){
-      raw_DS <- df_raw_filt()    # filtered and UN-NORMALIZED
-    }
-    f <- group_names()
-    f.df <- data.frame("col_names" = colnames(raw_DS), "f" = f)
-    
-    dds <- DESeq2::DESeqDataSetFromMatrix(countData = as.matrix(raw_DS),   # data frame or matrix
-                                          colData = f.df,
-                                          design = ~f)
-    # hmcol <- brewer.pal(11,'RdBu')
-    # nCounts <- assay(vst(dds,blind=T))   # Estimate Dispersion Trend + Variance Stabilizing Transformation
-    nCounts <- assay(normTransform(dds))   # normalizing counts
-    
-    res.df <- de_no_filt()
-    p_val <- input$p_val
-    fc <- input$fc
-    rep_number <- input$n_rep
-    if(!is.null(res.df) ){
-      res.df.filt <- de_filt(res.df, p_val,fc,rep_number)   # filter with p_val
-      nCounts_de <- nCounts[rownames(nCounts)%in%res.df.filt$Gene,]
-      # nCounts_scaled <- 
-      colors <- colorRamp2(c(min(nCounts_de), median(nCounts_de), max(nCounts_de)), 
-                           c("red", "black", "green"))   # circilized package
-      print("from heat map")
-      print("if n_counts de are correct")
-      print(all(rownames(nCounts_de)%in%res.df.filt$Gene))
-      
-      p <- Heatmap(nCounts_de, name = "normTransform counts", clustering_distance_rows = "pearson",
-                   col = colors, clustering_method_rows = "ward.D",
-                   top_annotation_height = unit(4, "mm"), cluster_rows = T,cluster_columns = F,
-                   width=unit(6,"cm"),show_row_names = FALSE, show_column_names = T,row_dend_reorder = T)
-      # heatmap(as.matrix(nCounts[res.df.filt$Gene,]), Rowv = NA, col = hmcol, mar = c(10,2))
-    } else {
-      p <- NULL
-    }
-    return(p)
-  })
   
-  output$heatmap_plot <- renderPlot({
-    heatmap_plot()
-  })
+  
   
   ########## download buttons ###########
   output$download_de_table <- downloadHandler(
@@ -1793,28 +1815,29 @@ server <- function(input,output,session){
   ######### heatmap ##########
   ############################
   
-  output$expand_genonames <- renderUI({
-    type <- input$file_type
-    if(type=='norm'){
-      DS <- df_shiny()
-    }else if(type=='raw'){
-      DS <- df_raw_shiny()
-    }
-    if(ncol(DS)==input$numOfGeno){
-      lapply(1:input$numOfGeno, function(i) {
-        textInput(paste('type',i,sep=""), paste('Type',i,sep=" "),value = colnames(DS)[i])
-      })
-    }else{
-      lapply(1:input$numOfGeno, function(i) {
-        textInput(paste('type',i,sep=""), paste('Type',i,sep=" "))
-      })
-    }
-  })
-  
-  output$refGeno <- renderUI({
-    selectInput('heatmap_anchor',"Reference genotype",choices=c(1:input$numOfGeno))
-  })
-  
+  ####### heatmap renderUI commented ######### 
+  # output$expand_genonames <- renderUI({
+  #   type <- input$file_type
+  #   if(type=='norm'){
+  #     DS <- df_shiny()
+  #   }else if(type=='raw'){
+  #     DS <- df_raw_shiny()
+  #   }
+  #   if(ncol(DS)==input$numOfGeno){
+  #     lapply(1:input$numOfGeno, function(i) {
+  #       textInput(paste('type',i,sep=""), paste('Type',i,sep=" "),value = colnames(DS)[i])
+  #     })
+  #   }else{
+  #     lapply(1:input$numOfGeno, function(i) {
+  #       textInput(paste('type',i,sep=""), paste('Type',i,sep=" "))
+  #     })
+  #   }
+  # })
+  # 
+  # output$refGeno <- renderUI({
+  #   selectInput('heatmap_anchor',"Reference genotype",choices=c(1:input$numOfGeno))
+  # })
+  # 
   output$heatmap_display <- renderUI({
     display <- "ALL"
     for (i in 1:input$numOfCluster){
@@ -1822,6 +1845,7 @@ server <- function(input,output,session){
     }
     selectInput('display_cluster',"Display cluster",choices=display)
   })
+  ################
   
   setOneWithinFold <- function(arr){ #logFC
     fold <- as.numeric(input$fold)
@@ -1836,140 +1860,72 @@ server <- function(input,output,session){
   plotHeatmap <- eventReactive(input$heatmap_plot, {#process and return data 
     type <- input$file_type
     value <- input$heatmap_value
+    de_type <- input$heatmap_de_ind
+      
     if(type=='norm'){
       DS <- df_shiny()
     }else if(type=='raw'){
       DS <- df_raw_shiny()
     }
     names <- NULL
-    for(i in 1:input$numOfGeno){
-      id <- paste('type',i,sep="")
-      names <- c(names,input[[id]])
-    }
-    DS2 <- NULL
-    numOfGeno <- as.numeric(input$numOfGeno)
-    ref <- as.numeric(input$heatmap_anchor)
-    clusterNum <- as.numeric(input$numOfCluster)
-    if(numOfGeno==ncol(DS)){
-      DS2 <- DS
-    }else{
-      cols <- ncol(DS)/numOfGeno
-      for(j in 1:numOfGeno){
-        temp <- as.matrix(rowMeans(DS[,((j-1)*cols+1):(j*cols)])) 
-        DS2 <- cbind(DS2,temp)
-      } 
-    }
-    for (i in 1:ncol(DS2)) {  #remove all rows with a single 0, in case it is used as denominator
-      DS2 <- DS2[which(DS2[,i] != 0),]
-      DS2 <- na.omit(DS2)
-    }
-    DS2.1 <- DS2/DS2[,ref] 
-    colnames(DS2) <- names
-    colnames(DS2.1) <- names
+    # for(i in 1:input$numOfGeno){
+    #   id <- paste('type',i,sep="")
+    #   names <- c(names,input[[id]])
+    # }
     
-    DS3 <- apply(DS2.1,2,setOneWithinFold)
-    DS3 <- DS3[rowSums(DS3) != ncol(DS3), ]#remove rows with all 1s (1 fold, neither up or down regulated)
+    # numOfGeno <- input$numOfGeno
+    # ref <- as.numeric(input$heatmap_anchor)
+    clusterNum <- input$numOfCluster
     
-    set.seed(110) 
-    
-    if(value=='Log fold change'){
-      DS3 <- log2(DS3) #logFC(2 base)  log1=0
-      a <- ComplexHeatmap::Heatmap(DS3[,-ref], 
-                                   col = colorRamp2(c(min(DS3),0,max(DS3)), c("green4","snow", "red")),
-                                   row_names_gp = gpar(fontsize = 1), 
-                                   row_dend_gp = gpar(fontsize = 1),
-                                   row_title_gp = gpar(fontsize = 10),
-                                   cluster_columns = FALSE,
-                                   row_dend_width = unit(3, "cm"),
-                                   km = clusterNum,                       
-                                   show_heatmap_legend = TRUE,
-                                   heatmap_legend_param = list(title = "log fold change") 
-      )
-    }else if(value=='Fold change'){
-      a <- ComplexHeatmap::Heatmap(DS3[,-ref], 
-                                   col = colorRamp2(c(min(DS3),1,max(DS3)), c("green4","snow", "red")),
-                                   row_names_gp = gpar(fontsize = 1), 
-                                   row_dend_gp = gpar(fontsize = 1),
-                                   row_title_gp = gpar(fontsize = 10),
-                                   cluster_columns = FALSE,
-                                   row_dend_width = unit(3, "cm"),
-                                   km = clusterNum,                       
-                                   show_heatmap_legend = TRUE,
-                                   heatmap_legend_param = list(title = "fold change")
-      )
+    if(de_type == "ind"){
+      fold <- as.numeric(input$fold)
+      fold_ncol <- input$fold_ncol
+      DS2 <- deWithoutStats(DS, FC=fold, n_col=fold_ncol)
+      de_genes <- rownames(DS2)
+      print("from heatmap de YT version")
+      print("de genes")
+      print(head(de_genes))
+      print(paste(length(de_genes),"genes"))
+      
+    } else if(de_type == "de"){
+      res.df <- de_no_filt()
+      p_val <- input$p_val
+      fc <- input$fc
+      rep_number <- input$n_rep
+      res.df.filt <- de_filt(res.df, p_val,fc,rep_number) 
+      de_genes <- res.df.filt$Gene
+      print("from line 1894 - heatmap de type")
+      print("res.df.filt")
+      print(head(res.df.filt))
     }
+      
+    de_genes_exp <- DS[rownames(DS)%in%de_genes,]
+    DS3 <- t(apply(de_genes_exp,1, scale))
+    colnames(DS3) <- colnames(DS)
+    print("from line 1894 - heatmap de type")
+    print("DS3")
+    print(head(DS3))
     
-    return (a)
+    set.seed(110)
+    a <- ComplexHeatmap::Heatmap(DS3, name="Normalized expression",
+                                 col = colorRamp2(c(min(DS3),0,max(DS3)), c("red","black", "green")),
+                                 row_names_gp = gpar(fontsize = 1), 
+                                 row_dend_gp = gpar(fontsize = 1),
+                                 row_title_gp = gpar(fontsize = 10),
+                                 cluster_columns = FALSE,
+                                 row_dend_width = unit(3, "cm"),
+                                 split = clusterNum, clustering_distance_rows = "pearson",                       
+                                 show_heatmap_legend = TRUE,
+                                 show_row_names = FALSE, show_column_names = T,
+                                 heatmap_legend_param = list(title = "Normalized expression") )
+    
+    
+    return (list(a,DS3))
   })
   
   getCluster <- eventReactive(input$heatmap_plot,{
-    type <- input$file_type
-    value <- input$heatmap_value
-    if(type=='norm'){
-      DS <- df_shiny()
-    }else if(type=='raw'){
-      DS <- df_raw_shiny()
-    }
-    names <- NULL
-    for(i in 1:input$numOfGeno){
-      id <- paste('type',i,sep="")
-      names <- c(names,input[[id]])
-    }
-    DS2 <- NULL
-    numOfGeno <- as.numeric(input$numOfGeno)
-    ref <- as.numeric(input$heatmap_anchor)
-    clusterNum <- as.numeric(input$numOfCluster)
-    if(numOfGeno==ncol(DS)){
-      DS2 <- DS
-    }else{
-      cols <- ncol(DS)/numOfGeno
-      for(j in 1:numOfGeno){
-        temp <- as.matrix(rowMeans(DS[,((j-1)*cols+1):(j*cols)])) 
-        DS2 <- cbind(DS2,temp)
-      } 
-    }
-    #remove all rows with a single 0, in case it is used as denominator
-    for (i in 1:ncol(DS2)) {  
-      DS2 <- DS2[which(DS2[,i] != 0),]
-      DS2 <- na.omit(DS2)
-    }
-    
-    DS2.1 <- DS2/DS2[,ref] 
-    colnames(DS2) <- names
-    colnames(DS2.1) <- names
-    
-    DS3 <- apply(DS2.1,2,setOneWithinFold)
-    #remove rows with all 1s (1 fold, neither up or down regulated)
-    DS3 <- DS3[rowSums(DS3) != ncol(DS3), ]
-    
     set.seed(110) 
-    
-    if(value=='Log fold change'){
-      DS3 <- log2(DS3) #logFC(2 base)  log1=0
-      a <- ComplexHeatmap::Heatmap(DS3[,-ref], 
-                                   col = colorRamp2(c(min(DS3),0,max(DS3)), c("green4","snow", "red")),
-                                   row_names_gp = gpar(fontsize = 1), 
-                                   row_dend_gp = gpar(fontsize = 1),
-                                   row_title_gp = gpar(fontsize = 10),
-                                   cluster_columns = FALSE,
-                                   row_dend_width = unit(3, "cm"),
-                                   km = clusterNum,                       
-                                   show_heatmap_legend = TRUE,
-                                   heatmap_legend_param = list(title = "log fold change") 
-      )
-    }else if(value=='Fold change'){
-      a <- ComplexHeatmap::Heatmap(DS3[,-ref], 
-                                   col = colorRamp2(c(min(DS3),1,max(DS3)), c("green4","snow", "red")),
-                                   row_names_gp = gpar(fontsize = 1), 
-                                   row_dend_gp = gpar(fontsize = 1),
-                                   row_title_gp = gpar(fontsize = 10),
-                                   cluster_columns = FALSE,
-                                   row_dend_width = unit(3, "cm"),
-                                   km = clusterNum,                       
-                                   show_heatmap_legend = TRUE,
-                                   heatmap_legend_param = list(title = "fold change")
-      )
-    }
+    ll <- plotHeatmap(); a <- ll[[1]]; DS3 <- ll[[2]]
     rcl.list <- row_order(a)
     DS3.1 <- as.matrix(rownames(DS3))
     
@@ -1987,7 +1943,7 @@ server <- function(input,output,session){
   })
   
   mapPlot <- function(){
-    myHeatmap <- plotHeatmap()
+    myHeatmap <- plotHeatmap()[[1]]
     myHeatmap <- draw(myHeatmap)
   }
   

@@ -180,6 +180,8 @@ noiseqsimFilter <- function(mynoiseq, FC=2){
 
 # fold change between any 2 columns, no statistics involved
 deWithoutStats <- function(DS, FC=2, n_col=1){
+  if (n_col < 2) n_col <- 2
+  if (n_col > ncol(DS) ) n_col <- ncol(DS)-1
   keep <- apply(DS, 1, function(row) all(row > 0 ))   # all values must be > 0
   DS <- DS[keep,]
   fcmatrix <- DS; fcmatrix[,]=0; # rownames(fcmatrix) <- rownames(DS)
