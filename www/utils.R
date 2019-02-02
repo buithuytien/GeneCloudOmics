@@ -113,8 +113,8 @@ deseqApply <- function(DS,f.df,W_1=NULL,f1,f2) {
   # print("W_1"); print(W_1)
   # print("dds.DE") ;print(head(ddsDE))
   res <- results(ddsDE,contrast=c("f",f2,f1))
-  print("from deseqApply"); 
-  print(res)
+  # print("from deseqApply"); 
+  # print(res)
   return(res)
 }
 

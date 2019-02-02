@@ -1,6 +1,10 @@
 #Sys.setenv("plotly_username"=" your_plotly_username")
 #Sys.setenv("plotly_api_key"="your_api_key")
 ## test repo
+
+print("start loading")
+start.load <- Sys.time()   ### time
+
 if(length(find.package(package = 'shiny',quiet = T))>0){
   library(shiny)
 }else{
@@ -40,7 +44,9 @@ species.choices <<- c("Homo sapiens"='org.Hs.eg.db',"Mus musculus"='org.Mm.eg.db
 DBS <<- list('org.Hs.eg.db'=org.Hs.eg.db,'org.Mm.eg.db'=org.Mm.eg.db,'org.Rn.eg.db'=org.Rn.eg.db,"org.Gg.eg.db"=org.Gg.eg.db,"org.Dr.eg.db"=org.Dr.eg.db,"org.Dm.eg.db"=org.Dm.eg.db,"org.Ce.eg.db"=org.Ce.eg.db,"org.Sc.sgd.db"=org.Sc.sgd.db,"org.At.tair.db"=org.At.tair.db,"org.EcK12.eg.db"=org.EcK12.eg.db,"org.EcSakai.eg.db"=org.EcSakai.eg.db,"org.Ag.eg.db"=org.Ag.eg.db,"org.Bt.eg.db"=org.Bt.eg.db,"org.Cf.eg.db"=org.Cf.eg.db,"org.Mmu.eg.db"=org.Mmu.eg.db,"org.Pf.plasmo.db"=org.Pf.plasmo.db,"org.Pt.eg.db"=org.Pt.eg.db,"org.Ss.eg.db"=org.Ss.eg.db,"org.Xl.eg.db"=org.Xl.eg.db)
 enrichRdbs <- as.character(read.csv(paste0(wd,"/www/enrichRdbs.csv"))[,1])
 
-
+end.load <- Sys.time()
+print("loading time")
+print(end.load-start.load)
 ##### UI from here ###########
 ui <- navbarPage(id = "navbar",
   theme = shinytheme("flatly"),
@@ -52,23 +58,23 @@ ui <- navbarPage(id = "navbar",
                           c('Raw file (read count)'='raw','Normalised file'='norm')),
              conditionalPanel(
                condition = "input.file_type=='raw'",  # raw
-               p("Example ",a("here", href="https://www.dropbox.com/s/31k9x6e3xqszny7/zfGenes.csv?dl=0")),  # ADD EXAMPLE
+               p("Example ",a("here", href="https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png")),  # ADD EXAMPLE
                fileInput('file1','Choose Raw Counts'),
                # radioButtons('norm_method',"Normalisation method",
                #              c('RPKM','FPKM','TPM')),
-               p("Example ",a("here", href = "https://www.dropbox.com/s/8t9nuw3xgm2f6os/ecoli_len.csv?dl=0")),  # ADD EXAMPLE
+               p("Example ",a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_gene_length.png")),  # ADD EXAMPLE
                fileInput('length1','Choose Gene Length'), #gene id + length
-               p("Example ",a("here", href = "https://www.dropbox.com/s/d5oab0prm7xm25o/zfGenes_spikes.csv?dl=0")),  # ADD EXAMPLE
+               p("Example ",a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_negative_control_genes.png")),  # ADD EXAMPLE
                fileInput('spikes1','Choose Negative Control Genes')
                # helpText("* Format requirement: CSV file. The first column contains gene names; the read counts of each genotype (conditions: wildtype, mutants, replicates, etc.) are in the following columns.Each genotype column should have a column name. ")
              ),
              conditionalPanel(
                condition = "input.file_type=='norm'", # normalized
-               p("Example here"),  # ADD EXAMPLE
+               p("Example ",a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_normalised.png")),  # ADD EXAMPLE
                fileInput('file2','Choose Normalized Expression')
                # helpText("* Format requirement: CSV file. Gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database.")
              ),
-             p("Example ",a("here", href="https://www.dropbox.com/s/u4whlck6jzc15vr/zfGenes_ref.csv?dl=0")),  # ADD EXAMPLE
+             p("Example ",a("here", href="https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png")),  # ADD EXAMPLE
              fileInput('metafile1','Choose Meta Data File'),
              actionButton("submit_input","Submit")
            ),
@@ -468,7 +474,7 @@ ui <- navbarPage(id = "navbar",
                condition = "input.go_tab == 'go_table' ",
                fileInput("filego","Upload list of DE genes"),
                fileInput("filebg","List of background genes"),
-               selectInput("go_method","Select GO package", choices = c("enrichR","clusterProfiler","GOstats")), #new
+               selectInput("go_method","Select GO package", choices = c("clusterProfiler","GOstats","enrichR")), #new
                conditionalPanel(
                  condition = "input.go_method=='clusterProfiler' || input.go_method=='GOstats'",
                  # update if enrichR
@@ -647,7 +653,7 @@ server <- function(input,output,session){
     if( any(input.null) ){
       index.null <- which(input.null)
       errors <- paste(names(input.null)[index.null],collapse = ', ')
-      print(errors)
+      # print(errors)
       showModal(modalDialog(
         type = "Error",
         paste("Please check these input:",errors,"and try again!")
@@ -1018,6 +1024,7 @@ server <- function(input,output,session){
   })
   
   output$RLE.plot2 <- renderPlot({   # for raw data
+    start.rle <- Sys.time()
     type <- input$file_type
     if(type=='norm'){
       raw_DS <- df_shiny()
@@ -1029,6 +1036,9 @@ server <- function(input,output,session){
     set1 <- newSeqExpressionSet(as.matrix(raw_DS))
     if(input$submit_preprocessing != 0)
       plotRLE(set1, ylim=c(-2.5,2.5),outline=FALSE, main=main_title)
+    end.rle <- Sys.time()
+    print("time for RLE plot and preprocessing")
+    print(end.rle - start.rle) 
   })
   
   
@@ -1219,6 +1229,7 @@ server <- function(input,output,session){
   })
   
   distaic <- reactive({
+    dist.start <- Sys.time()
     DS <- distfit_df()
     AIC.df <- as.data.frame(matrix(nrow=ncol(DS),ncol=6))
     rownames(AIC.df) <- colnames(DS)
@@ -1236,6 +1247,9 @@ server <- function(input,output,session){
     for(i in 1:nrow(AIC.df)){
       AIC.df$min.AIC[i]<-colnames(AIC.df)[which.min(AIC.df[i,1:6])]
     }
+    dist.end <- Sys.time()
+    print('distribution fitting time')
+    print(dist.end - dist.start)
     return (AIC.df)
   })
   
@@ -1276,6 +1290,7 @@ server <- function(input,output,session){
   }
   
   cor_df <- reactive({
+    cor.start <- Sys.time()
     type <- input$file_type
     if(type=='norm'){
       DS <- df_shiny()
@@ -1289,6 +1304,9 @@ server <- function(input,output,session){
       Cor2 <- data.frame(COR((DS),1:length(DS),"spearman"))
     }
     Cor2 <- na.omit(Cor2)
+    cor.end <- Sys.time()
+    print("correlation time")
+    print(cor.end - cor.start)
     return (Cor2)
   })
   
@@ -1375,6 +1393,7 @@ server <- function(input,output,session){
   })
   
   plotPCA <- reactive({ #process and return data
+    pca.start <- Sys.time()
     type <- input$file_type
     if(type=='norm'){
       DS <- df_shiny()
@@ -1408,6 +1427,9 @@ server <- function(input,output,session){
       kmeans.result <- kmeans(kmeans.data,num)
       return (list(PR,PCA.var,PCA.var.per,rindex,cindex,xlabel,ylabel,cluster_flag,kmeans.result))
     }
+    pca.end <- Sys.time()
+    print("pca time")
+    print(pca.end - pca.start)
     return (list(PR,PCA.var,PCA.var.per,rindex,cindex,xlabel,ylabel,cluster_flag))
   })
   
@@ -1628,6 +1650,7 @@ server <- function(input,output,session){
   
   # all helper functions are in utils.R file
   de_no_filt<- eventReactive(input$submit_DE, {       # return as table object
+    start.de.table <- Sys.time()
     f_de <- group_names_de()  # for edgeR >> f=f_de[,1]; for the rest factors=f_de
     if(is.null(f_de) )
       return (NULL)
@@ -1647,9 +1670,9 @@ server <- function(input,output,session){
     } else{
       W_1 <- NULL
     }
-    print("from de_no_filt")
+    # print("from de_no_filt")
     # print(pData(set1))
-    print(W_1)
+    # print(W_1)
     
     if(rep_number == 1){
       de_type <- input$de_method1
@@ -1668,6 +1691,9 @@ server <- function(input,output,session){
       res <- noiseqsimApply(DS=DS_de,f = f_de,f1=f1,f2=f2)           # NOISeqbio, return NOIseq object
       res.df <- noiseqsimFilter(res, FC=fc)
     }
+    end.de.table <- Sys.time()
+    print("de table time")
+    print(end.de.table - start.de.table)
     return(res.df)
   })
   
@@ -1689,9 +1715,6 @@ server <- function(input,output,session){
   }
   
   output$DE_table <- DT::renderDataTable({
-    print("from output de table")
-    print(input$submit_DE)
-    
     res.df <- de_no_filt()
     p_val <- input$p_val
     fc <- input$fc
@@ -1704,6 +1727,7 @@ server <- function(input,output,session){
   
   ##### volcano plot ######
   volcano_plot <- eventReactive(input$submit_DE, {
+    volcano.start.time <- Sys.time()
     rep_number <- input$n_rep
     if( rep_number == 0)
       return (NULL)
@@ -1721,7 +1745,8 @@ server <- function(input,output,session){
     res <- na.omit(res)
     # plot
     ymax <- max(-log10(res$PValue)); if(ymax > 20) ymax = 20
-    print(range(res$PValue))
+    # print("from volcano plot - range(res$PValue)")
+    # print(range(res$PValue))
     with(res, plot(log2FC, -log10(PValue), pch=20, main="Volcano plot")) #xlim=c(-5,5),ylim=c(0,ymax)
     # Add colored points: red if padj<0.05, orange of log2FC>1, green if both)
     with(subset(res, FDR< p_val), points(log2FC, -log10(PValue), pch=20, col="red"))
@@ -1731,6 +1756,9 @@ server <- function(input,output,session){
            legend=c("FDR < FDR limit","FC > FC limit","Both","Other"))
     # library(calibrate)
     # with(subset(res, FDR<.05 & abs(log2FC)>1), textxy(log2FC, -log10(PValue), labs=Gene, cex=.8))
+    volcano.end.time <- Sys.time()
+    print("volcano time")
+    print(volcano.end.time - volcano.start.time)
   })
   
   output$volcano_plot <- renderPlot({
@@ -1739,6 +1767,7 @@ server <- function(input,output,session){
   
   ##### dispersion plot ######
   dispersion_plot <- eventReactive(input$submit_DE, {
+    dispersion.start.time <- Sys.time()
     f_de <- group_names_de()  # for edgeR >> f=f_de[,1]; for the rest factors=f_de
     if(is.null(f_de) )
       return (NULL)
@@ -1754,16 +1783,16 @@ server <- function(input,output,session){
     } else if(de_type == "DESeq2"){
       deseqDisp(DS_de,f_de)
     }
+    dispersion.end.time <- Sys.time()
+    print("dispersion time")
+    print(dispersion.end.time - dispersion.start.time)
   })
   
   output$dispersion_plot <- renderPlot({
     dispersion_plot()
   })
   
-  
-  
-  
-  ########## download buttons ###########
+  ########## download buttons DE analysis ###########
   output$download_de_table <- downloadHandler(
     filename = function(){
       paste0("DE analysis",".csv")
@@ -1858,6 +1887,8 @@ server <- function(input,output,session){
   }
   
   plotHeatmap <- eventReactive(input$heatmap_plot, {#process and return data 
+    heatmap.start.time <- Sys.time()
+    
     type <- input$file_type
     value <- input$heatmap_value
     de_type <- input$heatmap_de_ind
@@ -1882,29 +1913,30 @@ server <- function(input,output,session){
       fold_ncol <- input$fold_ncol
       DS2 <- deWithoutStats(DS, FC=fold, n_col=fold_ncol)
       de_genes <- rownames(DS2)
-      print("from heatmap de YT version")
-      print("de genes")
-      print(head(de_genes))
-      print(paste(length(de_genes),"genes"))
+      # print("from heatmap YT version")
+      # print("de genes")
+      # print(head(de_genes))
+      # print(paste(length(de_genes),"genes"))
       
     } else if(de_type == "de"){
       res.df <- de_no_filt()
+      if(is.null (res.df) ) return(NULL)
       p_val <- input$p_val
       fc <- input$fc
       rep_number <- input$n_rep
       res.df.filt <- de_filt(res.df, p_val,fc,rep_number) 
       de_genes <- res.df.filt$Gene
-      print("from line 1894 - heatmap de type")
-      print("res.df.filt")
-      print(head(res.df.filt))
+      # print("from line heatmap de result from DE analysis")
+      # print("res.df.filt")
+      # print(head(res.df.filt))
     }
       
     de_genes_exp <- DS[rownames(DS)%in%de_genes,]
     DS3 <- t(apply(de_genes_exp,1, scale))
     colnames(DS3) <- colnames(DS)
-    print("from line 1894 - heatmap de type")
-    print("DS3")
-    print(head(DS3))
+    # print("from line 1894 - heatmap de type")
+    # print("DS3")
+    # print(head(DS3))
     
     set.seed(110)
     a <- ComplexHeatmap::Heatmap(DS3, name="Normalized expression",
@@ -1918,12 +1950,27 @@ server <- function(input,output,session){
                                  show_heatmap_legend = TRUE,
                                  show_row_names = FALSE, show_column_names = T,
                                  heatmap_legend_param = list(title = "Normalized expression") )
+    set.seed(110)
+    rcl.list <- row_order(a)
+    DS3.1 <- as.matrix(rownames(DS3))
     
-    
-    return (list(a,DS3))
+    Cluster <- NULL
+    for(i in 1:length(rcl.list)){
+      for(j in 1:length(rcl.list[[i]])){
+        pair <- c(i,DS3.1[rcl.list[[i]][j]])
+        Cluster <- rbind(Cluster,pair)
+      }
+    }
+    Cluster <- data.frame(Cluster,row.names = NULL)
+    colnames(Cluster) <- c("cluster","gene.id")
+    # end heat map analysis
+    heatmap.end.time <- Sys.time()
+    print("heat map time")
+    print(heatmap.end.time - heatmap.start.time)
+    return (list(a,DS3,Cluster))
   })
   
-  getCluster <- eventReactive(input$heatmap_plot,{
+  getCluster <- eventReactive(input$heatmap_plot, {
     set.seed(110) 
     ll <- plotHeatmap(); a <- ll[[1]]; DS3 <- ll[[2]]
     rcl.list <- row_order(a)
@@ -1965,12 +2012,14 @@ server <- function(input,output,session){
   
   output$cluster.info <- DT::renderDataTable({
     clusternum <- input$display_cluster
-    gl <- getCluster()
-    if(clusternum=="ALL"){
-      gl
-    }else{
-      clusternum <- as.numeric(clusternum)
-      dplyr::filter(gl,cluster==clusternum)
+    gl <- plotHeatmap()[[3]]  #getCluster()
+    if(! is.null(gl) ) {
+      if(clusternum=="ALL"){
+        gl
+      }else{
+        clusternum <- as.numeric(clusternum)
+        dplyr::filter(gl,cluster==clusternum)
+      }
     }
   })
   
@@ -1979,7 +2028,8 @@ server <- function(input,output,session){
       paste("genelist",".csv",sep="")
     },
     content = function(file){
-      write.csv(getCluster(),file, row.names = FALSE)
+      gl <- plotHeatmap()[[3]]
+      write.csv(gl,file, row.names = FALSE)
     }
   )
   
@@ -2036,6 +2086,7 @@ server <- function(input,output,session){
   })
   
   noisePlot <- eventReactive(input$noise_plot, {
+    noise.start.time <- Sys.time()
     type <- input$file_type
     if(type=='norm'){
       DS <- df_shiny()
@@ -2147,6 +2198,9 @@ server <- function(input,output,session){
         ) %>% layout(xaxis = xform,yaxis=list(range = c(0, max(Noise)+0.001)))
       }
     }
+    noise.end.time <- Sys.time()
+    print("noise time")
+    print(noise.end.time - noise.start.time)
     return (p)
   })
   
@@ -2197,6 +2251,7 @@ server <- function(input,output,session){
   })
   
   entropyPlot <- reactive({
+    entropy.start.time <- Sys.time()
     type <- input$file_type
     if(type=='norm'){
       DS <- df_shiny()
@@ -2259,6 +2314,9 @@ server <- function(input,output,session){
           p <- layout(p,xaxis = list(title = 'Time'),yaxis=list(title='Entropy'))
         }
       }
+      entropy.end.time <- Sys.time()
+      print("entropy time")
+      print(entropy.end.time - entropy.start.time)
       return (p)
     }
   })
@@ -2282,6 +2340,7 @@ server <- function(input,output,session){
   ############################
   
   go_res <- eventReactive(input$submit_go, {
+    go.start <- Sys.time()
     genes <- gene_list()
     if(is.null(genes)){
       return (NULL)
@@ -2306,6 +2365,10 @@ server <- function(input,output,session){
     }
     min_no <- input$go_min_no
     res_filt <- filter(res, Count>=min_no)
+    
+    go.end <- Sys.time()
+    print("Go time")
+    print(go.end - go.start)
     return(res)   # no filter by min counts in each go term
   })
   
@@ -2320,14 +2383,14 @@ server <- function(input,output,session){
     go_method <- input$go_method
     go_terms <- input$go_term_slect
     res <- go_res()
-    print("from goList")
-    print(go_method)
-    print(head(res))
+    # print("from goList")
+    # print(go_method)
+    # print(head(res))
     
     if(go_method=="clusterProfiler" & !is.null(res) ){
       res_filt <- res[res$Description%in%go_terms,]
       go_list <- goToList(res_filt)
-      print(head(go_list)) ##
+      # print(head(go_list)) ##
       return(go_list)
     } else {
       return(NULL)
