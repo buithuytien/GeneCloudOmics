@@ -105,10 +105,23 @@ ui <- navbarPage(id = "navbar",
            mainPanel(
              tabsetPanel(type = "tabs",id="preprocessing_tabs",
                          tabPanel("RLE plot",
-                                  plotOutput("RLE.plot2"),
+                                  conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                   div(img(src="load.gif",width=240,height=180),
+                                                       h4("Processing ... Please wait"),style="text-align: center;")
+                                  ), 
+                                  conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                   plotOutput("RLE.plot2")
+                                  ),
+                                  
                                   conditionalPanel(
                                     condition = "input.file_type=='raw'",
-                                    plotOutput("RLE.plot")
+                                    conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                     div(img(src="load.gif",width=240,height=180),
+                                                         h4("Processing ... Please wait"),style="text-align: center;")
+                                    ), 
+                                    conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                     plotOutput("RLE.plot")
+                                    )
                                   )
                          ),
                          tabPanel("Data table",
@@ -290,11 +303,11 @@ ui <- navbarPage(id = "navbar",
                       conditionalPanel(
                         condition = "input.DE_tabs=='Dispersion plot' ",
                         downloadButton("download_dispersion","Download plot")
-                      ),
-                      conditionalPanel(
-                        condition = "input.DE_tabs=='Heatmap plot' ",
-                        downloadButton("download_heatmap","Download plot")
                       )
+                      # conditionalPanel(
+                      #   condition = "input.DE_tabs=='Heatmap plot' ",
+                      #   downloadButton("download_heatmap","Download plot")
+                      # )
                )
              )
              
@@ -1072,6 +1085,7 @@ server <- function(input,output,session){
   ############################
   
   plotScatter <- reactive({
+    scatter.start <- Sys.time()
     trans <- input$trans
     x <- input$scatter.x
     y <- input$scatter.y
@@ -1090,6 +1104,9 @@ server <- function(input,output,session){
     }else if(trans=='log10'){
       scatter.data <- log10(DS+1)
     }
+    scatter.end <- Sys.time()
+    print("Scatter plot time")
+    print(scatter.end - scatter.start)
     return (list(x,y,scatter.data))
   })
   
@@ -1172,6 +1189,7 @@ server <- function(input,output,session){
   })
   
   plotDist <- reactive({
+    dist.start <- Sys.time()
     dis <- input$distributions
     var <- input$dist.var
     DS <- distfit_df()
@@ -1220,6 +1238,9 @@ server <- function(input,output,session){
       distrs <- c(distrs,"Gamma")
       numcol[6]=1
     }
+    dist.end <- Sys.time()
+    print("Distribution fitting time")
+    print(dist.end - dist.start)
     return (list(fits,distrs,numcol,var,fit_range))
     
   })
@@ -1829,16 +1850,16 @@ server <- function(input,output,session){
     }
   )
   
-  output$download_heatmap <- downloadHandler(
-    filename = function(){
-      paste0("Heatmap",".pdf")
-    },
-    content = function(file) {
-      pdf(file)
-      print(heatmap_plot())
-      dev.off()
-    }
-  )
+  # output$download_heatmap <- downloadHandler(
+  #   filename = function(){
+  #     paste0("Heatmap",".pdf")
+  #   },
+  #   content = function(file) {
+  #     pdf(file)
+  #     print(heatmap_plot())
+  #     dev.off()
+  #   }
+  # )
   
   ############################
   ######### heatmap ##########
