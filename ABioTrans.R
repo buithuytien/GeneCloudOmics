@@ -531,7 +531,13 @@ ui <- navbarPage(id = "navbar",
            mainPanel(
              tabsetPanel(type = "tabs", id = "go_tab",
                          tabPanel("go_table",
-                                  DT::dataTableOutput("go_table") 
+                                  conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                   div(img(src="load.gif",width=240,height=180),
+                                                       h4("Processing ... Please wait"),style="text-align: center;")
+                                  ), 
+                                  conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                   DT::dataTableOutput("go_table")
+                                  )
                          ),
                          tabPanel("go_graph",
                                   h6("Graph visualization is only available for clusterProfiler method"),
