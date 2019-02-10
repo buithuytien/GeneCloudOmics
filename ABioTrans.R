@@ -100,7 +100,13 @@ ui <- navbarPage(id = "navbar",
                               'TPM (Dark green)'='TPM',
                               "RUV (Brown)"='RUV'))
              ),
-             actionButton("submit_preprocessing","Submit")
+             actionButton("submit_preprocessing","Submit"),
+             conditionalPanel(
+               condition = "input.preprocessing_tabs == 'Data table' ",
+               br(),
+               br(),
+               downloadButton("download_norm_data", "Download table (csv)")
+             )
            ),
            mainPanel(
              tabsetPanel(type = "tabs",id="preprocessing_tabs",
@@ -294,15 +300,15 @@ ui <- navbarPage(id = "navbar",
                column(6,
                       conditionalPanel(
                         condition = "input.DE_tabs=='DE genes' ",
-                        downloadButton("download_de_table","Download table")
+                        downloadButton("download_de_table","Download table (csv)")
                       ),
                       conditionalPanel(
                         condition = "input.DE_tabs=='Volcano plot' ",
-                        downloadButton("download_volcano","Download plot")
+                        downloadButton("download_volcano","Download plot (PDF)")
                       ),
                       conditionalPanel(
                         condition = "input.DE_tabs=='Dispersion plot' ",
-                        downloadButton("download_dispersion","Download plot")
+                        downloadButton("download_dispersion","Download plot (PDF)")
                       )
                       # conditionalPanel(
                       #   condition = "input.DE_tabs=='Heatmap plot' ",
@@ -485,6 +491,7 @@ ui <- navbarPage(id = "navbar",
            sidebarPanel(
              conditionalPanel(
                condition = "input.go_tab == 'go_table' ",
+               helpText("* One-column csv file"),
                fileInput("filego","Upload list of DE genes"),
                fileInput("filebg","List of background genes"),
                selectInput("go_method","Select GO package", choices = c("clusterProfiler","GOstats","enrichR")), #new
@@ -633,11 +640,15 @@ server <- function(input,output,session){
     if( ! is.null (dbs)){
       id_choices <- AnnotationDbi::keytypes(dbs)
       slt <- input$go_geneidtype
+      if (! slt %in% id_choices ){
+        slt = id_choices[1]
+      }
       updateSelectInput(session,"go_geneidtype", choices=id_choices, selected = slt)
     } else{
       id_choices <- NULL
       updateSelectInput(session,"go_geneidtype", choices=id_choices)
     }
+    
     # go terms on GO graph
     go_method <- input$go_method
     res <- go_res()
@@ -898,14 +909,20 @@ server <- function(input,output,session){
       return (NULL)
     }
     ds <- read.csv(input$filego$datapath,header=FALSE)
-    if(ncol(ds)!=1){
+    if(ncol(ds) > 1){
+      col1 <- ds[-1,1]
+    } else if( ncol(ds) == 1){
+      col1 <- ds[,1]
+    } else {
       showModal(modalDialog(
         title = "Error",
-        "Please check required data format and try again!"
+        "No data found! Please check required data format and try again!"
       ))
       return (NULL)
     }
-    gene_list <- as.character(ds[,1])
+    gene_list <- as.character(col1)
+    print("gene list from gene_list")
+    print(head(gene_list))
     return(gene_list)
   })
   
@@ -922,14 +939,18 @@ server <- function(input,output,session){
       return (NULL)
     }
     ds <- read.csv(input$filebg$datapath,header=FALSE)
-    if(ncol(ds)!=1){
+    if(ncol(ds) > 1){
+      col1 <- ds[-1,1]
+    } else if( ncol(ds) == 1){
+      col1 <- ds[,1]
+    } else {
       showModal(modalDialog(
         title = "Error",
-        "Please check required data format and try again!"
+        "No data found! Please check required data format and try again!"
       ))
       return (NULL)
     }
-    bg_list <- as.character(ds[,1])
+    bg_list <- as.character(col1)
     return(bg_list)
   })
   
@@ -967,10 +988,18 @@ server <- function(input,output,session){
     if(method%in% c("TPM","RPKM","FPKM")){
       lengths_df <- gene_length()
       merge_DS <- merge(raw_DS,lengths_df,by="row.names")
-      rownames(merge_DS) <- merge_DS[,1];merge_DS <- merge_DS[,-1]; 
+      rownames(merge_DS) <- merge_DS[,1]; merge_DS <- merge_DS[,-1]; 
       raw_DS <- merge_DS[,-ncol(merge_DS)]
       lengths <- merge_DS[,ncol(merge_DS)]
+      # print("length")
+      # print(head(merge_DS))
     }
+    # print("from line 981 df_raw_shiny")
+    # print(method)
+    # print("raw_DS")
+    # print(head(raw_DS[,1:4]))
+    # print("dimension of raw_DS")
+    # print(dim(raw_DS))
     
     if(method=='TPM'){
       tpm.matrix<- apply(raw_DS, 2, function(x) tpm(x, lengths))
@@ -1085,6 +1114,22 @@ server <- function(input,output,session){
       meta_df
     }
   })
+  
+  output$download_norm_data <- downloadHandler(
+    filename = function(){
+      method <- input$norm_method
+      paste(method,"normalized.csv")
+    },
+    content = function(file){
+      type <- input$file_type
+      if(type=='norm'){
+        DS <- df_shiny()
+      }else if(type=='raw'){
+        DS <- df_raw_shiny()
+      }
+      write.csv(DS, file, row.names = F)
+    }
+  )
   
   ############################
   ######## scatter ###########
@@ -2370,6 +2415,9 @@ server <- function(input,output,session){
     go.start <- Sys.time()
     genes <- gene_list()
     if(is.null(genes)){
+      showModal(modalDialog(
+        title = "Error","Please check your input DE genes!"
+      ))
       return (NULL)
     }
     go_method <- input$go_method
@@ -2380,18 +2428,41 @@ server <- function(input,output,session){
       ont <- input$subontology
       bg <- bg_list()
       if(go_method == "clusterProfiler"){
+        temp <- goPrep(fg=genes,bg=bg,keyType=keyType,orgDb=orgDb) # list(fg_mapped, bg_mapped, fg_unmapped)
+        if(is.null (temp) )
+          return(NULL)
         res <- enrichgoApply(gene_list=genes, keyType, orgDb,ont=ont)
       } else if(go_method == "GOstats"){
         temp <- goPrep(fg=genes,bg=bg,keyType=keyType,orgDb=orgDb) # list(fg_mapped, bg_mapped, fg_unmapped)
+        if(is.null (temp) )
+          return(NULL)
         fg_mapped <- temp[[1]] ; bg_mapped <- temp[[2]]
-        res <- gostatsApply(fg_mapped, bg_mapped, keyType, orgDb, ont=ont)
+        if(dbs_name == "org.Sc.sgd.db"){
+          primary_id <-  "ORF"
+        } else if(dbs_name == "org.At.tair.db"){
+          primary_id <- "TAIR"
+        } else{
+          primary_id <- "ENTREZID"
+        }
+        res <- gostatsApply(fg_mapped, bg_mapped, keyType, orgDb, ont=ont,primary_id=primary_id)
       }
     } else if(go_method == "enrichR"){
+      if (!havingIP()){
+        showModal(modalDialog(
+          title = "Error","enrichR requires internet connection. Please check your internet connection and try again!"
+        ))
+        return(NULL)
+      }
       dbs <- input$enrichR_dbs
       res <- enrichrApply(genes,dbs)
+      if (nrow(res) == 0){
+        showModal(modalDialog(
+          title = "Warning","No term matched! Please ensure all input DE genes are in SYMBOL format!"
+        ))
+      }
     }
-    min_no <- input$go_min_no
-    res_filt <- filter(res, Count>=min_no)
+    # min_no <- input$go_min_no
+    # res_filt <- filter(res, Count>=min_no)
     
     go.end <- Sys.time()
     print("Go time")
@@ -2401,9 +2472,11 @@ server <- function(input,output,session){
   
   output$go_table <- DT::renderDataTable({
     res <- go_res()
-    min_no <- input$go_min_no
-    res_filt <- filter(res, Count>=min_no)   # filter by gene counts in go terms
-    res_filt
+    if(! is.null (res)){
+      min_no <- input$go_min_no
+      res_filt <- filter(res, Count>=min_no)   # filter by gene counts in go terms
+      res_filt
+    }
   })
   
   goList <- eventReactive(input$submit_go_graph, {

@@ -238,6 +238,13 @@ goPrep <- function(fg,bg,keyType,orgDb){
   # keyType = "ENTREZID", "SYMBOL", etc...
   all_genes <- keys(orgDb, keytype = keyType)
   # all_genes_entrez <- keys(orgDb, keytype = "ENTREZID")
+  if(! any(fg %in% all_genes)){
+    showModal(modalDialog(
+      title = "Error","Input DE genes and identifier not matched. Please re-select the identifier and try again!"
+    ))
+    return (NULL)
+  }
+  
   if(is.null(bg)){
     bg_mapped <- all_genes
   } else{
@@ -271,11 +278,14 @@ enrichgoApply <- function(gene_list, keyType, orgDb,ont="BP",simpl=F,pvalueCutof
   return(as.data.frame(ego)) # have Count
 }
 
-gostatsApply <- function(fg_mapped,bg_mapped,keyType,orgDb,ont="BP",pvalueCutoff=0.01){
-  if(keyType != "ENTREZID"){
-    bg_mapped <- mapIds(orgDb,bg_mapped,"ENTREZID",keyType)
+gostatsApply <- function(fg_mapped,bg_mapped,keyType,orgDb,ont="BP",primary_id="ENTREZID",pvalueCutoff=0.01){
+  # bg_mapped = background genes
+  # fg_mapped = foreground genes
+ 
+  if(keyType != primary_id){
+    bg_mapped <- mapIds(orgDb,bg_mapped,primary_id,keyType)
     bg_mapped <- bg_mapped[!is.na(bg_mapped)]
-    fg_mapped <- mapIds(orgDb,fg_mapped,"ENTREZID",keyType)
+    fg_mapped <- mapIds(orgDb,fg_mapped,primary_id,keyType)
     fg_mapped <- fg_mapped[!is.na(fg_mapped)]
   }
   
@@ -328,7 +338,7 @@ graphGene <- function(geneSets,group.name){
   V(g)$size[1:n] <- size
   
   igraph::V(g)$color <- "#B3B3B3"  # gene nodes color
-  igraph::V(g)$color[1:n] <- distinctColorPalette(n)  # "#E5C494"  # bio process color
+  igraph::V(g)$color[1:n] <- makeColorBrewer(n) # distinctColorPalette(n)  # "#E5C494"  # bio process color
   if(n == 1) {igraph::V(g)$color[1] <- "#E5C494"}
   
   hubs <- V(g)$name[1:n]   #names(geneSets); 
@@ -355,6 +365,19 @@ graphGene <- function(geneSets,group.name){
   return(p)
 }
 
+makeColorBrewer <- function(n,name = "Set3"){
+  require(RColorBrewer)
+  max_n <- brewer.pal.info[rownames(brewer.pal.info)==name,"maxcolors"]
+  if (n <= max_n){
+    cols <- brewer.pal(n,name)
+  } else {
+    col1 <- brewer.pal(max_n,name)
+    cols <- rep(col1, floor(n/max_n))
+    cols <- c(cols, col1[1:(n%%max_n)])
+  }
+  return(cols)
+}
+
 list2graph <- function(inputList) {
   x <- list2df(inputList)
   g <- graph.data.frame(x, directed=FALSE)
@@ -370,6 +393,16 @@ list2df <- function(inputList) {
   })
   
   do.call('rbind', ldf)
+}
+
+havingIP <- function() {
+  if (.Platform$OS.type == "windows") {
+    ipmessage <- system("ipconfig", intern = TRUE)
+  } else {
+    ipmessage <- system("ifconfig", intern = TRUE)
+  }
+  validIP <- "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[.]){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+  any(grep(validIP, ipmessage))
 }
 
 ############ LOAD PACKAGES #################
@@ -422,14 +455,14 @@ loadPkg <- function() {
     library(ggraph)
   }
   
-  if(length(find.package(package = 'randomcoloR',quiet = T))>0){
-    library(randomcoloR)
-  }else{
-    print("Package randomcoloR not installed")
-    install.packages("randomcoloR")
-    print("Package randomcoloR installed")
-    library(randomcoloR)
-  }
+  # if(length(find.package(package = 'randomcoloR',quiet = T))>0){
+  #   library(randomcoloR)
+  # }else{
+  #   print("Package randomcoloR not installed")
+  #   install.packages("randomcoloR")
+  #   print("Package randomcoloR installed")
+  #   library(randomcoloR)
+  # }
   
   if(length(find.package(package = 'RColorBrewer',quiet = T))>0){
     library(RColorBrewer)
