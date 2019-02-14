@@ -3,19 +3,7 @@ A Biostatistical tool for Transcriptomics Analysis
 ## How to set up
 1. Install Rstudio from https://www.rstudio.com/ 
 2. Download ABioTrans-master.zip on GitHub and unzip it. Please do not modify www inside ABioTrans folder.
-3. Open Rstudio, set ABioTrans folder as the working directory by clicking `Session` -> `Set Working Directory` -> `Choose Directory`. Or run the following code in command line:
-```R 
-setwd("your_directory_path")
-```
-4. Run the following code in command window: 
-```R
-runApp('ABioTrans.R')
-```
-Or, if you want to lauch ABioTrans on web browser:
-```R
-runApp('ABioTrans.R', launch.browser = TRUE)
-```
-Or simply open the ABioTrans.R file using RStudio and click `RunApp` button on the topright
+3. Open the ABioTrans.R file using RStudio and click `RunApp` button on the topright
  You can start your analysis now!
 
 ## How to do analysis
@@ -51,10 +39,8 @@ Or simply open the ABioTrans.R file using RStudio and click `RunApp` button on t
 * Volcano plot of DE result, dispersion plot of input data, and heatmap of DE genes are only available for edgeR and DESeq2 methods.
 
 ### Heatmap
-* Choose the number of genotypes. For example, if the total number of columns is 28 and number of genotypes specified is 7, then the columns will be divided into groups of 4 (column 1 to 4, 5 to 8, etc.), and an average of the 4 values will be taken. 
-* Specify the number of clusters on rows (genes), the threshold of fold change (greater than 1) and the reference genotype.
-* Choose either fold change or log fold change, then click Plot button. Kindly wait for 5 to 10 seconds for the result to come out. 
-* The gene names in each cluster can be checked in the Gene clusters panel, corresponding to the heatmap you just generated.
+* Heat map and hierachical clustering can be carried out on DE genes resulted from DE analysis tab by selecting `DE result`. Otherwise, you can specify the minimum fold change and minimum number of samples (columns in input data file) satisfying the fold change. Finally, you need to specify the number of clusters on rows (genes), then hit `Submit`.
+* The gene names in each cluster are displayed in the `Gene clusters` panel, corresponding to the heatmap you just generated.
 
 ### Noise
 * Select a desired noise plot according to your data. By default the name of the first replicate in each genotype is used as the name of the genotype. You can specify the names of the genotypes, only make sure that all names are different (due to the mapping mechanism of Plotly). Please be reminded that the consecutive columns will be regarded as of the same genotype.
@@ -70,9 +56,10 @@ Or simply open the ABioTrans.R file using RStudio and click `RunApp` button on t
 * Otherwise, if it is a time series data, specify the number of time points. For example, if the number of time points is 6, then sample 1 to 6 will be regarded as genotype A time 1 - time 6, sample 7 to 12 will be genotype B time 1- time 6, and so on and so forth. For a line chart, the entropy of each genotype will be shown in one line. 
 
 ### Gene ontology
-* Provide a list of genes for each cluster in NCBI gene ID format (in one-column .csv format), select the proper organism and gene identifier.
-* Click Plot button and wait for around 15 to 20 seconds for the result to be generated. Please avoid launching a new analysis when the system is still in a busy state. 
-* The gene list panel shows the gene ids under each gene ontology term. 
+* Provide a list of genes for each cluster in NCBI gene ID format, (in one-column .csv format, or the .csv file downloaded from DE analysis tab), background gene set, select the over-representation test (`clusterProfiler`, `GOstats`, or `enrichR`), then select the proper organism and gene identifier.
+* Click Plot button and wait for around 15 to 20 seconds for the result to be generated. Please avoid launching a new analysis when the system is still in a busy state. A list of enriched GO terms will be displayed in the `Table` tab.
+* If clusterProfiler and GOStats are chosen, a pie chart showing relative size of all associated level-2 GO terms will be displayed in `Pie chart` tab. Please note that the GO terms in pie chart might not be significantly enriched since no over-representation test was carried out to generate the pie chart.
+* For clusterProfiler method, graph visualization of user-specified GO terms are displayed in `Graph` tab
 
 ## Download instructions
 1. Scatter plot, distribution fit, correlation plot and heatmap can be saved as PDF by clicking `Download as PDF`. You can name the file before saving it. Also, you can directly drag the plot from the GUI to a folder on the computer.
