@@ -32,7 +32,13 @@ if(length(find.package(package = 'rstudioapi',quiet = T))>0){
 }
 
 wd <- dirname(rstudioapi::getActiveDocumentContext()$path)  #set wd as the current folder
-setwd(wd)
+print(wd == getwd())
+print(wd)
+print(getwd())
+if(! wd == getwd()){
+  setwd(wd)
+}
+
 # 
 # ## sourcing util files
 source(paste0(wd,"/www/utils.R"))
@@ -331,6 +337,7 @@ ui <- navbarPage(id = "navbar",
                                   )
                          ),
                          tabPanel("Volcano plot",    # for DESeq and edgeR
+                                  h6("Volcano plot is only available for edgeR and DESeq2 methods"),
                                   conditionalPanel(
                                     condition = "input.n_rep=='1' && input.method1!='NOISeq'",
                                     conditionalPanel(condition="$('html').hasClass('shiny-busy')",
@@ -347,6 +354,7 @@ ui <- navbarPage(id = "navbar",
                                   )
                          ),
                          tabPanel("Dispersion plot", # for edgeR
+                                  h6("Dispersion plot is only available for edgeR and DESeq2 methods"),
                                   conditionalPanel(
                                     condition = "input.n_rep=='1' && input.method1!='NOISeq'",
                                     # h3("Dispersion plot"),
@@ -490,7 +498,7 @@ ui <- navbarPage(id = "navbar",
            # useShinyjs(),
            sidebarPanel(
              conditionalPanel(
-               condition = "input.go_tab == 'go_table' ",
+               condition = "input.go_tab == 'go_table' || input.go_tab == 'go_pie' ",
                helpText("* One-column csv file"),
                fileInput("filego","Upload list of DE genes"),
                fileInput("filebg","List of background genes"),
@@ -507,15 +515,24 @@ ui <- navbarPage(id = "navbar",
                  selectInput('enrichR_dbs',"Select database",choices=enrichRdbs)
                ),
                numericInput("go_min_no","Min. number of genes",value=3,min=1,step=1),
+               br(),
                fluidRow(
                  column(4,
                         actionButton("submit_go","Submit")
                  ),
-                 column(7,
-                        downloadButton("download_go_table","Save CSV")
+                 conditionalPanel(
+                   condition = "input.go_tab == 'go_table' ",
+                   column(7,
+                          downloadButton("download_go_table","Save CSV")
+                   )
+                 ),
+                 conditionalPanel(
+                   condition = "input.go_tab == 'go_pie' ",
+                   column(7,
+                          downloadButton("download_go_pie","Save PNG")
+                   )
                  )
                )
-               
              ),
              conditionalPanel(
                condition = "input.go_tab == 'go_graph'",
@@ -546,9 +563,26 @@ ui <- navbarPage(id = "navbar",
                                                    DT::dataTableOutput("go_table")
                                   )
                          ),
+                         tabPanel("go_pie",
+                                  conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                   div(img(src="load.gif",width=240,height=180),
+                                                       h4("Processing ... Please wait"),style="text-align: center;")
+                                  ), 
+                                  conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                   h6("Pie chart is only available for clusterProfiler or GOstats method"),
+                                                   h4("Relative size of GO terms level 2"),
+                                                   plotlyOutput("go_pie")
+                                  )
+                         ),
                          tabPanel("go_graph",
                                   h6("Graph visualization is only available for clusterProfiler method"),
-                                  plotOutput("go_graph") 
+                                  conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                   div(img(src="load.gif",width=240,height=180),
+                                                       h4("Processing ... Please wait"),style="text-align: center;")
+                                  ), 
+                                  conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                   plotOutput("go_graph") 
+                                  )
                          )
              )
            )
@@ -2461,9 +2495,12 @@ server <- function(input,output,session){
         ))
       }
     }
-    # min_no <- input$go_min_no
-    # res_filt <- filter(res, Count>=min_no)
     
+    if(is.null(res)){
+      showModal(modalDialog(
+        title = "Warning","NULL result given! Organism or identifier might not be correct! Or try another method"
+      ))
+    }
     go.end <- Sys.time()
     print("Go time")
     print(go.end - go.start)
@@ -2477,6 +2514,57 @@ server <- function(input,output,session){
       res_filt <- filter(res, Count>=min_no)   # filter by gene counts in go terms
       res_filt
     }
+  })
+  
+  go_pie_res <- eventReactive(input$submit_go, {
+    genes <- gene_list()
+    if(is.null(genes))
+      return (NULL)
+    go_method <- input$go_method
+    if(go_method == "enrichR")
+      return (NULL)
+    dbs_name <- input$go_species
+    orgDb <- DBS[[dbs_name]]
+    keyType <- input$go_geneidtype
+    ont <- input$subontology
+    bg <- bg_list()
+
+    temp <- goPrep(fg=genes,bg=bg,keyType=keyType,orgDb=orgDb) # list(fg_mapped, bg_mapped, fg_unmapped)
+    if(is.null (temp) )
+      return(NULL)
+    GOresult <- groupGO(genes, keyType= keyType, OrgDb = orgDb, ont = ont, level = 2,
+                        readable = FALSE)
+    res <- dplyr::filter(GOresult@result,Count!=0)
+    res$Term <- paste(res$Description," (",res$ID,")",sep="")
+    res <- dplyr::arrange(res,desc(Count))
+    res2 <- res[,c("Term","Count")]
+    res2 <- rbind(res2,c("Unclassified",length(temp[[3]])))
+    return(res2)
+  })
+  
+  goPie <- function(){
+    res <- go_pie_res()
+    print("from goPie line 2543 print res")
+    print(res)
+    if(! is.null(res) ){
+      p <- plot_ly(res, labels = ~Term, values = ~Count, type = 'pie',
+                   textposition = 'inside',
+                   textinfo = 'label+percent',
+                   insidetextfont = list(color = '#FFFFFF'),
+                   #hoverinfo = 'text',
+                   #text = ~paste('$', X1960, ' billions'),
+                   marker = list(line = list(color = '#FFFFFF', width = 1)),
+                   #The 'pull' attribute can also be used to create space between the sectors
+                   showlegend = FALSE) %>%
+        layout(xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+               yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+      # title = 'Gene ontology',
+      return (p)
+    }
+  }
+  
+  output$go_pie <- renderPlotly({
+    goPie()
   })
   
   goList <- eventReactive(input$submit_go_graph, {
@@ -2525,6 +2613,16 @@ server <- function(input,output,session){
       min_no <- input$go_min_no
       res_filt <- filter(res, Count>=min_no) 
       write.csv(res_filt,file, row.names = FALSE)
+    }
+  )
+  
+  output$download_go_pie <- downloadHandler(
+    filename = function() {
+      paste0("GO term lvl 2",".png")
+    },
+    content = function(file) {
+      p <- goPie()
+      export(p, file = paste("GO term lvl 2",".png",sep=""))
     }
   )
   

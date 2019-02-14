@@ -272,10 +272,14 @@ enrichgoApply <- function(gene_list, keyType, orgDb,ont="BP",simpl=F,pvalueCutof
                   qvalueCutoff  = qvalueCutoff)
   # ego <- setReadable(ego, OrgDb = org.EcK12.eg.db)
   
-  if(simpl == T){
-    ego <- simplify(ego, cutoff=0.8, by="p.adjust", select_fun=min)
+  if(is.null(ego)){
+    return(NULL)
+  } else {
+    if(simpl == T){
+      ego <- simplify(ego, cutoff=0.8, by="p.adjust", select_fun=min)
+    }
+    return(as.data.frame(ego)) # have Count  
   }
-  return(as.data.frame(ego)) # have Count
 }
 
 gostatsApply <- function(fg_mapped,bg_mapped,keyType,orgDb,ont="BP",primary_id="ENTREZID",pvalueCutoff=0.01){
@@ -453,6 +457,15 @@ loadPkg <- function() {
     install.packages("ggraph")
     print("Package ggraph installed")
     library(ggraph)
+  }
+  
+  if(length(find.package(package = 'statmod',quiet = T))>0){
+    library(statmod)
+  }else{
+    print("Package statmod not installed")
+    install.packages("statmod")
+    print("Package statmod installed")
+    # library(statmod)
   }
   
   # if(length(find.package(package = 'randomcoloR',quiet = T))>0){
