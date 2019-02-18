@@ -465,7 +465,7 @@ loadPkg <- function() {
     print("Package statmod not installed")
     install.packages("statmod")
     print("Package statmod installed")
-    # library(statmod)
+    library(statmod)
   }
   
   # if(length(find.package(package = 'randomcoloR',quiet = T))>0){
