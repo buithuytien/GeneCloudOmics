@@ -148,10 +148,10 @@ noiseqbioApply <- function(DS,f.df,f1,f2){
 }
 
 noiseqbioFilter <- function(mynoiseqbio, FC=2, p_val=0.05){
-  mynoiseqbio.deg = degenes(mynoiseqbio, q = 1-p_val, M = NULL)
+  mynoiseqbio.deg = degenes(mynoiseqbio, q = 0, M = NULL) # q = 1-p_val
   mynoiseqbio.deg$log2FCabs <- abs(mynoiseqbio.deg$log2FC)
   mynoiseqbio.deg <- mynoiseqbio.deg %>% rownames_to_column('Gene')
-  mynoiseqbio.deg <- filter(mynoiseqbio.deg, log2FCabs >= log2(FC))
+  # mynoiseqbio.deg <- filter(mynoiseqbio.deg, log2FCabs >= log2(FC))
   mynoiseqbio.deg$FDR <- 1-mynoiseqbio.deg$prob
   return(mynoiseqbio.deg)
 }
@@ -166,15 +166,16 @@ noiseqsimApply <- function(DS,f.df,f1,f2){
   
   mynoiseq <- noiseq(mydata, conditions=c(f1,f2), factor = "f", k = 0.5, norm = "n", pnr = 0.2,
                      nss = 5, v = 0.02, lc = 1, replicates = "no")
-  mynoiseq.deg = degenes(mynoiseq, q = 0.9, M = NULL)  # data frame format; M; no vocalno
+  # mynoiseq.deg = degenes(mynoiseq, q = 0.9, M = NULL)  # data frame format; M; no vocalno
   return(mynoiseq)
 }
 
 noiseqsimFilter <- function(mynoiseq, FC=2){
-  mynoiseq.deg = degenes(mynoiseq, q = 0.8, M = NULL)
+  mynoiseq.deg = NOISeq::degenes(mynoiseq, q = 0, M = NULL) # q=0.8
   mynoiseq.deg$log2FCabs <- abs(mynoiseq.deg$M)
-  mynoiseqbio.deg <- mynoiseqbio.deg %>% rownames_to_column('Gene')
-  mynoiseq.deg <- filter(mynoiseq.deg, log2FCabs >= log2(FC))
+  mynoiseq.deg <- mynoiseq.deg %>% rownames_to_column('Gene')
+  # mynoiseq.deg <- filter(mynoiseq.deg, log2FCabs >= log2(FC))
+  mynoiseq.deg$FDR <- 1-mynoiseq.deg$prob
   return(mynoiseq.deg)
 }
 
@@ -354,8 +355,9 @@ graphGene <- function(geneSets,group.name){
   p <- ggraph(g, layout=layout, circular=circular) +
     edge_layer +
     geom_node_point(aes_(color=~I(color), size=~size), show.legend = T) +
-    theme_void() +
-    geom_node_text(aes_(label=~name), repel=TRUE)
+    theme_void()
+  #  geom_node_text(aes_(label=~name), repel=TRUE) # add labels for node
+  
   # p <- p + scale_size(range=c(3, 10), breaks=unique(round(seq(min(size), max(size), length.out=4)))) 
   
   # add labels for biological process hubs
@@ -366,7 +368,7 @@ graphGene <- function(geneSets,group.name){
   
   if(!missing(group.name)) p <- p + ggtitle(group.name)
   
-  return(p)
+  return( list(p, g) )
 }
 
 makeColorBrewer <- function(n,name = "Set3"){

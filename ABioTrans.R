@@ -41,14 +41,14 @@ if(! wd == getwd()){
 
 # 
 # ## sourcing util files
-source(paste0(wd,"/www/utils.R"))
+source(paste0("./www/utils.R"))
 # source("ui.R")
 # 
 loadPkg()
 
 species.choices <<- c("Homo sapiens"='org.Hs.eg.db',"Mus musculus"='org.Mm.eg.db',"Rattus norvegicus"='org.Rn.eg.db',"Gallus gallus"='org.Gg.eg.db',"Danio rerio"='org.Dr.eg.db',"Drosophila melanogaster"='org.Dm.eg.db',"Caenorhabditis elegans"='org.Ce.eg.db',"Saccharomyces cereviasiae"='org.Sc.sgd.db',"Arabidopsis thaliana"='org.At.tair.db',"Escherichia coli (strain K12)"='org.EcK12.eg.db',"Escherichia coli (strain Sakai)"='org.EcSakai.eg.db',"Anopheles gambiae"='org.Ag.eg.db',"Bos taurus"='org.Bt.eg.db',"Canis familiaris"='org.Cf.eg.db',"Macaca mulatta"='org.Mmu.eg.db',"Plasmodium falciparum"='org.Pf.plasmo.db',"Pan troglodytes"='org.Pt.eg.db',"Sus scrofa"='org.Ss.eg.db',"Xenopus tropicalis"='org.Xl.eg.db')
 DBS <<- list('org.Hs.eg.db'=org.Hs.eg.db,'org.Mm.eg.db'=org.Mm.eg.db,'org.Rn.eg.db'=org.Rn.eg.db,"org.Gg.eg.db"=org.Gg.eg.db,"org.Dr.eg.db"=org.Dr.eg.db,"org.Dm.eg.db"=org.Dm.eg.db,"org.Ce.eg.db"=org.Ce.eg.db,"org.Sc.sgd.db"=org.Sc.sgd.db,"org.At.tair.db"=org.At.tair.db,"org.EcK12.eg.db"=org.EcK12.eg.db,"org.EcSakai.eg.db"=org.EcSakai.eg.db,"org.Ag.eg.db"=org.Ag.eg.db,"org.Bt.eg.db"=org.Bt.eg.db,"org.Cf.eg.db"=org.Cf.eg.db,"org.Mmu.eg.db"=org.Mmu.eg.db,"org.Pf.plasmo.db"=org.Pf.plasmo.db,"org.Pt.eg.db"=org.Pt.eg.db,"org.Ss.eg.db"=org.Ss.eg.db,"org.Xl.eg.db"=org.Xl.eg.db)
-enrichRdbs <- as.character(read.csv(paste0(wd,"/www/enrichRdbs.csv"))[,1])
+enrichRdbs <- as.character(read.csv(paste0(wd,"/ABioTrans/www/enrichRdbs.csv"))[,1])
 
 end.load <- Sys.time()
 print("loading time")
@@ -506,9 +506,10 @@ ui <- navbarPage(id = "navbar",
                conditionalPanel(
                  condition = "input.go_method=='clusterProfiler' || input.go_method=='GOstats'",
                  # update if enrichR
-                 selectInput('go_species',"Select species",choices=c("Homo sapiens"='org.Hs.eg.db',"Mus musculus"='org.Mm.eg.db',"Rattus norvegicus"='org.Rn.eg.db',"Gallus gallus"='org.Gg.eg.db',"Danio rerio"='org.Dr.eg.db',"Drosophila melanogaster"='org.Dm.eg.db',"Caenorhabditis elegans"='org.Ce.eg.db',"Saccharomyces cereviasiae"='org.Sc.sgd.db',"Arabidopsis thaliana"='org.At.tair.db',"Escherichia coli (strain K12)"='org.EcK12.eg.db',"Escherichia coli (strain Sakai)"='org.EcSakai.eg.db',"Anopheles gambiae"='org.Ag.eg.db',"Bos taurus"='org.Bt.eg.db',"Canis familiaris"='org.Cf.eg.db',"Macaca mulatta"='org.Mmu.eg.db',"Plasmodium falciparum"='org.Pf.plasmo.db',"Pan troglodytes"='org.Pt.eg.db',"Sus scrofa"='org.Ss.eg.db',"Xenopus tropicalis"='org.Xl.eg.db')), # species.choices
+                 selectInput('go_species',"Select species",selected="org.EcK12.eg.db",choices=c("Homo sapiens"='org.Hs.eg.db',"Mus musculus"='org.Mm.eg.db',"Rattus norvegicus"='org.Rn.eg.db',"Gallus gallus"='org.Gg.eg.db',"Danio rerio"='org.Dr.eg.db',"Drosophila melanogaster"='org.Dm.eg.db',"Caenorhabditis elegans"='org.Ce.eg.db',"Saccharomyces cereviasiae"='org.Sc.sgd.db',"Arabidopsis thaliana"='org.At.tair.db',"Escherichia coli (strain K12)"='org.EcK12.eg.db',"Escherichia coli (strain Sakai)"='org.EcSakai.eg.db',"Anopheles gambiae"='org.Ag.eg.db',"Bos taurus"='org.Bt.eg.db',"Canis familiaris"='org.Cf.eg.db',"Macaca mulatta"='org.Mmu.eg.db',"Plasmodium falciparum"='org.Pf.plasmo.db',"Pan troglodytes"='org.Pt.eg.db',"Sus scrofa"='org.Ss.eg.db',"Xenopus tropicalis"='org.Xl.eg.db')), # species.choices
                  selectInput('go_geneidtype',"Select identifier",choices=NULL),
-                 selectInput('subontology',"Select subontology",choices = c("biological process"="BP","molecular function"="MF","cellular component"="CC"))
+                 selectInput('subontology',"Select subontology",selected="BP",choices = c("biological process"="BP","molecular function"="MF","cellular component"="CC")),
+                 numericInput("go_max_p","Adjusted p cutoff",value=0.05,min=0,max=1, step=0.05)
                  # selectInput('go_level',"Select level",choices = c(2:10))
                ), conditionalPanel(
                  condition = "input.go_method == 'enrichR'",
@@ -537,6 +538,7 @@ ui <- navbarPage(id = "navbar",
              conditionalPanel(
                condition = "input.go_tab == 'go_graph'",
                selectInput("go_term_slect","Select GO terms",choices="",multiple=T),
+               checkboxInput("show_gene_names","Show gene names", value = F),
                actionButton("submit_go_graph","Submit"),
                br(),
                fluidRow(
@@ -685,7 +687,7 @@ server <- function(input,output,session){
     
     # go terms on GO graph
     go_method <- input$go_method
-    res <- go_res()
+    res <- go_res_filt()
     if (go_method == "clusterProfiler" & !is.null(res) ){
       go_terms <- as.character(res$Description)
     } else {
@@ -943,7 +945,7 @@ server <- function(input,output,session){
       return (NULL)
     }
     ds <- read.csv(input$filego$datapath,header=FALSE)
-    if(ncol(ds) > 1){
+    if(ncol(ds) >= 2){
       col1 <- ds[-1,1]
     } else if( ncol(ds) == 1){
       col1 <- ds[,1]
@@ -1096,7 +1098,7 @@ server <- function(input,output,session){
       spikes <- neg_control()
       if(norm_method_name == "RUV" & is.null(spikes))
         norm_method_name <- "Upper Quartile"
-      plotRLE(set1, ylim=c(-2.5,2.5),outline=FALSE, col=colors[norm_method_name],
+      plotRLE(set1, ylim=c(-1.5,1.5),outline=FALSE, col=colors[norm_method_name],
               main= paste(norm_method_name,"Normalized"))
     }
   })
@@ -1117,7 +1119,7 @@ server <- function(input,output,session){
     }
     set1 <- newSeqExpressionSet(as.matrix(raw_DS))
     if(input$submit_preprocessing != 0)
-      plotRLE(set1, ylim=c(-2.5,2.5),outline=FALSE, main=main_title)
+      plotRLE(set1, ylim=c(-1.5,1.5),outline=FALSE, main=main_title)
     end.rle <- Sys.time()
     print("time for RLE plot and preprocessing")
     print(end.rle - start.rle) 
@@ -1765,7 +1767,7 @@ server <- function(input,output,session){
     fc <- 1 # input$fc
     f1 <- input$f1
     f2 <- input$f2
-    rep_number <- input$n_rep # either 0 or 1
+    rep_number <- input$n_rep # either 0 = no replicates or 1 = have replicates
     
     
     spikes <- neg_control()
@@ -1780,21 +1782,21 @@ server <- function(input,output,session){
     # print(pData(set1))
     # print(W_1)
     
-    if(rep_number == 1){
+    if(rep_number == 1){  # have replicates
       de_type <- input$de_method1
       if(de_type == "EdgeR") {
         res <- edgerApply(DS=DS_de,f = f_de[,1],W_1=W_1,f1=f1,f2=f2)        # edgeR, return edgeR object
         res.df <- edgerFilter(res, FC=fc, p_val=p_val)  # fitler edgeR object result
       } else if(de_type == "DESeq2") {
-        res <- deseqApply(DS=DS_de,f = f_de,W_1=W_1,f1=f1,f2=f2)            # DESeq, return DESeq object
+        res <- deseqApply(DS=DS_de,f.df = f_de,W_1=W_1,f1=f1,f2=f2)            # DESeq, return DESeq object
         res.df <- deseqFilter(res, FC=fc, p_val=p_val)  # fitler DESeq object result
       } else if(de_type == "NOISeq") {
-        res <- noiseqbioApply(DS=DS_de,f = f_de,f1=f1,f2=f2)           # NOISeqbio, return NOIseq object
+        res <- noiseqbioApply(DS=DS_de,f.df = f_de,f1=f1,f2=f2)           # NOISeqbio, return NOIseq object
         res.df <- noiseqbioFilter(res, FC=fc, p_val=p_val) # filter return NOIseq object
       }
-    } else {
+    } else { # no replicates
       de_type <- input$de_method0 # NOISeq
-      res <- noiseqsimApply(DS=DS_de,f = f_de,f1=f1,f2=f2)           # NOISeqbio, return NOIseq object
+      res <- noiseqsimApply(DS=DS_de,f.df = f_de,f1=f1,f2=f2)           # NOISeqbio, return NOIseq object
       res.df <- noiseqsimFilter(res, FC=fc)
     }
     end.de.table <- Sys.time()
@@ -1815,7 +1817,7 @@ server <- function(input,output,session){
     if(rep_number == 1){
       res.df.filt <- filter(res.df, FDR<=p_val, log2FCabs>=log2(fc) )
     } else{
-      res.df.filt <- filter(res.df, log2FCabs>=log2(fc) )
+      res.df.filt <- filter(res.df, FDR<=p_val, log2FCabs>=log2(fc) )
     }
     return(res.df.filt)
   }
@@ -1850,15 +1852,15 @@ server <- function(input,output,session){
     res$Gene <- rownames(res)
     res <- na.omit(res)
     # plot
-    ymax <- max(-log10(res$PValue)); if(ymax > 20) ymax = 20
+    ymax <- max(-log10(res$PValue)); if(ymax > 5) ymax = 5
     # print("from volcano plot - range(res$PValue)")
     # print(range(res$PValue))
-    with(res, plot(log2FC, -log10(PValue), pch=20, main="Volcano plot")) #xlim=c(-5,5),ylim=c(0,ymax)
+    with(res, plot(log2FC, -log10(PValue), pch=20, main="Volcano plot",xlim=c(-2.5,2.5),ylim=c(0,ymax))) #xlim=c(-5,5),ylim=c(0,ymax)
     # Add colored points: red if padj<0.05, orange of log2FC>1, green if both)
     with(subset(res, FDR< p_val), points(log2FC, -log10(PValue), pch=20, col="red"))
     with(subset(res, abs(log2FC)>log2(fc)), points(log2FC, -log10(PValue), pch=20, col="orange"))
     with(subset(res, FDR< p_val & abs(log2FC)>log2(fc)), points(log2FC, -log10(PValue), pch=20, col="green"))
-    legend("top",bty="n",col=c("red","orange","green","black"),pch=19,
+    legend("topleft",bty="n",col=c("red","orange","green","black"),pch=19,
            legend=c("FDR < FDR limit","FC > FC limit","Both","Other"))
     # library(calibrate)
     # with(subset(res, FDR<.05 & abs(log2FC)>1), textxy(log2FC, -log10(PValue), labs=Gene, cex=.8))
@@ -2038,8 +2040,8 @@ server <- function(input,output,session){
     }
       
     de_genes_exp <- DS[rownames(DS)%in%de_genes,]
-    DS3 <- t(apply(de_genes_exp,1, scale))
-    colnames(DS3) <- colnames(DS)
+    DS3 <- t(scale(t(de_genes_exp)))
+    DS3 <- na.omit(DS3)
     # print("from line 1894 - heatmap de type")
     # print("DS3")
     # print(head(DS3))
@@ -2057,18 +2059,41 @@ server <- function(input,output,session){
                                  show_row_names = FALSE, show_column_names = T,
                                  heatmap_legend_param = list(title = "Normalized expression") )
     set.seed(110)
-    rcl.list <- row_order(a)
+    rcl.list <- row_order(a); 
     DS3.1 <- as.matrix(rownames(DS3))
+
+    # Cluster <- NULL
+    # for(i in 1:length(rcl.list)){
+    #   for(j in 1:length(rcl.list[[i]])){
+    #     pair <- c(i,DS3.1[rcl.list[[i]][j]])
+    #     Cluster <- rbind(Cluster,pair)
+    #   }
+    # }
+    # Cluster <- data.frame(Cluster,row.names = NULL)
+    # colnames(Cluster) <- c("cluster","GeneID")
     
-    Cluster <- NULL
+    rcl.list2 <- rcl.list
     for(i in 1:length(rcl.list)){
-      for(j in 1:length(rcl.list[[i]])){
-        pair <- c(i,DS3.1[rcl.list[[i]][j]])
-        Cluster <- rbind(Cluster,pair)
+      rcl.list2[[i]] <- rownames(DS3)[rcl.list[[i]] ]
+    }
+
+    for(i in 1:length(rcl.list2)){
+      genes <- rcl.list2[[i]]
+      group_name <- rep(i, length(genes) )
+      Cluster_i <- data.frame("GeneID"=genes, "Cluster"=i)
+      if( i ==1 ){
+        Cluster <- Cluster_i
+      } else{
+        Cluster <- rbind(Cluster, Cluster_i)
       }
     }
-    Cluster <- data.frame(Cluster,row.names = NULL)
-    colnames(Cluster) <- c("cluster","gene.id")
+    
+    print("line 2089, Cluster")
+    print(head(Cluster))
+    print(paste0("de_type = ",de_type))
+    print("length of input DS")
+    print(dim(DS3))
+    
     # end heat map analysis
     heatmap.end.time <- Sys.time()
     print("heat map time")
@@ -2092,7 +2117,7 @@ server <- function(input,output,session){
     Cluster <- data.frame(Cluster,row.names = NULL)
     colnames(Cluster) <- c("cluster","gene.id")
     
-    return (Cluster)
+    return (Cluster[,c("gene.id", "cluster")])
   })
   
   mapPlot <- function(){
@@ -2465,7 +2490,7 @@ server <- function(input,output,session){
         temp <- goPrep(fg=genes,bg=bg,keyType=keyType,orgDb=orgDb) # list(fg_mapped, bg_mapped, fg_unmapped)
         if(is.null (temp) )
           return(NULL)
-        res <- enrichgoApply(gene_list=genes, keyType, orgDb,ont=ont)
+        res <- enrichgoApply(gene_list=genes, keyType, orgDb,ont=ont, pvalueCutoff=1, qvalueCutoff=1)
       } else if(go_method == "GOstats"){
         temp <- goPrep(fg=genes,bg=bg,keyType=keyType,orgDb=orgDb) # list(fg_mapped, bg_mapped, fg_unmapped)
         if(is.null (temp) )
@@ -2478,7 +2503,7 @@ server <- function(input,output,session){
         } else{
           primary_id <- "ENTREZID"
         }
-        res <- gostatsApply(fg_mapped, bg_mapped, keyType, orgDb, ont=ont,primary_id=primary_id)
+        res <- gostatsApply(fg_mapped, bg_mapped, keyType, orgDb, ont=ont,primary_id=primary_id, pvalueCutoff=1)
       }
     } else if(go_method == "enrichR"){
       if (!havingIP()){
@@ -2507,13 +2532,27 @@ server <- function(input,output,session){
     return(res)   # no filter by min counts in each go term
   })
   
-  output$go_table <- DT::renderDataTable({
+  go_res_filt <- function(){
     res <- go_res()
     if(! is.null (res)){
+      go_method <- input$go_method
       min_no <- input$go_min_no
+      max_p <- input$go_max_p
       res_filt <- filter(res, Count>=min_no)   # filter by gene counts in go terms
-      res_filt
+      if(go_method == "clusterProfiler"){
+        res_filt <- filter(res, p.adjust <= max_p)
+      } else if(go_method == "GOstats"){
+        res_filt <- filter(res, Pvalue <= max_p)
+      }
+      # res_filt
+    } else{
+      res_filt = NULL
     }
+    return(res_filt)
+  }
+  
+  output$go_table <- DT::renderDataTable({
+    go_res_filt()
   })
   
   go_pie_res <- eventReactive(input$submit_go, {
@@ -2570,7 +2609,7 @@ server <- function(input,output,session){
   goList <- eventReactive(input$submit_go_graph, {
     go_method <- input$go_method
     go_terms <- input$go_term_slect
-    res <- go_res()
+    res <- go_res_filt()
     # print("from goList")
     # print(go_method)
     # print(head(res))
@@ -2587,10 +2626,14 @@ server <- function(input,output,session){
   
   go_graph_plot <- function() {
     go_list <-goList()
+    show_gene_names <- input$show_gene_names
     if(! is.null (go_list)){
-      p <- graphGene(go_list)
+      temp <- graphGene(go_list); p <- temp[[1]]; q <- temp[[2]]
+      if(show_gene_names){
+        p <- p + geom_node_text(aes_(label=~name), repel=TRUE)
+      }
     } else {
-      p <- NULL
+      return(NULL)
     }
     return(p)
   }
@@ -2632,11 +2675,11 @@ server <- function(input,output,session){
     },
     content = function(file) {
       if(input$download_go_graph_type == "pdf"){
-        pdf(file)
+        pdf(file, width=15, height=7)
         print(go_graph_plot())
         dev.off()
       } else if(input$download_go_graph_type == "png" ) {
-        png(file)
+        png(file,  width=10, height=7)
         print(go_graph_plot())
         dev.off()
       }
