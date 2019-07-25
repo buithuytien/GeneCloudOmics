@@ -1,10 +1,18 @@
 # ABioTrans
 A Biostatistical tool for Transcriptomics Analysis
+
+If you find ABioTrans useful, please cite our paper:  
+Zou Y, Bui TT and Selvarajoo K (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Front. Genet. 10:499. doi: 10.3389/fgene.2019.00499
+
+Full text (free access) can be found at https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full 
+
 ## How to set up
-1. Install Rstudio from https://www.rstudio.com/ 
-2. Download ABioTrans-master.zip on GitHub and unzip it. Please do not modify www inside ABioTrans folder.
-3. Open the ABioTrans.R file using RStudio and click `RunApp` button on the topright
- You can start your analysis now!
+1. Install R from https://cran.r-project.org/ 
+2. Install Rstudio from https://www.rstudio.com/ 
+3. Download ABioTrans-master.zip on GitHub and unzip it. Please do not modify www inside ABioTrans folder.
+4. Open the ABioTrans.R file using RStudio and click `RunApp` button on the topright. When you run the code for the first time, installation of the required R packages can take up to 30 minutes. For subsequent runs, ABioTrans will only take 30s.
+
+You can start your analysis now!
 
 ## How to do analysis
 ### Home
