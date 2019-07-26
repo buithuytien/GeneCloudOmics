@@ -264,16 +264,25 @@ enrichrApply <- function(gene_list,dbs,min_no=1){
 }
 
 enrichgoApply <- function(gene_list, keyType, orgDb,ont="BP",simpl=F,pvalueCutoff=0.01, qvalueCutoff=0.01) {
-  ego <- enrichGO(gene          = gene_list,
-                  keyType       = keyType, # SYMBOL
-                  OrgDb         = orgDb, # org.EcK12.eg.db,
-                  ont           = ont,
-                  pAdjustMethod = "BH",
-                  pvalueCutoff  = pvalueCutoff,
-                  qvalueCutoff  = qvalueCutoff)
-  # ego <- setReadable(ego, OrgDb = org.EcK12.eg.db)
+  ego <- tryCatch({
+    ego <- enrichGO(gene          = gene_list,
+                    keyType       = keyType, # SYMBOL
+                    OrgDb         = orgDb, # org.EcK12.eg.db,
+                    ont           = ont,
+                    pAdjustMethod = "BH",
+                    pvalueCutoff  = pvalueCutoff,
+                    qvalueCutoff  = qvalueCutoff) 
+    return(ego) 
+  }, error = function(e){
+      message("error occurs in clusterProfiler::enrichgo")
+      message("msg from line 278 utils")
+      return(NULL)
+  }, finally={
+      message("Trycatch for clusterProfiler::enrichgo, msg from line 294 utils")
+    }
+  )
   
-  if(is.null(ego)){
+  if(is.null(ego) ){
     return(NULL)
   } else {
     if(simpl == T){
@@ -557,6 +566,12 @@ loadPkg <- function() {
     biocLite("NBPSeq")
   }
   library(NBPSeq)
+  
+  if(length(find.package(package='AnnotationForge',quiet=T)) == 0){
+    source("https://bioconductor.org/biocLite.R")
+    biocLite("AnnotationForge")
+  }
+  library(AnnotationForge)
   
   if(length(find.package(package='GOstats',quiet=T)) == 0){
     source("https://bioconductor.org/biocLite.R")

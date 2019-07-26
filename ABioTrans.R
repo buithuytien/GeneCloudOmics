@@ -644,20 +644,32 @@ server <- function(input,output,session){
     }
     
     ### gene sample size choices for PCA ###
+    # print("line 647 check input$submit_preprocessing")
+    # v=input$submit_preprocessing
+    if(input$submit_preprocessing > 0){
+      if(type=='norm'){
+        DS_filt <- df_shiny()
+      }else if(type=='raw'){
+        DS_filt <- df_raw_shiny()
+      }
+    } else{
+      DS_filt <- DS
+    }
+    
     i <- 1
     min_size <- 25
     samplesize <- NULL
-    while(i*min_size<length(DS[,1])){
+    while(i*min_size<length(DS_filt[,1])){
       samplesize <- c(samplesize,i*min_size)
       i <- i*2
     }
     if(is.null(samplesize)){
-      samplesize <- c(samplesize,length(DS[,1]))
-    }else if(samplesize[length(samplesize)]!=length(DS[,1])){
-      samplesize <- c(samplesize,length(DS[,1]))
+      samplesize <- c(samplesize,length(DS_filt[,1]))
+    }else if(samplesize[length(samplesize)]!=length(DS_filt[,1])){
+      samplesize <- c(samplesize,length(DS_filt[,1]))
     }
     updateSelectInput(session,"gene_size", choices = samplesize,selected = samplesize[length(samplesize)])
-    
+
     ### pca choices for PCA-2D ###
     pcchoices <- NULL
     if(is.null(DS)==FALSE)
@@ -760,28 +772,28 @@ server <- function(input,output,session){
     # }
   })
   
-  observeEvent(input$submit_preprocessing, {
-    type <- input$file_type
-    if(type=='norm'){
-      DS <- df_shiny()
-    }else if(type=='raw'){
-      DS <- df_raw_shiny()
-    }
-    ### gene sample size choices for PCA ###
-    i <- 1
-    min_size <- 25
-    samplesize <- NULL
-    while(i*min_size<length(DS[,1])){
-      samplesize <- c(samplesize,i*min_size)
-      i <- i*2
-    }
-    if(is.null(samplesize)){
-      samplesize <- c(samplesize,length(DS[,1]))
-    }else if(samplesize[length(samplesize)]!=length(DS[,1])){
-      samplesize <- c(samplesize,length(DS[,1]))
-    }
-    updateSelectInput(session,"gene_size", choices = samplesize,selected = samplesize[length(samplesize)])
-  })
+  # observeEvent(input$submit_preprocessing, {
+  #   type <- input$file_type
+  #   if(type=='norm'){
+  #     DS <- df_shiny()
+  #   }else if(type=='raw'){
+  #     DS <- df_raw_shiny()
+  #   }
+  #   ### gene sample size choices for PCA ###
+  #   i <- 1
+  #   min_size <- 25
+  #   samplesize <- NULL
+  #   while(i*min_size<length(DS[,1])){
+  #     samplesize <- c(samplesize,i*min_size)
+  #     i <- i*2
+  #   }
+  #   if(is.null(samplesize)){
+  #     samplesize <- c(samplesize,length(DS[,1]))
+  #   }else if(samplesize[length(samplesize)]!=length(DS[,1])){
+  #     samplesize <- c(samplesize,length(DS[,1]))
+  #   }
+  #   updateSelectInput(session,"gene_size", choices = samplesize,selected = samplesize[length(samplesize)])
+  # })
   
   ######################################
   ######### read in / get data #########
@@ -2535,6 +2547,7 @@ server <- function(input,output,session){
   go_res_filt <- function(){
     res <- go_res()
     if(! is.null (res)){
+      if(! is.data.frame(res) ) res <- as.data.frame(res)
       go_method <- input$go_method
       min_no <- input$go_min_no
       max_p <- input$go_max_p
