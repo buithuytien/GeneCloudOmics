@@ -48,7 +48,7 @@ loadPkg()
 
 species.choices <<- c("Homo sapiens"='org.Hs.eg.db',"Mus musculus"='org.Mm.eg.db',"Rattus norvegicus"='org.Rn.eg.db',"Gallus gallus"='org.Gg.eg.db',"Danio rerio"='org.Dr.eg.db',"Drosophila melanogaster"='org.Dm.eg.db',"Caenorhabditis elegans"='org.Ce.eg.db',"Saccharomyces cereviasiae"='org.Sc.sgd.db',"Arabidopsis thaliana"='org.At.tair.db',"Escherichia coli (strain K12)"='org.EcK12.eg.db',"Escherichia coli (strain Sakai)"='org.EcSakai.eg.db',"Anopheles gambiae"='org.Ag.eg.db',"Bos taurus"='org.Bt.eg.db',"Canis familiaris"='org.Cf.eg.db',"Macaca mulatta"='org.Mmu.eg.db',"Plasmodium falciparum"='org.Pf.plasmo.db',"Pan troglodytes"='org.Pt.eg.db',"Sus scrofa"='org.Ss.eg.db',"Xenopus tropicalis"='org.Xl.eg.db')
 DBS <<- list('org.Hs.eg.db'=org.Hs.eg.db,'org.Mm.eg.db'=org.Mm.eg.db,'org.Rn.eg.db'=org.Rn.eg.db,"org.Gg.eg.db"=org.Gg.eg.db,"org.Dr.eg.db"=org.Dr.eg.db,"org.Dm.eg.db"=org.Dm.eg.db,"org.Ce.eg.db"=org.Ce.eg.db,"org.Sc.sgd.db"=org.Sc.sgd.db,"org.At.tair.db"=org.At.tair.db,"org.EcK12.eg.db"=org.EcK12.eg.db,"org.EcSakai.eg.db"=org.EcSakai.eg.db,"org.Ag.eg.db"=org.Ag.eg.db,"org.Bt.eg.db"=org.Bt.eg.db,"org.Cf.eg.db"=org.Cf.eg.db,"org.Mmu.eg.db"=org.Mmu.eg.db,"org.Pf.plasmo.db"=org.Pf.plasmo.db,"org.Pt.eg.db"=org.Pt.eg.db,"org.Ss.eg.db"=org.Ss.eg.db,"org.Xl.eg.db"=org.Xl.eg.db)
-enrichRdbs <- as.character(read.csv(paste0(wd,"/ABioTrans/www/enrichRdbs.csv"))[,1])
+enrichRdbs <- as.character(read.csv(paste0(wd,"/www/enrichRdbs.csv"))[,1])
 
 end.load <- Sys.time()
 print("loading time")
