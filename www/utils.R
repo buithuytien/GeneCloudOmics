@@ -534,8 +534,7 @@ loadPkg <- function() {
   }
   
   if(length(find.package(package='RUVSeq',quiet=T)) == 0){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("RUVSeq", suppressUpdates=TRUE)
+    BiocManager::install("RUVSeq")
   }
   library(RUVSeq)
   
@@ -543,39 +542,33 @@ loadPkg <- function() {
     library(edgeR)
   }else{
     print("Package edgeR not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("edgeR", suppressUpdates=TRUE)
+    BiocManager::install("edgeR")
     print("Package edgeR installed")
     library(edgeR)
   }
   
   if(length(find.package(package='DESeq2',quiet=T)) == 0){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("DESeq2", suppressUpdates=TRUE)
+    BiocManager::install("DESeq2")
   }
   library(DESeq2)
   
   if(length(find.package(package='NOISeq',quiet=T)) == 0){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("NOISeq", suppressUpdates=TRUE)
+    BiocManager::install("NOISeq")
   }
   library(NOISeq)
   
   if(length(find.package(package='NBPSeq',quiet=T)) == 0){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("NBPSeq", suppressUpdates=TRUE)
+    BiocManager::install("NBPSeq")
   }
   library(NBPSeq)
   
   if(length(find.package(package='AnnotationForge',quiet=T)) == 0){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("AnnotationForge", suppressUpdates=TRUE)
+    BiocManager::install("AnnotationForge")
   }
   library(AnnotationForge)
   
   if(length(find.package(package='GOstats',quiet=T)) == 0){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("GOstats", suppressUpdates=TRUE)
+    BiocManager::install("GOstats")
   }
   library(GOstats)
   
@@ -601,8 +594,7 @@ loadPkg <- function() {
     library(ComplexHeatmap)
   }else{
     print("Package ComplexHeatmap not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("ComplexHeatmap", suppressUpdates=TRUE)
+    BiocManager::install("ComplexHeatmap")
     print("Package ComplexHeatmap installed")
     library(ComplexHeatmap)
   }
@@ -638,8 +630,7 @@ loadPkg <- function() {
     library('Biobase')
   }else{
     print("Package Biobase not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("Biobase", suppressUpdates=TRUE)
+    BiocManager::install("Biobase")
     print("Package Biobase installed")
     library(org.Hs.eg.db)
   }
@@ -648,8 +639,7 @@ loadPkg <- function() {
     library('org.Hs.eg.db')
   }else{
     print("Package org.Hs.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Hs.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Hs.eg.db")
     print("Package org.Hs.eg.db installed")
     library(org.Hs.eg.db)
   }
@@ -658,8 +648,7 @@ loadPkg <- function() {
     library(org.Sc.sgd.db)
   }else{
     print("Package org.Sc.sgd.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Sc.sgd.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Sc.sgd.db")
     print("Package org.Sc.sgd.db installed")
     library(org.Sc.sgd.db)
   }
@@ -668,8 +657,7 @@ loadPkg <- function() {
     library(org.EcK12.eg.db)
   }else{
     print("Package org.EcK12.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.EcK12.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.EcK12.eg.db")
     print("Package org.EcK12.eg.db installed")
     library(org.EcK12.eg.db)
   }
@@ -678,8 +666,7 @@ loadPkg <- function() {
     library(org.Mm.eg.db)
   }else{
     print("Package org.Mm.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Mm.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Mm.eg.db")
     print("Package org.Mm.eg.db installed")
     library(org.Mm.eg.db)
   }
@@ -688,8 +675,7 @@ loadPkg <- function() {
     library(org.Rn.eg.db)
   }else{
     print("Package org.Rn.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Rn.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Rn.eg.db")
     print("Package org.Rn.eg.db installed")
     library(org.Rn.eg.db)
   }
@@ -698,8 +684,7 @@ loadPkg <- function() {
     library(org.Gg.eg.db)
   }else{
     print("Package org.Gg.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Gg.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Gg.eg.db")
     print("Package org.Gg.eg.db installed")
     library(org.Gg.eg.db)
   }
@@ -708,8 +693,7 @@ loadPkg <- function() {
     library(org.Dr.eg.db)
   }else{
     print("Package org.Dr.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Dr.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Dr.eg.db")
     print("Package org.Dr.eg.db installed")
     library(org.Dr.eg.db)
   }
@@ -718,8 +702,7 @@ loadPkg <- function() {
     library(org.Dm.eg.db)
   }else{
     print("Package org.Dm.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Dm.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Dm.eg.db")
     print("Package org.Dm.eg.db installed")
     library(org.Dm.eg.db)
   }
@@ -728,8 +711,7 @@ loadPkg <- function() {
     library(org.Ce.eg.db)
   }else{
     print("Package org.Ce.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Ce.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Ce.eg.db")
     print("Package org.Ce.eg.db installed")
     library(org.Ce.eg.db)
   }
@@ -738,8 +720,7 @@ loadPkg <- function() {
     library(org.Ag.eg.db)
   }else{
     print("Package org.Ag.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Ag.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Ag.eg.db")
     print("Package org.Ag.eg.db installed")
     library(org.Ag.eg.db)
   }
@@ -748,8 +729,7 @@ loadPkg <- function() {
     library(org.At.tair.db)
   }else{
     print("Package org.At.tair.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.At.tair.db", suppressUpdates=TRUE)
+    BiocManager::install("org.At.tair.db")
     print("Package org.At.tair.db installed")
     library(org.At.tair.db)
   }
@@ -758,8 +738,7 @@ loadPkg <- function() {
     library(org.Cf.eg.db)
   }else{
     print("Package org.Cf.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Cf.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Cf.eg.db")
     print("Package org.Cf.eg.db installed")
     library(org.Cf.eg.db)
   }
@@ -768,8 +747,7 @@ loadPkg <- function() {
     library(org.Bt.eg.db)
   }else{
     print("Package org.Bt.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Bt.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Bt.eg.db")
     print("Package org.Bt.eg.db installed")
     library(org.Bt.eg.db)
   }
@@ -778,8 +756,7 @@ loadPkg <- function() {
     library(org.EcSakai.eg.db)
   }else{
     print("Package org.EcSakai.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.EcSakai.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.EcSakai.eg.db")
     print("Package org.EcSakai.eg.db installed")
     library(org.EcSakai.eg.db)
   }
@@ -788,8 +765,7 @@ loadPkg <- function() {
     library(org.Mmu.eg.db)
   }else{
     print("Package org.Mmu.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Mmu.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Mmu.eg.db")
     print("Package org.Mmu.eg.db installed")
     library(org.Mmu.eg.db)
   }
@@ -798,8 +774,7 @@ loadPkg <- function() {
     library(org.Pf.plasmo.db)
   }else{
     print("Package org.Pf.plasmo.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Pf.plasmo.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Pf.plasmo.db")
     print("Package org.Pf.plasmo.db installed")
     library(org.Pf.plasmo.db)
   }
@@ -808,8 +783,7 @@ loadPkg <- function() {
     library(org.Pt.eg.db)
   }else{
     print("Package org.Pt.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Pt.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Pt.eg.db")
     print("Package org.Pt.eg.db installed")
     library(org.Pt.eg.db)
   }
@@ -818,8 +792,7 @@ loadPkg <- function() {
     library(org.Ss.eg.db)
   }else{
     print("Package org.Ss.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Ss.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Ss.eg.db")
     print("Package org.Ss.eg.db installed")
     library(org.Ss.eg.db)
   }
@@ -828,8 +801,7 @@ loadPkg <- function() {
     library(org.Xl.eg.db)
   }else{
     print("Package org.Xl.eg.db not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("org.Xl.eg.db", suppressUpdates=TRUE)
+    BiocManager::install("org.Xl.eg.db")
     print("Package org.Xl.eg.db installed")
     library(org.Xl.eg.db)
   }
@@ -838,8 +810,7 @@ loadPkg <- function() {
     library(clusterProfiler)
   }else{
     print("Package clusterProfiler not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("clusterProfiler", suppressUpdates=TRUE)
+    BiocManager::install("clusterProfiler")
     print("Package clusterProfiler installed")
     library(clusterProfiler)
   }
@@ -848,8 +819,7 @@ loadPkg <- function() {
     library(DOSE)
   }else{
     print("Package DOSE not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("DOSE", suppressUpdates=TRUE)
+    BiocManager::install("DOSE")
     print("Package DOSE installed")
     library(DOSE)
   }
@@ -858,8 +828,7 @@ loadPkg <- function() {
     library(AnnotationDbi)
   }else{
     print("Package AnnotationDbi not installed")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("AnnotationDbi", suppressUpdates=TRUE)
+    BiocManager::install("AnnotationDbi")
     print("Package clusterProfiler installed")
     library(AnnotationDbi)
   }
