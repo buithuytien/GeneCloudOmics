@@ -588,6 +588,21 @@ ui <- navbarPage(id = "navbar",
                          )
              )
            )
+  ),
+  navbarMenu('New',
+    tabPanel('Random Forest',
+             sidebarPanel(
+               splitLayout(
+                 numericInput("num_trees","No. of trees", min=1, value=25),
+                 numericInput("num_clusters","No. of clusters", min=1, value=2)
+               ),
+               radioButtons('rf_trans',"Transformation:",
+                            c('None', 'log10')),
+               actionButton("submit_rf","Submit")),
+             mainPanel(
+               h3('Clustering With Random Forest'),
+               plotlyOutput('rf.plot')
+             ))
   )
 )
   ####################################################
