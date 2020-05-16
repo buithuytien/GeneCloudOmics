@@ -76,20 +76,6 @@ if(length(find.package(package = 'cluster',quiet = T))>0){
   library(cluster)
 }
 
-if(length(find.package(package = 'ggplot2',quiet = T))>0){
-  library(ggplot2)
-}else{
-  install.packages("ggplot2")
-  library(ggplot2)
-}
-
-if(length(find.package(package = 'plotly',quiet = T))>0){
-  library(plotly)
-}else{
-  install.packages("plotly")
-  library(plotly)
-}
-
 if(length(find.package(package = 'reticulate',quiet = T))>0){
   library(reticulate)
 }else{
