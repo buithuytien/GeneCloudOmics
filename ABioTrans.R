@@ -31,6 +31,53 @@ if(length(find.package(package = 'rstudioapi',quiet = T))>0){
   library(rstudioapi)
 }
 
+
+#################################
+if(length(find.package(package = 'RColorBrewer',quiet = T))>0){
+  library(RColorBrewer)
+}else{
+  install.packages("RColorBrewer")
+  library(RColorBrewer)
+}
+
+if(length(find.package(package = 'kohonen',quiet = T))>0){
+  library(kohonen)
+}else{
+  install.packages("kohonen")
+  library(kohonen)
+}
+
+if(length(find.package(package = 'sparsepca',quiet = T))>0){
+  library(sparsepca)
+}else{
+  install.packages("sparsepca")
+  library(sparsepca)
+}
+
+if(length(find.package(package = 'randomForest',quiet = T))>0){
+  library(randomForest)
+}else{
+  install.packages("randomForest")
+  library(randomForest)
+}
+
+if(length(find.package(package = 'cluster',quiet = T))>0){
+  library(cluster)
+}else{
+  install.packages("cluster")
+  library(cluster)
+}
+
+if(length(find.package(package = 'reticulate',quiet = T))>0){
+  library(reticulate)
+}else{
+  install.packages("reticulate")
+  library(reticulate)
+}
+#################################
+
+
+
 wd <- dirname(rstudioapi::getActiveDocumentContext()$path)  #set wd as the current folder
 print(wd == getwd())
 print(wd)
@@ -588,6 +635,24 @@ ui <- navbarPage(id = "navbar",
                          )
              )
            )
+  ),
+  ############################################### 
+  ###############################################         
+  ###############################################
+  navbarMenu('New', 
+    tabPanel('Random Forest',
+             sidebarPanel(
+               splitLayout(
+                 numericInput("num_trees","No. of trees", min=1, value=25),
+                 numericInput("num_clusters","No. of clusters", min=1, value=2)
+               ),
+               radioButtons('rf_trans',"Transformation:",
+                            c('None', 'log10')),
+               actionButton("submit_rf","Submit")),
+             mainPanel(
+               h3('Clustering With Random Forest'),
+               plotlyOutput('rf.plot')
+             ))
   )
 )
   ####################################################
@@ -2699,6 +2764,92 @@ server <- function(input,output,session){
     }
     
   )
+
+
+  ###################################
+  ########## New-Features ###########
+  ###################################
+  ###################################
+  
+  
+  
+  
+  ###################################
+  ###################################
+  #######   Random Forest    ########
+  ###################################
+  ###################################
+  # data for random forest
+  plotRF <- eventReactive(input$submit_rf, {
+    rf.start <- Sys.time()
+    rf_trans <- input$rf_trans
+    type <- input$file_type
+    num_trees <- input$num_trees
+    num_clusters <- input$num_clusters
+    
+    if(type=='norm'){
+      DS <- df_shiny()
+    }
+    else if(type=='raw'){ 
+      DS <- df_raw_shiny()
+    }
+    if(rf_trans=='None'){
+      rf.data <- DS
+    }
+    else if(rf_trans=='log10'){
+      rf.data <- log10(DS+1)
+    }
+    rf.end <- Sys.time()
+    print("Random forest plot time")
+    print(rf.end - rf.start)
+    return (list(rf.data, num_trees, num_clusters))
+  })
+  
+  
+  rfplot <- function(){
+    # get data 
+    li <- plotRF()
+    rf.data <- li[[1]]
+    num_trees <- li[[2]]
+    num_clusters <- li[[3]]
+    
+    # unsupervised random forest on data
+    print("Running random forest...")
+    rf.data <- t(rf.data)
+    rf_out <- randomForest(rf.data, type=unsupervised, ntree=num_trees, proximity=TRUE)
+    print("Done!")
+    
+    mds_out <- cmdscale(1-rf_out$proximity, eig=TRUE, k=2)
+    clusters_pam <- pam(1-rf_out$proximity, k=num_clusters, diss = TRUE)
+    shape_lvl <- c(1:num_clusters)
+    shape_legend <- factor(clusters_pam$clustering, levels=shape_lvl)
+    
+    # print the proximity matrix
+    print(table(clusters_pam$clustering, shape_legend))
+    print(str(mds_out))
+    print(mds_out$points)
+    print(rownames(mds_out$points))
+    
+    # plot the graph
+    df <- data.frame(x=mds_out$points[,1], y=mds_out$points[,2], color=shape_legend, shape=shape_legend)
+    p <- ggplot(data=df, aes(x=x, y=y, color=color, shape=shape, text=paste("x: ", round(x, 4), "\n", "y: ", round(y, 4), "\n", "Name: ", rownames(mds_out$points), "\n", "Cluster: ", shape, sep=""), group=1)) + geom_point(size=1.40) 
+    p <- p + theme(legend.position="none") 
+    p
+    
+    # add interactivity w/ plotly
+    ggplotly(p, tooltip=c("text"))
+  }
+  
+  
+  output$rf.plot <- renderPlotly({
+    rfplot()
+  })
+  
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+  
   
   #session$onSessionEnded(stopApp)
 }
