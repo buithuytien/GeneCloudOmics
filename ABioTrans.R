@@ -765,26 +765,32 @@ ui <- navbarPage(
       )
     ),
 
-    tabPanel('SOM',
-             sidebarPanel(
-               selectInput(inputId = 'som_samples',label = 'Samples used',choices = ''),
-               splitLayout(
-                 numericInput("som_grid_h","No. of horizontal grids", min=1, value=2),
-                 numericInput("som_grid_v","No. of vertical grids", min=1, value=2)
-               ),
-               numericInput("som_cluster_size","No. of clusters (for cluster plot)", min=2, value=2),
-               radioButtons('som_trans',"Transformation:",
-                            c('None', 'log10')),
-               actionButton("submit_som","Submit")),
-             mainPanel(
-               tabsetPanel(type = "tabs",id="som_tabs", 
-                           tabPanel("Property plot", plotOutput("som_property.plot")),
-                           tabPanel("Count plot", plotOutput("som_count.plot")),
-                           tabPanel("Codes plot",plotOutput("som_codes.plot")),
-                           tabPanel("Distance plot",plotOutput("som_dist.plot")),
-                           tabPanel("Cluster plot",plotOutput("som_cluster.plot"))
-               )
-             ))
+    tabPanel(
+      "SOM",
+      sidebarPanel(
+        selectInput(inputId = "som_samples", label = "Samples used", choices = ""),
+        splitLayout(
+          numericInput("som_grid_h", "No. of horizontal grids", min = 1, value = 2),
+          numericInput("som_grid_v", "No. of vertical grids", min = 1, value = 2)
+        ),
+        numericInput("som_cluster_size", "No. of clusters (for cluster plot)", min = 2, value = 2),
+        radioButtons(
+          "som_trans", "Transformation:",
+          c("None", "log10")
+        ),
+        actionButton("submit_som", "Submit")
+      ),
+      mainPanel(
+        tabsetPanel(
+          type = "tabs", id = "som_tabs",
+          tabPanel("Property plot", plotOutput("som_property.plot")),
+          tabPanel("Count plot", plotOutput("som_count.plot")),
+          tabPanel("Codes plot", plotOutput("som_codes.plot")),
+          tabPanel("Distance plot", plotOutput("som_dist.plot")),
+          tabPanel("Cluster plot", plotOutput("som_cluster.plot"))
+        )
+      )
+    )
   )
 )
 ####################################################
@@ -821,7 +827,7 @@ server <- function(input, output, session) {
 
     ##############################################
     ##############################################
-    updateSelectInput(session, "som_samples", choices = c('All', nms), selected = 'All')
+    updateSelectInput(session, "som_samples", choices = c("All", nms), selected = "All")
     updateSelectInput(session, "overlay.x1", choices = nms, selected = nms[1])
     updateSelectInput(session, "overlay.y1", choices = nms, selected = nms[2])
     updateSelectInput(session, "overlay.x2", choices = nms, selected = nms[3])
@@ -3082,109 +3088,109 @@ server <- function(input, output, session) {
     plot_type <- input$som_plot_type
     cluster_size <- input$som_cluster_size
     type <- input$file_type
-    
-    if(type=='norm'){
+
+    if (type == "norm") {
       DS <- df_shiny()
     }
-    else if(type=='raw'){ 
+    else if (type == "raw") {
       DS <- df_raw_shiny()
     }
-    if(som_trans=='None'){
+    if (som_trans == "None") {
       som.data <- DS
     }
-    else if(som_trans=='log10'){
-      som.data <- log10(DS+1)
+    else if (som_trans == "log10") {
+      som.data <- log10(DS + 1)
     }
-    
+
     # Use all samples or individual
-    if (sample_choice == 'All'){
-      som.data = som.data 
+    if (sample_choice == "All") {
+      som.data <- som.data
     }
     else {
-      som.data = som.data[ ,sample_choice]
+      som.data <- som.data[, sample_choice]
     }
-    
+
     # some parameters
     som.data <- as.matrix(som.data)
-    som_grid <- somgrid(xdim=grid_h, ydim=grid_v, topo="hexagonal")
-    som_model <- som(som.data, grid=som_grid)
-    
+    som_grid <- somgrid(xdim = grid_h, ydim = grid_v, topo = "hexagonal")
+    som_model <- som(som.data, grid = som_grid)
+
     som.end <- Sys.time()
     print("SOM plot time")
     print(som.end - som.start)
-    return (list(som_model, cluster_size))
+    return(list(som_model, cluster_size))
   })
-  
-  
-  sompropertyplot <- function(){
-    # get data 
+
+
+  sompropertyplot <- function() {
+    # get data
     li <- plotSOM()
     som_model <- li[[1]]
-    
+
     # plot type: property
     colors <- function(n, alpha = 1) {
       rev(rainbow(n, alpha))
     }
     # use codes vectors (weight) for property plot
-    plot(som_model, type="property", property=getCodes(som_model), main="Property", palette.name = colors)
+    plot(som_model, type = "property", property = getCodes(som_model), main = "Property", palette.name = colors)
   }
-  
-  somcountplot <- function(){
+
+  somcountplot <- function() {
     li <- plotSOM()
     som_model <- li[[1]]
-    
+
     # plot type: count
     colors <- function(n, alpha = 1) {
       rev(heat.colors(n, alpha))
     }
-    
+
     # show how many genes are mapped to each node
-    plot(som_model, type="count", main="Count", palette.name = colors)
+    plot(som_model, type = "count", main = "Count", palette.name = colors)
   }
-  
-  somcodesplot <- function(){
+
+  somcodesplot <- function() {
     li <- plotSOM()
     som_model <- li[[1]]
-    
+
     # plot type: codes
     # shows codebook vectors of genes
-    plot(som_model, type="codes", main="Codes")
-  } 
-  
-  somdistplot <- function(){
+    plot(som_model, type = "codes", main = "Codes")
+  }
+
+  somdistplot <- function() {
     li <- plotSOM()
     som_model <- li[[1]]
-    
+
     # plot type: distance
     colors <- function(n, alpha = 1) {
       heat.colors(n, alpha)
     }
-    
+
     # show how close genes are from each other when they are mapped
-    plot(som_model, type="dist.neighbours", main="Distance", palette.name = colors)
+    plot(som_model, type = "dist.neighbours", main = "Distance", palette.name = colors)
   }
-  
+
   somclusterplot <- function() {
     li <- plotSOM()
     som_model <- li[[1]]
     cluster_size <- li[[2]]
-    
+
     # plot type: cluster
-    colors <- function(n, alpha=1) {
+    colors <- function(n, alpha = 1) {
       rev(heat.colors(n, alpha))
     }
-    
+
     # define colors from RColorBrewer
-    qual_col_pals <- brewer.pal.info[brewer.pal.info$category=='qual',]
+    qual_col_pals <- brewer.pal.info[brewer.pal.info$category == "qual", ]
     col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-    
+
     # use hierarchical clustering to cluster the SOM
     som.hc <- cutree(hclust(object.distances(som_model, "codes")), cluster_size)
-    plot(som_model, type="mapping", bgcol=col_vector[som.hc], main="Clusters")
+    plot(som_model, type = "mapping", bgcol = col_vector[som.hc], main = "Clusters")
     add.cluster.boundaries(som_model, som.hc)
   }
-  
-  
+
+
   output$som_property.plot <- renderPlot({
     sompropertyplot()
   })
@@ -3200,7 +3206,7 @@ server <- function(input, output, session) {
   output$som_cluster.plot <- renderPlot({
     somclusterplot()
   })
-  
+
   ###################################
   ###################################
   ###################################
