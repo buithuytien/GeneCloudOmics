@@ -1761,7 +1761,9 @@ server <- function(input, output, session) {
   plotPCA <- reactive({ # process and return data
     pca.start <- Sys.time()
     type <- input$file_type
+    ############################
     pca_type <- input$pca_type
+    ############################
     if (type == "norm") {
       DS <- df_shiny()
     } else if (type == "raw") {
@@ -1806,8 +1808,10 @@ server <- function(input, output, session) {
     ylabel <- paste(colnames(PR$x)[cindex], " - ", PCA.var.per[cindex], "%", sep = "")
     if (cluster_flag == TRUE) {
       num <- as.numeric(input$pca_cluster_num)
+      ####################################################################################
       kmeans.data <- data.frame(x = PR$x[, col_val_x], y = PR$x[, col_val_y])
       print(kmeans.data)
+      ####################################################################################
       kmeans.result <- kmeans(kmeans.data, num)
       return(list(PR, PCA.var, PCA.var.per, rindex, cindex, xlabel, ylabel, cluster_flag, kmeans.result))
     }
