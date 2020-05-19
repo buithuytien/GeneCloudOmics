@@ -226,13 +226,14 @@ ui <- navbarPage(
         "trans", "Transformation:",
         c("None", "Natural log", "log2", "log10")
       ),
-      downloadButton("downloadscatter", "Download as PDF"),
+      checkboxInput("regline", "Display regression line", value = FALSE),
+      downloadButton("downloadscatter", "Download as PNG"),
       h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
       downloadButton("downloadscatter_collage", "Download collage")
     ),
     mainPanel(
       h3("Heatscatter"),
-      plotOutput("scatter.plot")
+      plotlyOutput("scatter.plot")
     )
   ),
   tabPanel(
@@ -1421,6 +1422,7 @@ server <- function(input, output, session) {
   ######## scatter ###########
   ############################
 
+  # input scatter data
   plotScatter <- reactive({
     scatter.start <- Sys.time()
     trans <- input$trans
@@ -1447,20 +1449,46 @@ server <- function(input, output, session) {
     return(list(x, y, scatter.data))
   })
 
-  scatterplot <- function() {
-    li <- plotScatter()
-    x <- li[[1]]
-    y <- li[[2]]
-    scatter.data <- li[[3]]
-    d <- kde2d(scatter.data[, x], scatter.data[, y])
-    ColorLevels <- round(seq(min(d$z), max(d$z), length = 5), 4)
-    heatscatter(x = scatter.data[, x], y = scatter.data[, y], xlab = x, ylab = y, main = "")
-    legend("topleft", paste("R=", round(cor(scatter.data[, x], scatter.data[, y]), 3)), bty = "n")
-    legend("bottomright", title = "KDE", legend = ColorLevels, pch = 19, col = LSD::colorpalette("heat"))
-    if (x != y) {
-      lines(lowess(scatter.data[, x], scatter.data[, y]), col = "black")
-    }
+
+  get_density <- function(x, y, ...) {
+    dens <- MASS::kde2d(x, y, ...)
+    ix <- findInterval(x, dens$x)
+    iy <- findInterval(y, dens$y)
+    ii <- cbind(ix, iy)
+    return(dens$z[ii])
   }
+
+  scatterplot <- function() {
+    # get values from list
+    li <- plotScatter()
+    xval <- li[[1]]
+    yval <- li[[2]]
+    scatter.data <- li[[3]]
+
+    # data frame needed for ggplot
+    df <- data.frame(t1 = scatter.data[, xval], t2 = scatter.data[, yval])
+
+    # get 2d kernel density estimate
+    df$density <- get_density(df$t1, df$t2, n = 100)
+
+    # plot heat scatter w/ ggplot
+    p <- ggplot(df, aes(x = t1, y = t2, color = density, text = paste(xval, ": ", round(t1, 4), "\n", yval, ": ", round(t2, 4), sep = ""), group = 1)) +
+      geom_point(shape = 19, size = 0.25) +
+      scale_color_viridis()
+
+    # modify label and fill defaults
+    p <- p + xlab(xval) + ylab(yval) + labs(color = "KDE", title = paste("R=", round(cor(scatter.data[, xval], scatter.data[, yval]), 3)))
+
+    # if checkbox is ticked, display regression line
+    if (input$regline == TRUE) {
+      p <- p + geom_smooth(method = lm, se = FALSE, size = 0.5, color = "blue")
+    }
+    p
+
+    # add interactivity w/ plotly
+    ggplotly(p, tooltip = c("text"))
+  }
+
   scatterplot_collage <- function() {
     li <- plotScatter()
     scatter.data <- li[[3]]
@@ -1479,7 +1507,7 @@ server <- function(input, output, session) {
     }
   }
 
-  output$scatter.plot <- renderPlot({
+  output$scatter.plot <- renderPlotly({
     scatterplot()
   })
 
