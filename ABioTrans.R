@@ -345,6 +345,12 @@ ui <- navbarPage(
           checkboxInput("pca_text", strong("Display sample name"), FALSE)
         )
       ),
+      ######################################
+      radioButtons(
+        "pca_type", "Type of PCA",
+        c("PCA" = "PCA", "Sparse PCA" = "SPCA")
+      ),
+      ######################################
       conditionalPanel(
         condition = "input.gene_order=='Random'",
         helpText("* Click multiple times to resample"),
@@ -1755,6 +1761,9 @@ server <- function(input, output, session) {
   plotPCA <- reactive({ # process and return data
     pca.start <- Sys.time()
     type <- input$file_type
+    ############################
+    pca_type <- input$pca_type
+    ############################
     if (type == "norm") {
       DS <- df_shiny()
     } else if (type == "raw") {
@@ -1776,14 +1785,33 @@ server <- function(input, output, session) {
     }
 
     DSample <- head(DS1, n = size)
-    PR <- prcomp(t(DSample), center = TRUE)
+
+    ##### PCA & Sparse PCA #####
+    if (pca_type == "PCA") {
+      PR <- prcomp(t(DSample), center = TRUE)
+      print("Normal PCA selected")
+    }
+    else if (pca_type == "SPCA") {
+      PR <- spca(t(DSample), scale = FALSE, center = TRUE, max_iter = 10)
+      PR$x <- PR$scores
+      print("Sparse PCA selected")
+    }
+
+    col_val_x <- as.numeric(gsub("[^[:digit:]]", "", x))
+    col_val_y <- as.numeric(gsub("[^[:digit:]]", "", y))
+    #####################
+
+
     PCA.var <- PR$sdev^2
     PCA.var.per <- round(PCA.var / sum(PCA.var) * 100, 1)
     xlabel <- paste(colnames(PR$x)[rindex], " - ", PCA.var.per[rindex], "%", sep = "")
     ylabel <- paste(colnames(PR$x)[cindex], " - ", PCA.var.per[cindex], "%", sep = "")
     if (cluster_flag == TRUE) {
       num <- as.numeric(input$pca_cluster_num)
-      kmeans.data <- data.frame(x = PR$x[, x], y = PR$x[, y])
+      ####################################################################################
+      kmeans.data <- data.frame(x = PR$x[, col_val_x], y = PR$x[, col_val_y])
+      print(kmeans.data)
+      ####################################################################################
       kmeans.result <- kmeans(kmeans.data, num)
       return(list(PR, PCA.var, PCA.var.per, rindex, cindex, xlabel, ylabel, cluster_flag, kmeans.result))
     }
