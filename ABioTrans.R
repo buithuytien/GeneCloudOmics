@@ -765,10 +765,21 @@ ui <- navbarPage(
           c("None", "log10")
         ),
         actionButton("submit_rf", "Submit")
+        # conditionalPanel(
+        #          condition = "input.rf_tabs == 'RF plot'",
+        #          downloadButton("downloadrfplot", "Download as PDF")
+        #        ),
+        #        conditionalPanel(
+        #          condition = "input.rf_tabs == 'RF matrix'",
+        #          downloadButton("downloadrfmatrix", "Download as PDF")
+        #        )
       ),
       mainPanel(
         h3("Clustering With Random Forest"),
-        plotlyOutput("rf.plot")
+        tabsetPanel(type = "tabs",id="rf_tabs",
+                           tabPanel("RF plot", plotlyOutput("rf.plot")),
+                           tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
+               )
       )
     ),
 
@@ -3141,9 +3152,53 @@ server <- function(input, output, session) {
   }
 
 
+  rf_matrix <- reactive({
+    li <- plotRF()
+    rf.data <- li[[1]]
+    num_trees <- li[[2]]
+    num_clusters <- li[[3]]
+
+    # unsupervised random forest on data
+    print("Running random forest...")
+    rf.data <- t(rf.data)
+    rf_out <- randomForest(rf.data, type = unsupervised, ntree = num_trees, proximity = TRUE)
+    print("Done!")
+
+    mds_out <- cmdscale(1 - rf_out$proximity, eig = TRUE, k = 2)
+    
+    return(mds_out$points)
+  })
+
+
   output$rf.plot <- renderPlotly({
     rfplot()
   })
+
+  output$rf.matrix <- renderTable({
+    rf_matrix()
+  },rownames=TRUE)
+
+  # output$downloadrfplot <- downloadHandler(
+  #   filename = function(){
+  #     paste("randomforestplot",".pdf",sep="")
+  #   },
+  #   content = function(file){
+  #     pdf(file) 
+  #     rfplot()
+  #     dev.off()
+  #   }
+  # )
+
+  # output$downloadrfmatrix <- downloadHandler(
+  #   filename = function(){
+  #     paste("randomforestmatrix",".pdf",sep="")
+  #   },
+  #   content = function(file){
+  #     pdf(file) 
+  #     rf_matrix()
+  #     dev.off()
+  #   }
+  # )
 
   ###################################
   ###################################
