@@ -753,6 +753,20 @@ ui <- navbarPage(
   ###############################################
   navbarMenu(
     "New",
+    tabPanel('t-SNE',
+             sidebarPanel(
+               splitLayout(
+                 numericInput("perplexity_value","Perplexity value", min=1, value=30),
+                 numericInput("no_of_pca","No. of PCs", min=1, value=2),
+                 numericInput("no_of_clusters","No. of clusters", min=2, value=2)
+               ),
+               radioButtons('tsne2_trans',"Transformation:",
+                            c('None', 'log10')),
+               actionButton("submit_tsne2","Submit")),
+             mainPanel(
+               h3('t-SNE Plot'),
+               plotOutput('tsne2.plot')
+             )),
     tabPanel(
       "Random Forest",
       sidebarPanel(
@@ -3081,6 +3095,75 @@ server <- function(input, output, session) {
   ###################################
   ###################################
 
+
+
+  ###################################
+  ###################################
+  ############   t-SNE    ###########
+  ############# Python ##############
+  ###################################
+  # data for t-sne
+  plotTSNE2 <- eventReactive(input$submit_tsne2, {
+    tsne2.start <- Sys.time()
+    tsne2_trans <- input$tsne2_trans
+    type <- input$file_type
+    perplexity_value <- input$perplexity_value
+    no_of_pca <- input$no_of_pca
+    no_of_clusters <- input$no_of_clusters
+    
+    
+    if(type=='norm'){
+      DS <- df_shiny()
+    }else if(type=='raw'){ 
+      DS <- df_raw_shiny()
+    }
+    if(tsne2_trans=='None'){
+      tsne2.data <- DS
+    }
+    else if(tsne2_trans=='log10'){
+      tsne2.data <- log10(DS+1)
+    }
+    tsne2.end <- Sys.time()
+    print("t-SNE plot time")
+    print(tsne2.end - tsne2.start)
+    return (list(tsne2.data, perplexity_value, no_of_pca, no_of_clusters))
+  })
+  
+  
+  tsne2plot <- function(){
+    # get data 
+    li <- plotTSNE2()
+    tsne2.data <- li[[1]]
+    perplexity_value <- li[[2]]
+    no_of_pca <- li[[3]]
+    no_of_clusters <- li[[4]] 
+    
+    # convert R to Python dataframe
+    py_run_file("df_converter.py")
+    temp <- py$r2py_DataFrame(tsne2.data)
+    py$df_expr <- temp[[1]]
+    py$temp_indexnames <- temp[[2]]
+    
+    # additional parameters to pass to python script
+    py$dataName = 'tsne_data_output'
+    py$perplexity = perplexity_value
+    py$n_components_pca = no_of_pca
+    py$n_clusters = no_of_clusters
+    
+    # run DCS python script
+    py_run_file("DCS_demo_interactive.py")
+    
+  }
+  
+  
+  output$tsne2.plot <- renderPlot({
+    tsne2plot()
+  })
+  
+  ###################################
+  ###################################
+  ###################################
+  ###################################
 
 
 
