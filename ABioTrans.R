@@ -785,7 +785,29 @@ ui <- navbarPage(
           "som_trans", "Transformation:",
           c("None", "log10")
         ),
-        actionButton("submit_som", "Submit")
+        actionButton("submit_som", "Submit"),
+        br(),
+        br(),
+        conditionalPanel(
+                 condition = "input.som_tabs == 'Property plot'",
+                 downloadButton("downloadProperty", "Download as PDF")
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Count plot'",
+                 downloadButton("downloadCount", "Download as PDF")
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Codes plot'",
+                 downloadButton("downloadCodes","Download as PDF")
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Distance plot'",
+                 downloadButton("downloadDistance", "Download as PDF")
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Cluster plot'",
+                 downloadButton("downloadCluster","Download as PDF")
+               )
       ),
       mainPanel(
         tabsetPanel(
@@ -3262,6 +3284,61 @@ server <- function(input, output, session) {
   output$som_cluster.plot <- renderPlot({
     somclusterplot()
   })
+
+  output$downloadProperty <- downloadHandler(
+    filename = function(){
+      paste("SOMProperty",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file) 
+      sompropertyplot()
+      dev.off()
+    }
+  )
+
+  output$downloadCount <- downloadHandler(
+    filename = function(){
+      paste("SOMCount",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file) 
+      somcountplot()
+      dev.off()
+    }
+  )
+
+  output$downloadCodes <- downloadHandler(
+    filename = function(){
+      paste("SOMCodes",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file) 
+      somcodesplot()
+      dev.off()
+    }
+  )
+
+  output$downloadDistance <- downloadHandler(
+    filename = function(){
+      paste("SOMDistance",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file) 
+      somdistplot()
+      dev.off()
+    }
+  )
+
+  output$downloadCluster <- downloadHandler(
+    filename = function(){
+      paste("SOMCluster",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file) 
+      somclusterplot()
+      dev.off()
+    }
+  )
 
   ###################################
   ###################################
