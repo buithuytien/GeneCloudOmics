@@ -764,15 +764,15 @@ ui <- navbarPage(
           "rf_trans", "Transformation:",
           c("None", "log10")
         ),
-        actionButton("submit_rf", "Submit"),
-        conditionalPanel(
-                 condition = "input.rf_tabs == 'RF plot'",
-                 downloadButton("downloadrfplot", "Download as PDF")
-               ),
-               conditionalPanel(
-                 condition = "input.rf_tabs == 'RF matrix'",
-                 downloadButton("downloadrfmatrix", "Download as PDF")
-               )
+        actionButton("submit_rf", "Submit")
+        # conditionalPanel(
+        #          condition = "input.rf_tabs == 'RF plot'",
+        #          downloadButton("downloadrfplot", "Download as PDF")
+        #        ),
+        #        conditionalPanel(
+        #          condition = "input.rf_tabs == 'RF matrix'",
+        #          downloadButton("downloadrfmatrix", "Download as PDF")
+        #        )
       ),
       mainPanel(
         h3("Clustering With Random Forest"),
@@ -3156,27 +3156,27 @@ server <- function(input, output, session) {
     rf_matrix()
   },rownames=TRUE)
 
-  output$downloadrfplot <- downloadHandler(
-    filename = function(){
-      paste("randomforestplot",".pdf",sep="")
-    },
-    content = function(file){
-      pdf(file) 
-      rfplot()
-      dev.off()
-    }
-  )
+  # output$downloadrfplot <- downloadHandler(
+  #   filename = function(){
+  #     paste("randomforestplot",".pdf",sep="")
+  #   },
+  #   content = function(file){
+  #     pdf(file) 
+  #     rfplot()
+  #     dev.off()
+  #   }
+  # )
 
-  output$downloadrfmatrix <- downloadHandler(
-    filename = function(){
-      paste("randomforestmatrix",".pdf",sep="")
-    },
-    content = function(file){
-      pdf(file) 
-      rf_matrix()
-      dev.off()
-    }
-  )
+  # output$downloadrfmatrix <- downloadHandler(
+  #   filename = function(){
+  #     paste("randomforestmatrix",".pdf",sep="")
+  #   },
+  #   content = function(file){
+  #     pdf(file) 
+  #     rf_matrix()
+  #     dev.off()
+  #   }
+  # )
 
   ###################################
   ###################################
