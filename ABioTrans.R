@@ -767,6 +767,20 @@ ui <- navbarPage(
                h3('t-SNE Plot'),
                plotOutput('tsne2.plot')
              )),
+
+    tabPanel('Overlay',
+             sidebarPanel(
+               h4('First Scatter'),
+               selectInput(inputId = 'overlay.x1',label = 'X-axis',choices = ""),
+               selectInput(inputId = 'overlay.y1',label = 'Y-axis',choices = ""),
+               h4('Second Scatter'),
+               selectInput(inputId = 'overlay.x2',label = 'X-axis',choices = ""),
+               selectInput(inputId = 'overlay.y2',label = 'Y-axis',choices = ""),
+               actionButton("submit_overlay","Submit")),
+             mainPanel(
+               plotOutput('overlay.plot')
+             )),
+
     tabPanel(
       "Random Forest",
       sidebarPanel(
@@ -3092,6 +3106,80 @@ server <- function(input, output, session) {
 
   ###################################
   ########## New-Features ###########
+  ###################################
+  ###################################
+
+
+
+  ###################################
+  ###################################
+  ########  Scatter Overlay  ########
+  ############# Python ##############
+  ###################################
+  # data for t-sne
+  plotOverlay <- eventReactive(input$submit_overlay, {
+    overlay.start <- Sys.time()
+    type <- input$file_type
+    x1 <- input$overlay.x1
+    y1 <- input$overlay.y1
+    x2 <- input$overlay.x2
+    y2 <- input$overlay.y2
+    
+    if(type=='norm'){
+      DS <- df_shiny()
+    }else if(type=='raw'){ 
+      DS <- df_raw_shiny()
+    }
+    
+    overlay.data <- DS
+    
+    overlay.end <- Sys.time()
+    print("Overlay plot time")
+    print(overlay.end - overlay.start)
+    return (list(overlay.data, x1, y1, x2, y2))
+  })
+  
+  
+  overlayplot <- function(){
+    # get data 
+    li <- plotOverlay()
+    overlay.data <- li[[1]]
+    x1 <- li[[2]]
+    y1 <- li[[3]]
+    x2 <- li[[4]]
+    y2 <- li[[5]]
+    
+    # get corresponding col num from col name
+    x1_col <- which(colnames(overlay.data)==x1)
+    y1_col <- which(colnames(overlay.data)==y1)
+    x2_col <- which(colnames(overlay.data)==x2)
+    y2_col <- which(colnames(overlay.data)==y2)
+    
+    # convert R to Python dataframe
+    py_run_file("df_converter.py")
+    temp <- py$r2py_DataFrame(overlay.data)
+    py$df <- temp[[1]]
+    py$column_names <- temp[[2]]
+    
+    # additional parameters to pass to python script
+    py$x1_val = x1_col
+    py$y1_val = y1_col
+    py$x2_val = x2_col
+    py$y2_val = y2_col
+    
+    # run ScatterOverlay python script
+    py_run_file("ScatLay.py")
+    
+  }
+  
+  
+  output$overlay.plot <- renderImage({
+    overlayplot()
+    list(src = 'overlay.png')
+  })
+  
+  ###################################
+  ###################################
   ###################################
   ###################################
 
