@@ -301,12 +301,34 @@ ui <- navbarPage(
         downloadButton("downloadcorrplot", "Download as PDF")
       ),
       conditionalPanel(
+        condition = "input.cor_tabs == 'Correlation heatmap'",
+        br()
+      ),
+      conditionalPanel(
+        condition = "input.cor_tabs == 'Correlation heatmap'",
+        actionButton("corrplotreport", "Add to Report")
+      ),
+      conditionalPanel(
         condition = "input.cor_tabs == 'Correlation plot'",
         downloadButton("downloadcorrplot2", "Download as PDF")
       ),
       conditionalPanel(
+        condition = "input.cor_tabs == 'Correlation plot'",
+        br()
+      ),
+      conditionalPanel(
+        condition = "input.cor_tabs == 'Correlation plot'",
+        actionButton("corrplot2report", "Add to Report")
+      ),
+      conditionalPanel(
         condition = "input.cor_tabs == 'Correlation matrix'",
         downloadButton("downloadcorrmat", "Download as CSV")
+      ),
+      br(),
+      conditionalPanel(
+        condition = "input.cor_tabs != 'Correlation matrix'",
+        downloadButton("corrplotmakereport", "Download Report" ,
+    style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
       )
     ),
     mainPanel(
@@ -876,7 +898,7 @@ ui <- navbarPage(
                  actionButton("somclusterplotreport", "Add to Report")
                ),
                br(),
-               downloadButton("makereport", "Download Report" ,
+               downloadButton("sommakereport", "Download Report" ,
     style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
                  ),
       mainPanel(
@@ -1853,6 +1875,12 @@ server <- function(input, output, session) {
     }
   )
 
+  observeEvent(input$corrplotreport,
+  {
+     reportstack <<- c( reportstack,"corrplot1")
+      print("Done")
+  })
+
   output$downloadcorrplot2 <- downloadHandler(
     filename = function() {
       paste("corrplot", ".pdf", sep = "")
@@ -1863,6 +1891,12 @@ server <- function(input, output, session) {
       dev.off()
     }
   )
+
+  observeEvent(input$corrplot2report,
+  {
+     reportstack <<- c( reportstack,"corrplot2")
+      print("Done")
+  })
 
   output$downloadcorrmat <- downloadHandler(
     filename = function() {
@@ -3576,7 +3610,19 @@ server <- function(input, output, session) {
   ###################################
   ###################################
 
-  output$makereport <- downloadHandler(
+  output$sommakereport <- downloadHandler(
+    filename = function(){
+      paste("Report",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file)
+      for(i in unique(reportstack)) do.call(i,list())
+      print(length(unique(reportstack)))
+      dev.off()
+    }
+  )
+
+  output$corrplotmakereport <- downloadHandler(
     filename = function(){
       paste("Report",".pdf",sep="")
     },
