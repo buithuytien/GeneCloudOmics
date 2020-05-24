@@ -2,6 +2,8 @@
 # Sys.setenv("plotly_api_key"="your_api_key")
 ## test repo
 
+reportstack <- vector()
+
 print("start loading")
 start.load <- Sys.time() ### time
 
@@ -818,22 +820,65 @@ ui <- navbarPage(
                  downloadButton("downloadProperty", "Download as PDF")
                ),
                conditionalPanel(
+                 condition = "input.som_tabs == 'Property plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Property plot'",
+                 actionButton("sompropertyplotreport", "Add to Report")
+               ),
+               conditionalPanel(
                  condition = "input.som_tabs == 'Count plot'",
                  downloadButton("downloadCount", "Download as PDF")
                ),
                conditionalPanel(
+                 condition = "input.som_tabs == 'Count plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Count plot'",
+                 actionButton("somcountplotreport", "Add to Report")
+               ),
+               conditionalPanel(
                  condition = "input.som_tabs == 'Codes plot'",
-                 downloadButton("downloadCodes","Download as PDF")
+                 downloadButton("downloadCodes", "Download as PDF")
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Codes plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Codes plot'",
+                 actionButton("somcodesplotreport", "Add to Report")
                ),
                conditionalPanel(
                  condition = "input.som_tabs == 'Distance plot'",
                  downloadButton("downloadDistance", "Download as PDF")
                ),
                conditionalPanel(
+                 condition = "input.som_tabs == 'Distance plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Distance plot'",
+                 actionButton("somdistplotreport", "Add to Report")
+               ),
+               conditionalPanel(
                  condition = "input.som_tabs == 'Cluster plot'",
-                 downloadButton("downloadCluster","Download as PDF")
-               )
-      ),
+                 downloadButton("downloadCluster", "Download as PDF")
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Cluster plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Cluster plot'",
+                 actionButton("somclusterplotreport", "Add to Report")
+               ),
+               br(),
+               downloadButton("makereport", "Download Report" ,
+    style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                 ),
       mainPanel(
         tabsetPanel(
           type = "tabs", id = "som_tabs",
@@ -850,6 +895,16 @@ ui <- navbarPage(
 ####################################################
 
 server <- function(input, output, session) {
+
+
+
+  ###################################################
+  ##### Increasing the Max Upload Size to 30 MB #####
+  ###################################################
+
+
+  options(shiny.maxRequestSize=30*1024^2)
+
 
   ########################################
   ##### get variable names for input #####
@@ -3434,6 +3489,12 @@ server <- function(input, output, session) {
     }
   )
 
+  observeEvent(input$sompropertyplotreport,
+  {
+     reportstack <<- c( reportstack,"sompropertyplot")
+      print("Done")
+  })
+
   output$downloadCount <- downloadHandler(
     filename = function(){
       paste("SOMCount",".pdf",sep="")
@@ -3444,6 +3505,12 @@ server <- function(input, output, session) {
       dev.off()
     }
   )
+
+  observeEvent(input$somcountplotreport,
+  {
+     reportstack <<- c( reportstack,"somcountplot")
+      print("Done")
+  })
 
   output$downloadCodes <- downloadHandler(
     filename = function(){
@@ -3456,6 +3523,12 @@ server <- function(input, output, session) {
     }
   )
 
+  observeEvent(input$somcodesplotreport,
+  {
+     reportstack <<- c( reportstack,"somcodesplot")
+      print("Done")
+  })
+
   output$downloadDistance <- downloadHandler(
     filename = function(){
       paste("SOMDistance",".pdf",sep="")
@@ -3466,6 +3539,12 @@ server <- function(input, output, session) {
       dev.off()
     }
   )
+
+  observeEvent(input$somdistplotreport,
+  {
+     reportstack <<- c( reportstack,"somdistplot")
+      print("Done")
+  })
 
   output$downloadCluster <- downloadHandler(
     filename = function(){
@@ -3478,12 +3557,36 @@ server <- function(input, output, session) {
     }
   )
 
+  observeEvent(input$somclusterplotreport,
+  {
+     reportstack <<- c( reportstack ,"somclusterplot")
+      print("Done")
+  })
+
+
   ###################################
   ###################################
   ###################################
   ###################################
 
 
+
+  ###################################
+  ########## Make Report ############
+  ###################################
+  ###################################
+
+  output$makereport <- downloadHandler(
+    filename = function(){
+      paste("Report",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file)
+      for(i in unique(reportstack)) do.call(i,list())
+      print(length(unique(reportstack)))
+      dev.off()
+    }
+  )
 
   # session$onSessionEnded(stopApp)
 }
