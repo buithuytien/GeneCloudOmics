@@ -229,7 +229,7 @@ ui <- navbarPage(
         c("None", "Natural log", "log2", "log10")
       ),
       checkboxInput("regline", "Display regression line", value = FALSE),
-      downloadButton("downloadscatter", "Download as PNG"),
+      actionButton("downloadscatter", "Download as PDF"),
       h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
       downloadButton("downloadscatter_collage", "Download collage")
     ),
@@ -384,7 +384,7 @@ ui <- navbarPage(
       ),
       conditionalPanel(
         condition = "input.pca_tabs == 'PCA variance'",
-        downloadButton("downloadpcavar", "Download as PNG")
+        actionButton("downloadpcavar", "Download as PDF")
       ),
       conditionalPanel(
         condition = "input.pca_tabs == 'PCA-2D plot'",
@@ -802,11 +802,12 @@ ui <- navbarPage(
           "rf_trans", "Transformation:",
           c("None", "log10")
         ),
-        actionButton("submit_rf", "Submit")
-        # conditionalPanel(
-        #          condition = "input.rf_tabs == 'RF plot'",
-        #          downloadButton("downloadrfplot", "Download as PDF")
-        #        ),
+        actionButton("submit_rf", "Submit"),
+        br(), br(),
+        conditionalPanel(
+                 condition = "input.rf_tabs == 'RF plot'",
+                 actionButton("downloadrfplot", "Download as PDF")
+               )
         #        conditionalPanel(
         #          condition = "input.rf_tabs == 'RF matrix'",
         #          downloadButton("downloadrfmatrix", "Download as PDF")
@@ -1646,16 +1647,11 @@ server <- function(input, output, session) {
     }
   )
 
-  output$downloadscatter <- downloadHandler(
-    filename = function() {
-      paste("heatscatter", ".pdf", sep = "")
-    },
-    content = function(file) {
-      pdf(file)
-      scatterplot()
-      dev.off()
-    }
-  )
+  observeEvent(input$downloadscatter,
+  {
+    ggsave("heatscatter.pdf")
+  })
+
 
   ############################
   ######## distfit ###########
@@ -2380,7 +2376,7 @@ server <- function(input, output, session) {
 
   output$download_volcano <- downloadHandler(
     filename = function() {
-      paste0("Volcano", ".pdf")
+      paste("Volcano",".pdf",sep="")
     },
     content = function(file) {
       pdf(file)
@@ -2391,7 +2387,7 @@ server <- function(input, output, session) {
 
   output$download_dispersion <- downloadHandler(
     filename = function() {
-      paste0("Dispersion plot", ".pdf")
+      paste("Dispersion plot", ".pdf",sep="")
     },
     content = function(file) {
       pdf(file)
@@ -3316,13 +3312,13 @@ server <- function(input, output, session) {
     df <- data.frame(x = mds_out$points[, 1], y = mds_out$points[, 2], color = shape_legend, shape = shape_legend)
     p <- ggplot(data = df, aes(x = x, y = y, color = color, shape = shape, text = paste("x: ", round(x, 4), "\n", "y: ", round(y, 4), "\n", "Name: ", rownames(mds_out$points), "\n", "Cluster: ", shape, sep = ""), group = 1)) +
       geom_point(size = 1.40)
+
     p <- p + theme(legend.position = "none")
-    p
+    # p
 
     # add interactivity w/ plotly
     ggplotly(p, tooltip = c("text"))
   }
-
 
   rf_matrix <- reactive({
     li <- plotRF()
@@ -3350,16 +3346,11 @@ server <- function(input, output, session) {
     rf_matrix()
   },rownames=TRUE)
 
-  # output$downloadrfplot <- downloadHandler(
-  #   filename = function(){
-  #     paste("randomforestplot",".pdf",sep="")
-  #   },
-  #   content = function(file){
-  #     pdf(file) 
-  #     rfplot()
-  #     dev.off()
-  #   }
-  # )
+  observeEvent(input$downloadrfplot,
+  {
+    ggsave("Randomforestplot.pdf")
+  })
+
 
   # output$downloadrfmatrix <- downloadHandler(
   #   filename = function(){
