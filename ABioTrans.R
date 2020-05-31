@@ -201,6 +201,10 @@ ui <- navbarPage(
             conditionalPanel(
               condition = "!$('html').hasClass('shiny-busy')",
               plotOutput("RLE.plot")
+            ),
+            conditionalPanel(
+              condition = "!$('html').hasClass('shiny-busy')",
+              plotlyOutput("violin_plot")
             )
           )
         ),
@@ -1378,7 +1382,9 @@ server <- function(input, output, session) {
   ######### ANALYSIS FROM HERE ############
   ######## RLEplot and Preprocessing ###########
   #############################################
-  RLE.plot <- reactive({
+
+
+RLE.plot <- reactive({
     type <- input$file_type
     if (type == "norm") {
       DS <- df_shiny()
@@ -1400,8 +1406,42 @@ server <- function(input, output, session) {
     }
   })
 
+
+  violin_plot <- reactive({
+    type <- input$file_type
+    if (type == "norm") {
+      DS <- df_shiny()
+    } else if (type == "raw") {
+      DS <- df_raw_shiny()
+    }
+
+    norm_method_name <- input$norm_method
+
+    if (norm_method_name != "None" & input$submit_preprocessing != 0) {
+     
+      df <- as.data.frame(DS)
+      df <- setNames(stack(df),c("norm_type","Genotype"))
+      df$norm_type <- log(df$norm_type+1)
+
+      p <- ggplot(df, aes(x=Genotype, y=norm_type)) + 
+      geom_violin(trim=FALSE) + 
+      labs(title="", y = paste("log(",norm_method_name,"+1)",sep = '') )+
+      stat_summary(fun.data=mean_sdl, mult=1, 
+                  geom="pointrange", color="red") +
+      geom_boxplot(width=0.1)
+      p
+
+      ggplotly(p, tooltip = c("text"))
+
+    }
+  })
+
+
   output$RLE.plot <- renderPlot({
     RLE.plot()
+  })
+  output$violin_plot <- renderPlotly({
+    violin_plot()
   })
 
   output$RLE.plot2 <- renderPlot({ # for raw data
