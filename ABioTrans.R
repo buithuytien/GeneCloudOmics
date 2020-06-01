@@ -201,11 +201,21 @@ ui <- navbarPage(
             conditionalPanel(
               condition = "!$('html').hasClass('shiny-busy')",
               plotOutput("RLE.plot")
-            ),
-            conditionalPanel(
-              condition = "!$('html').hasClass('shiny-busy')",
-              plotlyOutput("violin_plot")
             )
+          )
+        ),
+        tabPanel(
+          "Violin Plot",
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            plotlyOutput("violin_plot")
           )
         ),
         tabPanel(
