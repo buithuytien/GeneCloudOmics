@@ -231,7 +231,8 @@ ui <- navbarPage(
       )
     )
   ),
-  tabPanel(
+  navbarMenu('Transcriptome Analysis',
+    tabPanel(
     "    Scatter    ",
     sidebarPanel(
       selectInput(inputId = "scatter.x", label = "X-axis", choices = ""),
@@ -762,12 +763,7 @@ ui <- navbarPage(
       )
     )
   ),
-  ###############################################
-  ###############################################
-  ###############################################
-  navbarMenu(
-    "New",
-    tabPanel('t-SNE',
+  tabPanel('t-SNE',
              sidebarPanel(
                splitLayout(
                  numericInput("perplexity_value","Perplexity value", min=1, value=30),
@@ -859,6 +855,17 @@ ui <- navbarPage(
         )
       )
     )
+  ),
+  ###############################################
+  ###############################################
+  ###############################################
+  navbarMenu(
+    "Gene set Analysis",
+    tabPanel('Raw-Value')
+  ),
+  navbarMenu(
+    "Analysis Report",
+    tabPanel('Raw-Value')
   )
 )
 ####################################################
