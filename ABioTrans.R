@@ -872,6 +872,13 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
 
+
+  ########################################
+  ##### Increases the Upload Limit #######
+  ########################################
+
+  options(shiny.maxRequestSize=50*1024^2)
+
   ########################################
   ##### get variable names for input #####
   ########################################
