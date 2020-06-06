@@ -2,6 +2,8 @@
 # Sys.setenv("plotly_api_key"="your_api_key")
 ## test repo
 
+reportstack <- vector()
+
 print("start loading")
 start.load <- Sys.time() ### time
 
@@ -241,7 +243,7 @@ ui <- navbarPage(
         c("None", "Natural log", "log2", "log10")
       ),
       checkboxInput("regline", "Display regression line", value = FALSE),
-      downloadButton("downloadscatter", "Download as PNG"),
+      actionButton("downloadscatter", "Download as PDF"),
       h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
       downloadButton("downloadscatter_collage", "Download collage")
     ),
@@ -313,12 +315,34 @@ ui <- navbarPage(
         downloadButton("downloadcorrplot", "Download as PDF")
       ),
       conditionalPanel(
+        condition = "input.cor_tabs == 'Correlation heatmap'",
+        br()
+      ),
+      conditionalPanel(
+        condition = "input.cor_tabs == 'Correlation heatmap'",
+        actionButton("corrplotreport", "Add to Report")
+      ),
+      conditionalPanel(
         condition = "input.cor_tabs == 'Correlation plot'",
         downloadButton("downloadcorrplot2", "Download as PDF")
       ),
       conditionalPanel(
+        condition = "input.cor_tabs == 'Correlation plot'",
+        br()
+      ),
+      conditionalPanel(
+        condition = "input.cor_tabs == 'Correlation plot'",
+        actionButton("corrplot2report", "Add to Report")
+      ),
+      conditionalPanel(
         condition = "input.cor_tabs == 'Correlation matrix'",
         downloadButton("downloadcorrmat", "Download as CSV")
+      ),
+      br(),
+      conditionalPanel(
+        condition = "input.cor_tabs != 'Correlation matrix'",
+        downloadButton("corrplotmakereport", "Download Report" ,
+    style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
       )
     ),
     mainPanel(
@@ -374,7 +398,7 @@ ui <- navbarPage(
       ),
       conditionalPanel(
         condition = "input.pca_tabs == 'PCA variance'",
-        downloadButton("downloadpcavar", "Download as PNG")
+        actionButton("downloadpcavar", "Download as PDF")
       ),
       conditionalPanel(
         condition = "input.pca_tabs == 'PCA-2D plot'",
@@ -792,11 +816,12 @@ ui <- navbarPage(
           "rf_trans", "Transformation:",
           c("None", "log10")
         ),
-        actionButton("submit_rf", "Submit")
-        # conditionalPanel(
-        #          condition = "input.rf_tabs == 'RF plot'",
-        #          downloadButton("downloadrfplot", "Download as PDF")
-        #        ),
+        actionButton("submit_rf", "Submit"),
+        br(), br(),
+        conditionalPanel(
+                 condition = "input.rf_tabs == 'RF plot'",
+                 actionButton("downloadrfplot", "Download as PDF")
+               )
         #        conditionalPanel(
         #          condition = "input.rf_tabs == 'RF matrix'",
         #          downloadButton("downloadrfmatrix", "Download as PDF")
@@ -832,22 +857,65 @@ ui <- navbarPage(
                  downloadButton("downloadProperty", "Download as PDF")
                ),
                conditionalPanel(
+                 condition = "input.som_tabs == 'Property plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Property plot'",
+                 actionButton("sompropertyplotreport", "Add to Report")
+               ),
+               conditionalPanel(
                  condition = "input.som_tabs == 'Count plot'",
                  downloadButton("downloadCount", "Download as PDF")
                ),
                conditionalPanel(
+                 condition = "input.som_tabs == 'Count plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Count plot'",
+                 actionButton("somcountplotreport", "Add to Report")
+               ),
+               conditionalPanel(
                  condition = "input.som_tabs == 'Codes plot'",
-                 downloadButton("downloadCodes","Download as PDF")
+                 downloadButton("downloadCodes", "Download as PDF")
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Codes plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Codes plot'",
+                 actionButton("somcodesplotreport", "Add to Report")
                ),
                conditionalPanel(
                  condition = "input.som_tabs == 'Distance plot'",
                  downloadButton("downloadDistance", "Download as PDF")
                ),
                conditionalPanel(
+                 condition = "input.som_tabs == 'Distance plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Distance plot'",
+                 actionButton("somdistplotreport", "Add to Report")
+               ),
+               conditionalPanel(
                  condition = "input.som_tabs == 'Cluster plot'",
-                 downloadButton("downloadCluster","Download as PDF")
-               )
-      ),
+                 downloadButton("downloadCluster", "Download as PDF")
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Cluster plot'",
+                 br()
+               ),
+               conditionalPanel(
+                 condition = "input.som_tabs == 'Cluster plot'",
+                 actionButton("somclusterplotreport", "Add to Report")
+               ),
+               br(),
+               downloadButton("sommakereport", "Download Report" ,
+    style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                 ),
       mainPanel(
         tabsetPanel(
           type = "tabs", id = "som_tabs",
@@ -864,6 +932,16 @@ ui <- navbarPage(
 ####################################################
 
 server <- function(input, output, session) {
+
+
+
+  ###################################################
+  ##### Increasing the Max Upload Size to 30 MB #####
+  ###################################################
+
+
+  options(shiny.maxRequestSize=30*1024^2)
+
 
   ########################################
   ##### get variable names for input #####
@@ -1619,16 +1697,11 @@ RLE.plot <- reactive({
     }
   )
 
-  output$downloadscatter <- downloadHandler(
-    filename = function() {
-      paste("heatscatter", ".pdf", sep = "")
-    },
-    content = function(file) {
-      pdf(file)
-      scatterplot()
-      dev.off()
-    }
-  )
+  observeEvent(input$downloadscatter,
+  {
+    ggsave("heatscatter.pdf")
+  })
+
 
   ############################
   ######## distfit ###########
@@ -1848,6 +1921,12 @@ RLE.plot <- reactive({
     }
   )
 
+  observeEvent(input$corrplotreport,
+  {
+     reportstack <<- c( reportstack,"corrplot1")
+      print("Done")
+  })
+
   output$downloadcorrplot2 <- downloadHandler(
     filename = function() {
       paste("corrplot", ".pdf", sep = "")
@@ -1858,6 +1937,12 @@ RLE.plot <- reactive({
       dev.off()
     }
   )
+
+  observeEvent(input$corrplot2report,
+  {
+     reportstack <<- c( reportstack,"corrplot2")
+      print("Done")
+  })
 
   output$downloadcorrmat <- downloadHandler(
     filename = function() {
@@ -2341,7 +2426,7 @@ RLE.plot <- reactive({
 
   output$download_volcano <- downloadHandler(
     filename = function() {
-      paste0("Volcano", ".pdf")
+      paste("Volcano",".pdf",sep="")
     },
     content = function(file) {
       pdf(file)
@@ -2352,7 +2437,7 @@ RLE.plot <- reactive({
 
   output$download_dispersion <- downloadHandler(
     filename = function() {
-      paste0("Dispersion plot", ".pdf")
+      paste("Dispersion plot", ".pdf",sep="")
     },
     content = function(file) {
       pdf(file)
@@ -3277,13 +3362,13 @@ RLE.plot <- reactive({
     df <- data.frame(x = mds_out$points[, 1], y = mds_out$points[, 2], color = shape_legend, shape = shape_legend)
     p <- ggplot(data = df, aes(x = x, y = y, color = color, shape = shape, text = paste("x: ", round(x, 4), "\n", "y: ", round(y, 4), "\n", "Name: ", rownames(mds_out$points), "\n", "Cluster: ", shape, sep = ""), group = 1)) +
       geom_point(size = 1.40)
+
     p <- p + theme(legend.position = "none")
-    p
+    # p
 
     # add interactivity w/ plotly
     ggplotly(p, tooltip = c("text"))
   }
-
 
   rf_matrix <- reactive({
     li <- plotRF()
@@ -3311,16 +3396,11 @@ RLE.plot <- reactive({
     rf_matrix()
   },rownames=TRUE)
 
-  # output$downloadrfplot <- downloadHandler(
-  #   filename = function(){
-  #     paste("randomforestplot",".pdf",sep="")
-  #   },
-  #   content = function(file){
-  #     pdf(file) 
-  #     rfplot()
-  #     dev.off()
-  #   }
-  # )
+  observeEvent(input$downloadrfplot,
+  {
+    ggsave("Randomforestplot.pdf")
+  })
+
 
   # output$downloadrfmatrix <- downloadHandler(
   #   filename = function(){
@@ -3484,6 +3564,12 @@ RLE.plot <- reactive({
     }
   )
 
+  observeEvent(input$sompropertyplotreport,
+  {
+     reportstack <<- c( reportstack,"sompropertyplot")
+      print("Done")
+  })
+
   output$downloadCount <- downloadHandler(
     filename = function(){
       paste("SOMCount",".pdf",sep="")
@@ -3494,6 +3580,12 @@ RLE.plot <- reactive({
       dev.off()
     }
   )
+
+  observeEvent(input$somcountplotreport,
+  {
+     reportstack <<- c( reportstack,"somcountplot")
+      print("Done")
+  })
 
   output$downloadCodes <- downloadHandler(
     filename = function(){
@@ -3506,6 +3598,12 @@ RLE.plot <- reactive({
     }
   )
 
+  observeEvent(input$somcodesplotreport,
+  {
+     reportstack <<- c( reportstack,"somcodesplot")
+      print("Done")
+  })
+
   output$downloadDistance <- downloadHandler(
     filename = function(){
       paste("SOMDistance",".pdf",sep="")
@@ -3516,6 +3614,12 @@ RLE.plot <- reactive({
       dev.off()
     }
   )
+
+  observeEvent(input$somdistplotreport,
+  {
+     reportstack <<- c( reportstack,"somdistplot")
+      print("Done")
+  })
 
   output$downloadCluster <- downloadHandler(
     filename = function(){
@@ -3528,12 +3632,48 @@ RLE.plot <- reactive({
     }
   )
 
+  observeEvent(input$somclusterplotreport,
+  {
+     reportstack <<- c( reportstack ,"somclusterplot")
+      print("Done")
+  })
+
+
   ###################################
   ###################################
   ###################################
   ###################################
 
 
+
+  ###################################
+  ########## Make Report ############
+  ###################################
+  ###################################
+
+  output$sommakereport <- downloadHandler(
+    filename = function(){
+      paste("Report",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file)
+      for(i in unique(reportstack)) do.call(i,list())
+      print(length(unique(reportstack)))
+      dev.off()
+    }
+  )
+
+  output$corrplotmakereport <- downloadHandler(
+    filename = function(){
+      paste("Report",".pdf",sep="")
+    },
+    content = function(file){
+      pdf(file)
+      for(i in unique(reportstack)) do.call(i,list())
+      print(length(unique(reportstack)))
+      dev.off()
+    }
+  )
 
   # session$onSessionEnded(stopApp)
 }
