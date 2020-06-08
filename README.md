@@ -6,6 +6,17 @@ Zou Y, Bui TT and Selvarajoo K (2019) ABioTrans: A Biostatistical Tool for Trans
 
 Full text (free access) can be found at https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full 
 
+## Getting started
+
+### Prerequisites
+It is recommended to have the latest version of R and Python 3 installed. Python dependencies used is ```mplcursors```. It can be installed by running the following in command line: </br>
+
+```
+pip install mplcursors
+```
+
+As for required R packages, they will be installed automatically when the tool is launched for the first time.
+
 ## How to set up
 1. Install R from https://cran.r-project.org/ 
 2. Install Rstudio from https://www.rstudio.com/ 

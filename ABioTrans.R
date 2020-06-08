@@ -31,6 +31,18 @@ if(length(find.package(package = 'rstudioapi',quiet = T))>0){
   library(rstudioapi)
 }
 
+
+################################################################################
+
+if(length(find.package(package = 'reticulate',quiet = T))>0){
+  library(reticulate)
+}else{
+  install.packages("reticulate")
+  library(reticulate)
+}
+
+#################################################################################
+
 wd <- dirname(rstudioapi::getActiveDocumentContext()$path)  #set wd as the current folder
 print(wd == getwd())
 print(wd)
@@ -588,7 +600,20 @@ ui <- navbarPage(id = "navbar",
                          )
              )
            )
-  )
+  ),
+    
+    tabPanel('Overlay',
+             sidebarPanel(
+               h4('First Scatter'),
+               selectInput(inputId = 'overlay.x1',label = 'X-axis',choices = ""),
+               selectInput(inputId = 'overlay.y1',label = 'Y-axis',choices = ""),
+               h4('Second Scatter'),
+               selectInput(inputId = 'overlay.x2',label = 'X-axis',choices = ""),
+               selectInput(inputId = 'overlay.y2',label = 'Y-axis',choices = ""),
+               actionButton("submit_overlay","Submit")),
+             mainPanel(
+               plotOutput('overlay.plot')
+             ))
 )
   ####################################################
 
@@ -620,6 +645,18 @@ server <- function(input,output,session){
     }
     updateSelectInput(session,"numOfGeno",choices=genotype_num)
     updateSelectInput(session,"noise_anchor_c",choices = nms)
+
+
+    ##############################################
+    ##############################################
+    updateSelectInput(session, "som_samples", choices = c('All', nms), selected = 'All')
+    updateSelectInput(session, "overlay.x1", choices = nms, selected = nms[1])
+    updateSelectInput(session, "overlay.y1", choices = nms, selected = nms[2])
+    updateSelectInput(session, "overlay.x2", choices = nms, selected = nms[3])
+    updateSelectInput(session, "overlay.y2", choices = nms, selected = nms[4])
+    ##############################################
+    ##############################################
+
     
     ### preprocessing tab
     f <- group_names()
@@ -2699,6 +2736,79 @@ server <- function(input,output,session){
     }
     
   )
+
+
+  ###################################
+  ###################################
+  ########  Scatter Overlay  ########
+  ############# Python ##############
+  ###################################
+  # data for t-sne
+  plotOverlay <- eventReactive(input$submit_overlay, {
+    overlay.start <- Sys.time()
+    type <- input$file_type
+    x1 <- input$overlay.x1
+    y1 <- input$overlay.y1
+    x2 <- input$overlay.x2
+    y2 <- input$overlay.y2
+    
+    if(type=='norm'){
+      DS <- df_shiny()
+    }else if(type=='raw'){ 
+      DS <- df_raw_shiny()
+    }
+    
+    overlay.data <- DS
+    
+    overlay.end <- Sys.time()
+    print("Overlay plot time")
+    print(overlay.end - overlay.start)
+    return (list(overlay.data, x1, y1, x2, y2))
+  })
+  
+  
+  overlayplot <- function(){
+    # get data 
+    li <- plotOverlay()
+    overlay.data <- li[[1]]
+    x1 <- li[[2]]
+    y1 <- li[[3]]
+    x2 <- li[[4]]
+    y2 <- li[[5]]
+    
+    # get corresponding col num from col name
+    x1_col <- which(colnames(overlay.data)==x1)
+    y1_col <- which(colnames(overlay.data)==y1)
+    x2_col <- which(colnames(overlay.data)==x2)
+    y2_col <- which(colnames(overlay.data)==y2)
+    
+    # convert R to Python dataframe
+    py_run_file("df_converter.py")
+    temp <- py$r2py_DataFrame(overlay.data)
+    py$df <- temp[[1]]
+    py$column_names <- temp[[2]]
+    
+    # additional parameters to pass to python script
+    py$x1_val = x1_col
+    py$y1_val = y1_col
+    py$x2_val = x2_col
+    py$y2_val = y2_col
+    
+    # run ScatterOverlay python script
+    py_run_file("ScatterOverlay_ABT.py")
+    
+  }
+  
+  
+  output$overlay.plot <- renderPlot({
+    overlayplot()
+  })
+  
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
   
   #session$onSessionEnded(stopApp)
 }
