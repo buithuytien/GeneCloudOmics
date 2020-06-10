@@ -1,7 +1,17 @@
-#Sys.setenv("plotly_username"=" your_plotly_username")
-#Sys.setenv("plotly_api_key"="your_api_key")
-## test repo
 
+Sys.setenv(RETICULATE_PYTHON = "C:\\Users\\BUITT\\AppData\\Local\\Programs\\Python\\Python38")
+
+# sync working directory with current file
+
+wd <- dirname(rstudioapi::getActiveDocumentContext()$path)  #set wd as the current folder
+print(wd == getwd())
+print(wd)
+print(getwd())
+if(! wd == getwd()){
+  setwd(wd)}
+
+
+################################################################################
 print("start loading")
 start.load <- Sys.time()   ### time
 
@@ -42,14 +52,6 @@ if(length(find.package(package = 'reticulate',quiet = T))>0){
 }
 
 #################################################################################
-
-wd <- dirname(rstudioapi::getActiveDocumentContext()$path)  #set wd as the current folder
-print(wd == getwd())
-print(wd)
-print(getwd())
-if(! wd == getwd()){
-  setwd(wd)
-}
 
 # 
 # ## sourcing util files
@@ -2796,6 +2798,7 @@ server <- function(input,output,session){
     
     # run ScatterOverlay python script
     py_run_file("ScatterOverlay_ABT.py")
+    # py_run_file("test1_path.py")
     
   }
   
