@@ -173,6 +173,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Preprocessing"),
       tabsetPanel(
         type = "tabs", id = "preprocessing_tabs",
         tabPanel(
@@ -286,6 +287,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Distribution Fit"),
       tabsetPanel(
         type = "tabs", id = "dist_tabs",
         tabPanel("Distribution Fit", plotOutput("dist.plot")),
@@ -391,6 +393,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("PCA"),
       tabsetPanel(
         type = "tabs", id = "pca_tabs",
         tabPanel("PCA variance", plotlyOutput("pcavar.plot")),
@@ -448,6 +451,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("DE Analysis"),
       tabsetPanel(
         type = "tabs", id = "DE_tabs",
         tabPanel(
@@ -554,6 +558,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Heatmap"),
       tabsetPanel(
         type = "tabs", id = "heatmap_tabs",
         tabPanel(
@@ -607,6 +612,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Noise"),
       conditionalPanel(
         condition = "$('html').hasClass('shiny-busy')",
         div(img(src = "load.gif", width = 240, height = 180), h4("Processing ... Please wait"), style = "text-align: center;")
@@ -717,6 +723,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Go Analysis"),
       tabsetPanel(
         type = "tabs", id = "go_tab",
         tabPanel(
@@ -849,6 +856,7 @@ ui <- navbarPage(
                )
       ),
       mainPanel(
+        h3("SOM Analysis"),
         tabsetPanel(
           type = "tabs", id = "som_tabs",
           tabPanel("Property plot", plotOutput("som_property.plot")),
