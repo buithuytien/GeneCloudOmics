@@ -3459,8 +3459,8 @@ RLE.plot <- reactive({
     som_model <- li[[1]]
 
     # plot type: property
-    colors <- function(n, alpha = 1) {
-      rev(rainbow(n, alpha))
+    colors <- function(n, alpha = 'Set1') {
+      rev(brewer.pal(n, alpha))
     }
     # use codes vectors (weight) for property plot
     plot(som_model, type = "property", property = getCodes(som_model), main = "Property", palette.name = colors)
@@ -3471,8 +3471,8 @@ RLE.plot <- reactive({
     som_model <- li[[1]]
 
     # plot type: count
-    colors <- function(n, alpha = 1) {
-      rev(heat.colors(n, alpha))
+    colors <- function(n, alpha = 'Set2') {
+      rev(brewer.pal(n, alpha))
     }
 
     # show how many genes are mapped to each node
@@ -3493,8 +3493,8 @@ RLE.plot <- reactive({
     som_model <- li[[1]]
 
     # plot type: distance
-    colors <- function(n, alpha = 1) {
-      heat.colors(n, alpha)
+    colors <- function(n, alpha = 'Set3') {
+      rev(brewer.pal(n, alpha))
     }
 
     # show how close genes are from each other when they are mapped
