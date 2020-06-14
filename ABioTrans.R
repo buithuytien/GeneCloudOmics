@@ -173,6 +173,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Preprocessing"),
       tabsetPanel(
         type = "tabs", id = "preprocessing_tabs",
         tabPanel(
@@ -212,6 +213,10 @@ ui <- navbarPage(
               h4("Processing ... Please wait"),
               style = "text-align: center;"
             )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            plotlyOutput("violin_plot2")
           ),
           conditionalPanel(
             condition = "!$('html').hasClass('shiny-busy')",
@@ -282,6 +287,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Distribution Fit"),
       tabsetPanel(
         type = "tabs", id = "dist_tabs",
         tabPanel("Distribution Fit", plotOutput("dist.plot")),
@@ -387,6 +393,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("PCA"),
       tabsetPanel(
         type = "tabs", id = "pca_tabs",
         tabPanel("PCA variance", plotlyOutput("pcavar.plot")),
@@ -444,6 +451,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("DE Analysis"),
       tabsetPanel(
         type = "tabs", id = "DE_tabs",
         tabPanel(
@@ -550,6 +558,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Heatmap"),
       tabsetPanel(
         type = "tabs", id = "heatmap_tabs",
         tabPanel(
@@ -603,6 +612,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Noise"),
       conditionalPanel(
         condition = "$('html').hasClass('shiny-busy')",
         div(img(src = "load.gif", width = 240, height = 180), h4("Processing ... Please wait"), style = "text-align: center;")
@@ -713,6 +723,7 @@ ui <- navbarPage(
       )
     ),
     mainPanel(
+      h3("Go Analysis"),
       tabsetPanel(
         type = "tabs", id = "go_tab",
         tabPanel(
@@ -845,6 +856,7 @@ ui <- navbarPage(
                )
       ),
       mainPanel(
+        h3("SOM Analysis"),
         tabsetPanel(
           type = "tabs", id = "som_tabs",
           tabPanel("Property plot", plotOutput("som_property.plot")),
@@ -853,7 +865,10 @@ ui <- navbarPage(
           tabPanel("Distance plot", plotOutput("som_dist.plot")),
           tabPanel("Cluster plot", plotOutput("som_cluster.plot"))
         )
-      )
+      ),
+      tags$style(type = 'text/css', 
+                        '.navbar { font-size: 17px;}'
+             )
     )
   ),
   ###############################################
@@ -1423,8 +1438,11 @@ RLE.plot <- reactive({
       if (norm_method_name == "RUV" & is.null(spikes)) {
         norm_method_name <- "Upper Quartile"
       }
+      par(mar = c(7, 4, 4, 4) + 1.2)
       plotRLE(set1,
         ylim = c(-1.5, 1.5), outline = FALSE, col = colors[norm_method_name],
+        las = 2,
+        hjust = 1,
         main = paste(norm_method_name, "Normalized")
       )
     }
@@ -1449,10 +1467,11 @@ RLE.plot <- reactive({
 
       p <- ggplot(df, aes(x=Genotype, y=norm_type)) + 
       geom_violin(trim=FALSE) + 
-      labs(title="", y = paste("log(",norm_method_name,"+1)",sep = '') )+
+      scale_color_brewer(palette="Dark2") +
+      labs(title=paste(norm_method_name,"Normalized",sep = ' '), y = paste("log(",norm_method_name,"+1)",sep = '') )+
       stat_summary(fun.data=mean_sdl, mult=1, 
                   geom="pointrange", color="red") +
-      geom_boxplot(width=0.1)
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
       p
 
       ggplotly(p, tooltip = c("text"))
@@ -1464,6 +1483,7 @@ RLE.plot <- reactive({
   output$RLE.plot <- renderPlot({
     RLE.plot()
   })
+
   output$violin_plot <- renderPlotly({
     violin_plot()
   })
@@ -1478,15 +1498,46 @@ RLE.plot <- reactive({
       raw_DS <- df_raw()
       main_title <- "Raw data"
     }
+
     set1 <- newSeqExpressionSet(as.matrix(raw_DS))
     if (input$submit_preprocessing != 0) {
-      plotRLE(set1, ylim = c(-1.5, 1.5), outline = FALSE, main = main_title)
+      par(mar = c(7, 4, 4, 4) + 1.2)
+      plotRLE(set1, ylim = c(-1.5, 1.5), outline = FALSE, main = main_title, las = 2)
     }
     end.rle <- Sys.time()
     print("time for RLE plot and preprocessing")
     print(end.rle - start.rle)
   })
 
+    violin_plot2 <- reactive({
+    type <- input$file_type
+    if (type == "norm") {
+      raw_DS <- df_shiny()
+      main_title <- "Input data"
+    } else if (type == "raw") {
+      raw_DS <- df_raw()
+      main_title <- "Raw data"
+    }
+     
+      df <- as.data.frame(raw_DS)
+      df <- setNames(stack(df),c("norm_type","Genotype"))
+      df$norm_type <- log(df$norm_type+1)
+
+      p <- ggplot(df, aes(x=Genotype, y=norm_type)) + 
+      geom_violin(trim=FALSE) + 
+      scale_color_brewer(palette="Dark2") +
+      labs(title="Raw Data", y = paste("log(Raw Data+1)",sep = '') ) +
+      stat_summary(fun.data=mean_sdl, mult=1, 
+                  geom="pointrange", color="red") +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      p
+
+      ggplotly(p, tooltip = c("text"))
+  })
+
+  output$violin_plot2 <- renderPlotly({
+    violin_plot2()
+  })
 
   output$norm_table <- DT::renderDataTable({
     type <- input$file_type
@@ -3408,8 +3459,8 @@ RLE.plot <- reactive({
     som_model <- li[[1]]
 
     # plot type: property
-    colors <- function(n, alpha = 1) {
-      rev(rainbow(n, alpha))
+    colors <- function(n, alpha = 'Set1') {
+      rev(brewer.pal(n, alpha))
     }
     # use codes vectors (weight) for property plot
     plot(som_model, type = "property", property = getCodes(som_model), main = "Property", palette.name = colors)
@@ -3420,8 +3471,8 @@ RLE.plot <- reactive({
     som_model <- li[[1]]
 
     # plot type: count
-    colors <- function(n, alpha = 1) {
-      rev(heat.colors(n, alpha))
+    colors <- function(n, alpha = 'Set2') {
+      rev(brewer.pal(n, alpha))
     }
 
     # show how many genes are mapped to each node
@@ -3442,8 +3493,8 @@ RLE.plot <- reactive({
     som_model <- li[[1]]
 
     # plot type: distance
-    colors <- function(n, alpha = 1) {
-      heat.colors(n, alpha)
+    colors <- function(n, alpha = 'Set3') {
+      rev(brewer.pal(n, alpha))
     }
 
     # show how close genes are from each other when they are mapped
