@@ -3418,6 +3418,8 @@ RLE.plot <- reactive({
 
   }
 
+####################################################################################
+
   plot_exception <-function(
   ...,
   sep=" ",
@@ -3440,6 +3442,8 @@ RLE.plot <- reactive({
           ggplot2::theme_void())
   invisible(NULL)
 }
+
+####################################################################################
 
 
   rfplot <- function() {
@@ -3494,23 +3498,6 @@ RLE.plot <- reactive({
     
     return(mds_out$points)
   })
-
-
-  # rafsilplot <- function() {
-  #   # get data
-  #   if (type == "norm") {
-  #     DS <- df_shiny()
-  #   } else if (type == "raw") {
-  #     DS <- df_raw_shiny()
-  #   }
-  #   if (!is.null(f)) {
-  #     meta_df <- data.frame("Column names" = colnames(DS), "Description" = f)
-  #     meta_df
-  #   }
-  #   print(meta_df)
-  #   print(class(meta_df))
-  #   print("h")
-  # }
 
 
   output$rf.plot <- renderPlotly({
