@@ -74,6 +74,39 @@ if (length(find.package(package = "reticulate", quiet = T)) > 0) {
   install.packages("reticulate")
   library(reticulate)
 }
+
+####################### Dependencies For RAFSIL ###################################
+
+if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+  library(RAFSIL)
+} else {
+  install.packages("RAFSIL")
+  library(RAFSIL)
+}
+
+if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
+  library(gridGraphics)
+} else {
+  install.packages("gridGraphics")
+  library(gridGraphics)
+}
+
+if (length(find.package(package = "gridExtra", quiet = T)) > 0) {
+  library(gridExtra)
+} else {
+  install.packages("gridExtra")
+  library(gridExtra)
+}
+
+if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
+  library(tidyverse)
+} else {
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+
+###################################################################################
+
 #################################
 
 
@@ -791,6 +824,12 @@ ui <- navbarPage(
     tabPanel(
       "Random Forest",
       sidebarPanel(
+        radioButtons(
+        "analysis_type", "Choose Analysis Type",
+        c("RF clustering" = "rf", "RAFSIL" = "rafsil")
+      ),
+      conditionalPanel(
+        condition = "input.analysis_type=='rf'",  #rf
         splitLayout(
           numericInput("num_trees", "No. of trees", min = 1, value = 25),
           numericInput("num_clusters", "No. of clusters", min = 1, value = 2)
@@ -800,6 +839,11 @@ ui <- navbarPage(
           c("None", "log10")
         ),
         actionButton("submit_rf", "Submit")
+      ),
+      conditionalPanel(
+        condition = "input.analysis_type=='rafsil'",  #rafsil
+        actionButton("submit_rafsil", "Submit")
+      )
         # conditionalPanel(
         #          condition = "input.rf_tabs == 'RF plot'",
         #          downloadButton("downloadrfplot", "Download as PDF")
@@ -813,6 +857,7 @@ ui <- navbarPage(
         h3("Clustering With Random Forest"),
         tabsetPanel(type = "tabs",id="rf_tabs",
                            tabPanel("RF plot", plotlyOutput("rf.plot")),
+                           tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
                            tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
                )
       )
@@ -3314,6 +3359,93 @@ RLE.plot <- reactive({
   })
 
 
+  plotRAFSIL <- eventReactive(input$submit_rafsil, {
+    rf.start <- Sys.time()
+    rf_trans <- input$rf_trans
+    type <- input$file_type
+
+    if (type == "norm") {
+      DS <- df_shiny()
+    }
+    else if (type == "raw") {
+      DS <- df_raw_shiny()
+    }
+    if (rf_trans == "None") {
+      rf.data <- DS
+    }
+    else if (rf_trans == "log10") {
+      rf.data <- log10(DS + 1)
+    }
+    f <- group_names()
+    if (!is.null(f)) {
+      meta_df <- data.frame("Column names" = colnames(DS), "Description" = f)
+      meta_df
+    }
+
+    meta_df <- meta_df %>% remove_rownames %>% column_to_rownames(var="Column.names")
+    meta_df$Description <- as.numeric(as.factor(meta_df$Description))
+
+    meta_df <- as.matrix(meta_df)
+    DS <- as.matrix(DS)
+
+    rf.end <- Sys.time()
+    print("RFSIL plot time")
+    print(rf.end - rf.start)
+    return(list(meta_df,DS))
+  })
+
+  rafsilplot <- function() {
+
+    tryCatch({
+    # get data
+    t_list <- plotRAFSIL()
+    ord = order(t_list[[1]]) ; t_list[[2]]=t_list[[2]][,ord] ; t_list[[1]] = t_list[[1]][ord] ; rm(ord)
+
+    #- run RAFSIL1 with 50 forests
+    res.r1 = RAFSIL(t(t_list[[2]]),nrep = 50, method="RAFSIL1")
+    res.r2 = RAFSIL(t(t_list[[2]]),           method="RAFSIL2")
+
+    #- retriev the dissimilarities
+    dis.r1  = res.r1$D
+    dis.r2  = res.r2$D
+    dis.cor = sqrt((1 - cor(t_list[[2]],method="spearman"))/2)
+
+    plotTSNE(dis.r1,labels=t_list[[1]],is_distance=FALSE,verbose=FALSE,perplexity=5)
+    mtext("rafsil-1 / embedding", line=1)
+      }, error = function(error_condition) {
+          plot_exception("RAFSIL cannot be applied on this dataset.\nPlease use random forest clustering instead")
+      }) 
+
+  }
+
+####################################################################################
+
+  plot_exception <-function(
+  ...,
+  sep=" ",
+  type=c("message","warning","cat","print"),
+  color="auto",
+  console=TRUE,
+  size = 6){      
+  type=match.arg(type)
+  txt = paste(...,collapse=sep)
+  if(console){
+    if(type == "message") message(txt)
+    if(type == "warning") warning(txt)
+    if(type == "cat") cat(txt)
+    if(type == "print") print(txt)
+  }
+  if(color =="auto") color <- if(type == "cat") "black" else "red"
+  if(txt == "warning") txt <- paste("warning:",txt)
+  print(ggplot2::ggplot() +
+          ggplot2::geom_text(ggplot2::aes(x=0,y=0,label=txt),color=color,size=size) + 
+          ggplot2::theme_void())
+  invisible(NULL)
+}
+
+####################################################################################
+
+
   rfplot <- function() {
     # get data
     li <- plotRF()
@@ -3370,6 +3502,10 @@ RLE.plot <- reactive({
 
   output$rf.plot <- renderPlotly({
     rfplot()
+  })
+
+  output$RAFSIL.plot <- renderPlot({
+    rafsilplot()
   })
 
   output$rf.matrix <- renderTable({
