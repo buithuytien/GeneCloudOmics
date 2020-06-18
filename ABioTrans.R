@@ -1249,7 +1249,7 @@ server <- function(input, output, session) {
   })
 
 
-############################ Mico array ###############################
+############################ Micro array ###############################
 
 
   output$downloadMicroRaw <- downloadHandler(
