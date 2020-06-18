@@ -279,6 +279,7 @@ ui <- navbarPage(
   navbarMenu('Preprocessing',
   tabPanel(
     "RnaSeq Data",
+    value = "active_tab",
     sidebarPanel(
       h4("Filtering"),
       splitLayout(
@@ -1209,7 +1210,7 @@ server <- function(input, output, session) {
         paste("Please check these input:", errors, "and try again!")
       ))
     } else {
-      updateNavbarPage(session, inputId = "navbar", selected = "Preprocessing")
+      updateNavbarPage(session, inputId = "navbar", selected = "active_tab")
     }
 
     # update input
