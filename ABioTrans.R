@@ -107,6 +107,105 @@ if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
 
 ###################################################################################
 
+
+####################### Dependencies For Microarray ###################################
+
+if (length(find.package(package = "devtools", quiet = T)) > 0) {
+  library(devtools)
+} else {
+  install.packages("devtools")
+  library(devtools)
+}
+
+if (length(find.package(package = "remotes", quiet = T)) > 0) {
+  library(remotes)
+} else {
+  devtools::install_github("r-lib/remotes")
+  library(remotes)
+}
+
+if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
+  suppressPackageStartupMessages({library("maEndToEnd")})
+} else {
+  remotes::install_github("b-klaus/maEndToEnd", ref="master")
+  suppressPackageStartupMessages({library("maEndToEnd")})
+}
+
+if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package oligoClasses not installed")
+    install.packages("oligoClasses")
+    print("Package oligoClasses installed")
+    library(oligoClasses)
+  }
+
+if (length(find.package(package = "ArrayExpress", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package ArrayExpress not installed")
+    install.packages("ArrayExpress")
+    print("Package ArrayExpress installed")
+    library(ArrayExpress)
+  }
+
+if (length(find.package(package = "pd.hugene.1.0.st.v1", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package pd.hugene.1.0.st.v1 not installed")
+    install.packages("pd.hugene.1.0.st.v1")
+    print("Package pd.hugene.1.0.st.v1 installed")
+    library(pd.hugene.1.0.st.v1)
+  }
+
+if (length(find.package(package = "hugene10sttranscriptcluster.db", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package hugene10sttranscriptcluster.db not installed")
+    install.packages("hugene10sttranscriptcluster.db")
+    print("Package hugene10sttranscriptcluster.db installed")
+    library(hugene10sttranscriptcluster.db)
+  }
+
+if (length(find.package(package = "arrayQualityMetrics", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package arrayQualityMetrics not installed")
+    install.packages("arrayQualityMetrics")
+    print("Package arrayQualityMetrics installed")
+    library(arrayQualityMetrics)
+  }
+
+if (length(find.package(package = "limma", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package limma not installed")
+    install.packages("limma")
+    print("Package limma installed")
+    library(limma)
+  }
+
+if (length(find.package(package = "topGO", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package topGO not installed")
+    install.packages("topGO")
+    print("Package topGO installed")
+    library(topGO)
+  }
+
+if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package ReactomePA not installed")
+    install.packages("ReactomePA")
+    print("Package ReactomePA installed")
+    library(ReactomePA)
+  }
+
+###################################################################################
+
+
 #################################
 
 
@@ -177,8 +276,9 @@ ui <- navbarPage(
       )
     )
   ),
+  navbarMenu('Preprocessing',
   tabPanel(
-    "Preprocessing",
+    "RnaSeq Data",
     sidebarPanel(
       h4("Filtering"),
       splitLayout(
@@ -268,6 +368,20 @@ ui <- navbarPage(
         )
       )
     )
+  ),
+  tabPanel(
+    "Microarray Data",
+    sidebarPanel(
+        p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
+        fileInput("file_micro", "Choose Microarray Data"),
+         downloadButton("downloadMicroRaw", "Download Raw Data as CSV"),
+         br(), br(),
+          downloadButton("downloadMicroMeta", "Download Meta Data as CSV")
+      ),
+      mainPanel(
+      h3("Preprocessing Microarray Data")
+    )
+  )
   ),
   navbarMenu('Transcriptome Analysis',
     tabPanel(
@@ -937,7 +1051,7 @@ server <- function(input, output, session) {
   ##### Increases the Upload Limit #######
   ########################################
 
-  options(shiny.maxRequestSize=50*1024^2)
+  options(shiny.maxRequestSize=250*1024^2)
 
   ########################################
   ##### get variable names for input #####
@@ -1134,6 +1248,45 @@ server <- function(input, output, session) {
     # }
   })
 
+
+############################ Mico array ###############################
+
+
+  output$downloadMicroRaw <- downloadHandler(
+    filename = function() {
+      paste("Microarray_Raw", ".csv", sep = "")
+    },
+    content = function(file) {
+      df_micro()
+      
+      micro_raw_data <- as.data.frame(raw_data@assayData[["exprs"]][1:2000,])
+      micro_raw_data <- tibble::rowid_to_column(micro_raw_data, "Geneid")
+      
+      write.csv(micro_raw_data, file, row.names = FALSE)
+    }
+  )
+
+  output$downloadMicroMeta <- downloadHandler(
+    filename = function() {
+      paste("Microarray_Meta", ".csv", sep = "")
+    },
+    content = function(file) {
+      df_micro()
+
+      micro_raw_data <- as.data.frame(raw_data@assayData[["exprs"]][1:2000,])
+      micro_meta_data <- as.data.frame(raw_data@phenoData@data[["Factor.Value.disease."]])
+      micro_meta_data <- add_column(micro_meta_data, as.data.frame(colnames(micro_raw_data)), .after = 0)
+      
+      names(micro_meta_data)[1] <- "Id"
+      names(micro_meta_data)[2] <- "Types"
+      
+      write.csv(micro_meta_data, file, row.names = FALSE)
+    }
+  )
+
+
+  ####################################################################
+
   # observeEvent(input$submit_preprocessing, {
   #   type <- input$file_type
   #   if(type=='norm'){
@@ -1248,6 +1401,47 @@ server <- function(input, output, session) {
     }
     return(raw_DS)
   })
+
+  ######################## Micro array ##########################
+
+
+  df_micro <- reactive({
+    print("running")
+    if (is.null(input$file_micro)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_micro$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+
+    if (type != "zip") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a zip file!"
+      ))
+      return(NULL)
+    }
+
+    unzip(input$file_micro$datapath,exdir = parts[[1]][1])
+    fol_name <- print(list.files(parts[[1]][1]))
+    micro_data_dir <- paste0(parts[[1]][1],"/",fol_name)
+    print(micro_data_dir)
+
+    sdrf_location <- file.path(micro_data_dir, "E-MTAB-2967.sdrf.txt")
+    SDRF <- read.delim(sdrf_location)
+
+    rownames(SDRF) <- SDRF$Array.Data.File
+    SDRF <- AnnotatedDataFrame(SDRF)
+
+    raw_data <- oligo::read.celfiles(filenames = file.path(micro_data_dir, 
+                                                          SDRF$Array.Data.File),
+                                    verbose = FALSE, phenoData = SDRF)
+
+    return(raw_data)
+
+  })
+
+
+  ###############################################################
 
   # get gene length
   gene_length <- reactive({
