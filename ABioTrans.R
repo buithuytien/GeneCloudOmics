@@ -3605,8 +3605,12 @@ RLE.plot <- reactive({
     dis.r2  = res.r2$D
     dis.cor = sqrt((1 - cor(t_list[[2]],method="spearman"))/2)
 
+    par(mfrow=c(1,2))
+    par(mai=c(.1,.1,.5,.1))
     plotTSNE(dis.r1,labels=t_list[[1]],is_distance=FALSE,verbose=FALSE,perplexity=5)
     mtext("rafsil-1 / embedding", line=1)
+    plotTSNE(dis.r2,labels=t_list[[1]],is_distance=FALSE,verbose=FALSE,perplexity=5)
+    mtext("rafsil-2 / embedding", line=1)
       }, error = function(error_condition) {
           plot_exception("RAFSIL cannot be applied on this dataset.\nPlease use random forest clustering instead")
       }) 
