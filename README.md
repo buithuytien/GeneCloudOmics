@@ -77,6 +77,7 @@ Microarrays can be used in many types of experiments including genotyping, epige
 Raw Count data & Metadata can be extracted from the Microarray which can further be used to perform all the different analysis.<br>
 The user needs to zip all the ```CEL``` files along with the ```SDRF```(Sample and Data Relationship Format) file ( e.g. E-MTAB-2967.sdrf.txt) & upload it.</br></br>
 Once the processing is complete, the user can download the output in ```csv``` format.
+![alt text](https://github.com/rahul799/ABioTrans/blob/update-readme/Screenshots/Microarray.png)
 
 ### t-SNE directional plot
 t-SNE directional plot is used to find the paths of samples across different time points. The script for the t-SNE directional plot utilises the preprocessing method from [DigitalCellSorter.](https://github.com/sdomanskyi/DigitalCellSorter) PCA is applied to the preprocessed data, then t-SNE on the PCA step. </br>
