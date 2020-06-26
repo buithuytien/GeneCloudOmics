@@ -107,7 +107,6 @@ if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
 
 ###################################################################################
 
-
 ####################### Dependencies For Microarray ###################################
 
 if (length(find.package(package = "devtools", quiet = T)) > 0) {
@@ -922,6 +921,27 @@ ui <- navbarPage(
       )
     )
   ),
+
+  ###### UNIPROT #############
+  #########################################
+  tabPanel(
+    "Uniprot",
+    sidebarPanel(
+      h4("Uniprot"),
+      fileInput("file_uniprot", "Upload the accession files"),
+      actionButton("submit_uniprot", "Submit")
+    ),
+    mainPanel(
+      h3("Uniprot"),
+      tabsetPanel(
+          type = "tabs", id = "uniprot_tabs",
+          tabPanel("Cel plot", plotlyOutput("uniprot_cel.plot")),
+          tabPanel("Bio plot", plotlyOutput("uniprot_bio.plot")),
+          tabPanel("Molc plot", plotlyOutput("uniprot_molc.plot"))
+    )
+  )),
+  #########################################
+
   tabPanel('t-SNE',
              sidebarPanel(
                splitLayout(
@@ -3927,6 +3947,185 @@ RLE.plot <- reactive({
       dev.off()
     }
   )
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+
+
+  ###################################
+  ###################################
+  ##########   Uniprot    ###########
+  ###################################
+  ###################################
+  
+  df_uniprot <- reactive({
+    print("running")
+    if (is.null(input$file_uniprot)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_uniprot$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_uniprot$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  plotUniprot <-  eventReactive(input$submit_uniprot, {
+
+    Accessions <- df_uniprot()
+    print("calling T")
+    TaxaObj <- GetNamesTaxa(Accessions)
+    print("calling G")
+    GeneOntologyObj <- GetProteinGOInfo(Accessions) 
+    print("Done") 
+    return(GeneOntologyObj)
+  })
+
+  plotCE <- function() {
+    # get data
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..cellular.component.)
+  
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+    
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+    
+    colnames(GO_df_obj_bio_df) <- c("bio")
+    
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+    
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+    
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+    
+    test2 <- lapply(test1, function(x) x[[1]][1])
+    
+    occurences<-table(unlist(test2))
+    
+    occurences<- as.data.frame(occurences)
+    
+    occurences <-  occurences[order(-occurences$Freq),]
+    
+    colnames(occurences) <- c("cellular_components","Frequences")
+    
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+    
+    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$cellular_components, occurences$Frequences), y=occurences$Frequences)) +
+      geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("cellular component")+
+      geom_text(aes(label = occurences$freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
+      theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
+    
+    bar_plot
+  
+    ggplotly(bar_plot, tooltip = c("text"))
+  }
+  
+  plotBIO <- function() {
+    # get data
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..biological.process.)
+
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+
+    colnames(GO_df_obj_bio_df) <- c("bio")
+
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+
+    test2 <- lapply(test1, function(x) x[[1]][1])
+
+    occurences<-table(unlist(test2))
+
+    occurences<- as.data.frame(occurences)
+
+    occurences <-  occurences[order(-occurences$Freq),]
+
+    colnames(occurences) <- c("biological_process","Frequences")
+
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+
+    bar_plot <- ggplot(data=occurences, aes(x= reorder(occurences$biological_process ,occurences$Frequences)  , y=occurences$Frequences)) +
+      geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("Biological function")+
+    # geom_text(aes(label = occurences$freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
+      theme_minimal() +coord_flip() +theme(text = element_text(size=12))
+
+    bar_plot
+  
+    ggplotly(bar_plot, tooltip = c("text"))
+  }
+
+  plotMol <- function() {
+    # get data
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..molecular.function.)
+
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+
+    colnames(GO_df_obj_bio_df) <- c("bio")
+
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+
+    test2 <- lapply(test1, function(x) x[[1]][1])
+
+    occurences<-table(unlist(test2))
+
+    occurences<- as.data.frame(occurences)
+
+    occurences <-  occurences[order(-occurences$Freq),]
+
+    colnames(occurences) <- c("molecular_functions","Frequences")
+
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+
+    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$molecular_functions , occurences$Frequences), y=occurences$Frequences)) +
+      geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("molecular function")+
+      geom_text(aes(label = occurences$Freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
+      theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
+
+    bar_plot
+  
+    ggplotly(bar_plot, tooltip = c("text"))
+  }
+
+  output$uniprot_cel.plot <- renderPlotly({
+    plotCE()
+  })
+
+  output$uniprot_bio.plot <- renderPlotly({
+    plotBIO()
+  })
+
+  output$uniprot_molc.plot <- renderPlotly({
+    plotMol()
+  })
 
   ###################################
   ###################################
