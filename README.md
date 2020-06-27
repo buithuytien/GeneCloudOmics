@@ -69,6 +69,60 @@ You can start your analysis now!
 * If clusterProfiler and GOStats are chosen, a pie chart showing relative size of all associated level-2 GO terms will be displayed in `Pie chart` tab. Please note that the GO terms in pie chart might not be significantly enriched since no over-representation test was carried out to generate the pie chart.
 * For clusterProfiler method, graph visualization of user-specified GO terms are displayed in `Graph` tab
 
+## New features
+
+
+### Microarray Preprocessing
+Microarrays can be used in many types of experiments including genotyping, epigenetics, translation profiling and gene expression profiling </br></br>
+Raw Count data & Metadata can be extracted from the Microarray which can further be used to perform all the different analysis.<br>
+The user needs to zip all the ```CEL``` files along with the ```SDRF```(Sample and Data Relationship Format) file ( e.g. E-MTAB-2967.sdrf.txt) & upload it.</br></br>
+Once the processing is complete, the user can download the output in ```csv``` format.
+![alt text](https://github.com/rahul799/ABioTrans/blob/update-readme/Screenshots/Microarray.png)
+
+### t-SNE directional plot
+t-SNE directional plot is used to find the paths of samples across different time points. The script for the t-SNE directional plot utilises the preprocessing method from [DigitalCellSorter.](https://github.com/sdomanskyi/DigitalCellSorter) PCA is applied to the preprocessed data, then t-SNE on the PCA step. </br>
+**Note: At the time of upload the script is no longer up-to-date with the latest release of DigitalCellSorter** </br>
+
+The plot is currently only applicable **for samples with time points**. Samples have to be named in the format ```samplename_time```. Time can be in seconds ```s```, minutes ```min```, hours ```hr``` or days ```d```. All units will be automatically converted to minutes equivalent (if unspecified, minutes is taken as the default). Thus, *sample1_20s*, *sample1_2min*, *sample1_10* are all valid names. </br>
+
+There are 3 parameters to control the t-SNE output. ```Perplexity value``` tweaks the position of points on the t-SNE plot. A suitable perplexity value usually ranges between 5 to 50. ```No. of PCs``` determines the number of principal components to retain in the PCA step. ```No. of clusters``` classifies the samples into the specified cluster size. </br>
+
+The following keys can be used to interact with the generated t-SNE plot: </br>
+```Left```, ```Right```, ```Left mouse click```: Find points on the plot </br>
+```Enter```, ```Space```: Select a point </br>
+```Shift```: Generate paths connecting time points of selected points </br>
+```A```: Auto generate paths in a sequential manner </br>
+```R```: Reset plot to default state </br>
+```Esc```: Close plot </br>
+
+t-SNE directional plots are saved in the ```tsne_output``` folder after each run.
+
+### t-SNE directional plot demo
+First, launch ABioTrans and open the ```test data``` folder. Under ABioTrans' ```Home``` tab, select ```Normalised file```. Load ```yeast_nm.csv``` as the normalised expression file and ```yeast_meta``` as the meta data file. Press on ```Submit``` once both files have been loaded. Next, click on the ```Preprocessing``` tab. Input **0** for ```Min. value``` and **1** for ```Min. columns```. Click on ```Submit``` and wait for the preprocessing to be done. Then, click on the ```New``` tab and choose ```t-SNE``` from the dropdown selection. Following which, input **25** for ```Perplexity value```, **4** for ```No. of PCs```, **6** for ```No. of clusters``` and **None** for ```Transformation```. Click on ```Submit```. The t-SNE plot once generated should as such:
+![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/t-SNE_1.png)
+
+Feel free to interact with the plot. After generating paths of selected points, it might look like this:
+![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/t-SNE_2.png)
+
+### Clustering with random forest
+While generally used for classification and regression problems, here random forest is used for clustering. The plot can be navigated in a similar manner to the updated heatscatter. </br>
+
+There are 2 parameters to control the random forest cluster plot. ```No. of trees``` defines the size of the forest. ```No. of clusters``` classifies the samples into the specified cluster size. </br>
+
+The ```diff_genes.csv``` file will be generated after each run, containing names of differential genes.
+![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/Random%20forest.png)
+
+### SOM
+5 types of SOM plots are available for use: </br>
+```Property```: Uses values of codebook vectors (weight of gene vectors) and output as coloured nodes </br>
+```Count```: Shows how many genes are mapped to each node </br>
+```Codes```: Displays codebook vectors </br>
+```Distance```: Shows how close genes are from each other when they are mapped </br>
+```Cluster```: Uses hierarchical clustering to cluster the SOM </br>
+
+There are 4 parameters to control the SOM plots. ```Samples used``` determines the sample chosen for the plots, either all samples or individual ones. ```No. of horizontal grids``` and ```No. of vertical grids``` changes the number of nodes used in the SOM. ```No. of clusters```  classifies the SOM nodes into the specified cluster size (for cluster plot).
+![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/SOM.png)
+
 ## Download instructions
 1. Scatter plot, distribution fit, correlation plot and heatmap can be saved as PDF by clicking `Download as PDF`. You can name the file before saving it. Also, you can directly drag the plot from the GUI to a folder on the computer.
 
