@@ -1042,25 +1042,24 @@ ui <- navbarPage(
     ###### UNIPROT #############
   #########################################
   tabPanel(
-    "Uniprot",
+    "Gene ontology",
     sidebarPanel(
-      h4("Uniprot"),
       fileInput("file_uniprot", "Upload the accession files"),
       actionButton("submit_uniprot", "Submit")
     ),
     mainPanel(
-      h3("Uniprot"),
+      h3("Gene ontology"),
       tabsetPanel(
           type = "tabs", id = "uniprot_tabs",
-          tabPanel("Subcellualr plot",
-            plotlyOutput("uniprot_cel.plot"),
-            DT::dataTableOutput("uniprot_cel_table")),
-          tabPanel("Biological plot",
+          tabPanel("Biological process",
            plotlyOutput("uniprot_bio.plot"),
             DT::dataTableOutput("uniprot_bio_table")),
-          tabPanel("Molecular plot",
+          tabPanel("Molecular function",
            plotlyOutput("uniprot_molc.plot"),
-            DT::dataTableOutput("uniprot_molc_table"))
+            DT::dataTableOutput("uniprot_molc_table")),
+          tabPanel("Cellular component",
+            plotlyOutput("uniprot_cel.plot"),
+            DT::dataTableOutput("uniprot_cel_table"))
     )
   ))
   #########################################
