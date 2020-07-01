@@ -4012,9 +4012,9 @@ RLE.plot <- reactive({
   plotUniprot <-  eventReactive(input$submit_uniprot, {
 
     Accessions <- df_uniprot()
-    print("Please Wait... Fetching Taxa Object")
+    print("Please Wait... Fetching Taxa Object. It may take a while")
     TaxaObj <- GetNamesTaxa(Accessions)
-    print("Please Wait... Fetching Gene Ontology Object")
+    print("Please Wait... Fetching Gene Ontology Object. It may take a while")
     GeneOntologyObj <- GetProteinGOInfo(Accessions) 
     print("Done") 
     return(GeneOntologyObj)
