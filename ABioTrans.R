@@ -107,6 +107,24 @@ if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
 
 ###################################################################################
 
+####################### Dependencies For Uniprot ###################################
+
+if (length(find.package(package = "UniprotR", quiet = T)) > 0) {
+  library(UniprotR)
+} else {
+  install.packages("UniprotR")
+  library(UniprotR)
+}
+
+if (length(find.package(package = "scales", quiet = T)) > 0) {
+  library(scales)
+} else {
+  install.packages("scales")
+  library(scales)
+}
+
+###################################################################################
+
 ####################### Dependencies For Microarray ###################################
 
 if (length(find.package(package = "devtools", quiet = T)) > 0) {
@@ -3994,9 +4012,9 @@ RLE.plot <- reactive({
   plotUniprot <-  eventReactive(input$submit_uniprot, {
 
     Accessions <- df_uniprot()
-    print("calling T")
+    print("Please Wait... Fetching Taxa Object")
     TaxaObj <- GetNamesTaxa(Accessions)
-    print("calling G")
+    print("Please Wait... Fetching Gene Ontology Object")
     GeneOntologyObj <- GetProteinGOInfo(Accessions) 
     print("Done") 
     return(GeneOntologyObj)
