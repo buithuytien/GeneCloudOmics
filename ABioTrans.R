@@ -107,6 +107,23 @@ if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
 
 ###################################################################################
 
+####################### Dependencies For Uniprot ###################################
+
+if (length(find.package(package = "UniprotR", quiet = T)) > 0) {
+  library(UniprotR)
+} else {
+  install.packages("UniprotR")
+  library(UniprotR)
+}
+
+if (length(find.package(package = "scales", quiet = T)) > 0) {
+  library(scales)
+} else {
+  install.packages("scales")
+  library(scales)
+}
+
+###################################################################################
 
 ####################### Dependencies For Microarray ###################################
 
@@ -922,6 +939,9 @@ ui <- navbarPage(
       )
     )
   ),
+
+  
+
   tabPanel('t-SNE',
              sidebarPanel(
                splitLayout(
@@ -1036,7 +1056,32 @@ ui <- navbarPage(
   ###############################################
   navbarMenu(
     "Gene set Analysis",
-    tabPanel('Raw-Value')
+    
+    ###### UNIPROT #############
+  #########################################
+  tabPanel(
+    "Gene ontology",
+    sidebarPanel(
+      fileInput("file_uniprot", "Upload the accession files"),
+      actionButton("submit_uniprot", "Submit")
+    ),
+    mainPanel(
+      h3("Gene ontology"),
+      tabsetPanel(
+          type = "tabs", id = "uniprot_tabs",
+          tabPanel("Biological process",
+           plotlyOutput("uniprot_bio.plot"),
+            DT::dataTableOutput("uniprot_bio_table")),
+          tabPanel("Molecular function",
+           plotlyOutput("uniprot_molc.plot"),
+            DT::dataTableOutput("uniprot_molc_table")),
+          tabPanel("Cellular component",
+            plotlyOutput("uniprot_cel.plot"),
+            DT::dataTableOutput("uniprot_cel_table"))
+    )
+  ))
+  #########################################
+
   ),
   navbarMenu(
     "Analysis Report",
@@ -3927,6 +3972,299 @@ RLE.plot <- reactive({
       dev.off()
     }
   )
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+
+
+  ###################################
+  ###################################
+  ##########   Uniprot    ###########
+  ###################################
+  ###################################
+  
+  df_uniprot <- reactive({
+    print("running")
+    if (is.null(input$file_uniprot)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_uniprot$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_uniprot$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  plotUniprot <-  eventReactive(input$submit_uniprot, {
+
+    Accessions <- df_uniprot()
+    print("Please Wait... Fetching Taxa Object. It may take a while")
+    TaxaObj <- GetNamesTaxa(Accessions)
+    print("Please Wait... Fetching Gene Ontology Object. It may take a while")
+    GeneOntologyObj <- GetProteinGOInfo(Accessions) 
+    print("Done") 
+    return(GeneOntologyObj)
+  })
+
+  plotCE <- function() {
+    # get data
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..cellular.component.)
+  
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+    
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+    
+    colnames(GO_df_obj_bio_df) <- c("bio")
+    
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+    
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+    
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+    
+    test2 <- lapply(test1, function(x) x[[1]][1])
+    
+    occurences<-table(unlist(test2))
+    
+    occurences<- as.data.frame(occurences)
+    
+    occurences <-  occurences[order(-occurences$Freq),]
+    
+    colnames(occurences) <- c("cellular_components","Frequences")
+    
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+    
+    occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
+
+    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$cellular_components, occurences$Frequences), y=occurences$Frequences)) +
+      geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("cellular component")+
+      geom_text(aes(label = occurences$freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
+      theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
+    
+    bar_plot
+  
+    ggplotly(bar_plot, tooltip = c("text"))
+  }
+  
+  plotBIO <- function() {
+    # get data
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..biological.process.)
+
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+
+    colnames(GO_df_obj_bio_df) <- c("bio")
+
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+
+    test2 <- lapply(test1, function(x) x[[1]][1])
+
+    occurences<-table(unlist(test2))
+
+    occurences<- as.data.frame(occurences)
+
+    occurences <-  occurences[order(-occurences$Freq),]
+
+    colnames(occurences) <- c("biological_process","Frequences")
+
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+
+    occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
+
+    bar_plot <- ggplot(data=occurences, aes(x= reorder(occurences$biological_process ,occurences$Frequences)  , y=occurences$Frequences)) +
+      geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("Biological function")+
+    # geom_text(aes(label = occurences$freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
+      theme_minimal() +coord_flip() +theme(text = element_text(size=12))
+
+    bar_plot
+  
+    ggplotly(bar_plot, tooltip = c("text"))
+  }
+
+  plotMol <- function() {
+    # get data
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..molecular.function.)
+
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+
+    colnames(GO_df_obj_bio_df) <- c("bio")
+
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+
+    test2 <- lapply(test1, function(x) x[[1]][1])
+
+    occurences<-table(unlist(test2))
+
+    occurences<- as.data.frame(occurences)
+
+    occurences <-  occurences[order(-occurences$Freq),]
+
+    colnames(occurences) <- c("molecular_functions","Frequences")
+
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+
+    occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
+
+    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$molecular_functions , occurences$Frequences), y=occurences$Frequences)) +
+      geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("molecular function")+
+      geom_text(aes(label = occurences$Freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
+      theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
+
+    bar_plot
+  
+    ggplotly(bar_plot, tooltip = c("text"))
+  }
+
+  output$uniprot_cel.plot <- renderPlotly({
+    plotCE()
+  })
+
+  output$uniprot_bio.plot <- renderPlotly({
+    plotBIO()
+  })
+
+  output$uniprot_molc.plot <- renderPlotly({
+    plotMol()
+  })
+
+  output$uniprot_cel_table <- DT::renderDataTable({
+
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..cellular.component.)
+  
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+    
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+    
+    colnames(GO_df_obj_bio_df) <- c("bio")
+    
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+    
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+    
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+    
+    test2 <- lapply(test1, function(x) x[[1]][1])
+    
+    occurences<-table(unlist(test2))
+    
+    occurences<- as.data.frame(occurences)
+    
+    occurences <-  occurences[order(-occurences$Freq),]
+    
+    colnames(occurences) <- c("cellular_components","Frequences")
+    
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+
+    occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
+
+    occurences
+
+  })
+
+   output$uniprot_bio_table <- DT::renderDataTable({
+
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..biological.process.)
+
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+
+    colnames(GO_df_obj_bio_df) <- c("bio")
+
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+
+    test2 <- lapply(test1, function(x) x[[1]][1])
+
+    occurences<-table(unlist(test2))
+
+    occurences<- as.data.frame(occurences)
+
+    occurences <-  occurences[order(-occurences$Freq),]
+
+    colnames(occurences) <- c("biological_process","Frequences")
+
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+
+    occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
+
+    occurences
+
+  })
+
+  output$uniprot_molc_table <- DT::renderDataTable({
+
+    GO_df <- plotUniprot()
+    GO_df_obj_bio <- toString(GO_df$Gene.ontology..molecular.function.)
+
+    GO_df_obj_bio <- strsplit(GO_df_obj_bio,";|,")
+
+    GO_df_obj_bio_df <- data.frame(GO_df_obj_bio)
+
+    colnames(GO_df_obj_bio_df) <- c("bio")
+
+    trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+    GO_df_obj_bio_df$bio <- trim(GO_df_obj_bio_df$bio)
+
+    test1 <- strsplit(as.character( GO_df_obj_bio_df$bio ), ".\\[")
+
+    test2 <- lapply(test1, function(x) x[[1]][1])
+
+    occurences<-table(unlist(test2))
+
+    occurences<- as.data.frame(occurences)
+
+    occurences <-  occurences[order(-occurences$Freq),]
+
+    colnames(occurences) <- c("molecular_functions","Frequences")
+
+    occurences %>%
+      mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
+
+    occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
+
+    occurences
+
+  })
 
   ###################################
   ###################################
