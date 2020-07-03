@@ -125,6 +125,31 @@ if (length(find.package(package = "scales", quiet = T)) > 0) {
 
 ###################################################################################
 
+####################### Dependencies For Protein Interactions ###################################
+
+if (length(find.package(package = "httr", quiet = T)) > 0) {
+  library(httr)
+} else {
+  install.packages("httr")
+  library(httr)
+}
+
+if (length(find.package(package = "curl", quiet = T)) > 0) {
+  library(curl)
+} else {
+  install.packages("curl")
+  library(curl)
+}
+
+if (length(find.package(package = "RCyjs", quiet = T)) > 0) {
+  library(RCyjs)
+} else {
+  install.packages("RCyjs")
+  library(RCyjs)
+}
+
+###################################################################################
+
 ####################### Dependencies For Microarray ###################################
 
 if (length(find.package(package = "devtools", quiet = T)) > 0) {
