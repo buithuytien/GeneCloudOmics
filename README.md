@@ -80,6 +80,26 @@ You can start your analysis now!
 * If clusterProfiler and GOStats are chosen, a pie chart showing relative size of all associated level-2 GO terms will be displayed in `Pie chart` tab. Please note that the GO terms in pie chart might not be significantly enriched since no over-representation test was carried out to generate the pie chart.
 * For clusterProfiler method, graph visualization of user-specified GO terms are displayed in `Graph` tab
 
+### ScatLay
+* ScatLay finds differentially expressed genes using 2 criteria:
+  - When overlaying scatter between 2 conditions onto scatter between 2 replicates, the genes that are non-overlapping are candidates for differentially expressed. This is controlled by the size of scatter dot, defaulted at 0.01. Varying the scatter dot size directly affects number of overlapping/non-overlapping points
+  - p-value associating with each gene, estimated by integrating 2D kernel density from the scatter between 2 replicates, from -Infinity to coordinates of that gene. This is controlled by p-value threshold, defaulted at 0.1
+
+* You will need to specify the 2 condtions for analyzing differentially expressed genes. You will also need to specify 2 replicates used in this analysis
+
+* 4 scatter plots will be generated:
+  - Top panels: Scatter plot betwen 2 replicates. 
+  - Bottom left panel: Scatter plot between 2 condition
+  - Bottom right panel: Overlaid between-condition scatter ontop of between-replicate scatter. Differentially expressed genes are highlighted in GREEN
+
+![alt_text](https://github.com/buithuytien/ScatLay/blob/master/www/screenshots/04_scatters.PNG)
+ 
+* Table of Differentially Expressed genes:
+  - Genes that are non-overlapping in the overlaid scatters, abd satisfy the p-value cut-off condition are listed in the `DE Gene Table`
+  - You can retrieve (.csv format) this list of DE genes by the `doanload` button on the side bar
+
+![alt_text](https://github.com/buithuytien/ScatLay/blob/master/www/screenshots/05_DEtable.PNG)
+
 ## Download instructions
 1. Scatter plot, distribution fit, correlation plot and heatmap can be saved as PDF by clicking `Download as PDF`. You can name the file before saving it. Also, you can directly drag the plot from the GUI to a folder on the computer.
 
