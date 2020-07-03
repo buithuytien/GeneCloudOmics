@@ -1,15 +1,15 @@
-
 Sys.setenv(RETICULATE_PYTHON = "C:\\Users\\BUITT\\AppData\\Local\\Programs\\Python\\Python38")
+# reticulate::use_python("C:\\Users\\BUITT\\AppData\\Local\\Programs\\Python\\Python38")
+
 
 # sync working directory with current file
-
 wd <- dirname(rstudioapi::getActiveDocumentContext()$path)  #set wd as the current folder
 print(wd == getwd())
 print(wd)
 print(getwd())
 if(! wd == getwd()){
   setwd(wd)}
-
+getwd()
 
 ################################################################################
 print("start loading")
@@ -51,12 +51,20 @@ if(length(find.package(package = 'reticulate',quiet = T))>0){
   library(reticulate)
 }
 
+if(length(find.package(package = 'ks',quiet = T))>0){
+  library(ks)
+}else{
+  install.packages("ks")
+  library(ks)
+}
 #################################################################################
 
 # 
-# ## sourcing util files
+#### sourcing util files
 source(paste0("./www/utils.R"))
-# source("ui.R")
+source_python("./www/df_converter.py")
+source_python("./www/ScatterOverlay_ABT_test.py")
+
 # 
 loadPkg()
 
@@ -289,7 +297,7 @@ ui <- navbarPage(id = "navbar",
              tabsetPanel(type = "tabs",id="pca_tabs",
                          tabPanel("PCA variance", plotlyOutput("pcavar.plot")),
                          tabPanel("PCA-2D plot", plotlyOutput("pca2d.plot")),
-                         tabPanel("PCA-3D plot",plotlyOutput("pca3d.plot"))
+                         tabPanel("PCA-3D plot", plotlyOutput("pca3d.plot"))
              )
            )),
   tabPanel("DE Analysis",
@@ -606,16 +614,68 @@ ui <- navbarPage(id = "navbar",
     
     tabPanel('Overlay',
              sidebarPanel(
-               h4('First Scatter'),
-               selectInput(inputId = 'overlay.x1',label = 'X-axis',choices = ""),
-               selectInput(inputId = 'overlay.y1',label = 'Y-axis',choices = ""),
-               h4('Second Scatter'),
-               selectInput(inputId = 'overlay.x2',label = 'X-axis',choices = ""),
-               selectInput(inputId = 'overlay.y2',label = 'Y-axis',choices = ""),
+               h4('First Condition'),
+               selectInput(inputId = 'overlay.x1',label = 'Replicate 1',choices = ""),
+               selectInput(inputId = 'overlay.y1',label = 'Replicate 2',choices = ""),
+               h4('Second Condition'),
+               selectInput(inputId = 'overlay.x2',label = 'Replicate 1',choices = ""),
+               selectInput(inputId = 'overlay.y2',label = 'Replicate 2',choices = ""),
+               
+               conditionalPanel(
+                 condition = "input.overlay_tabs=='DE Gene Table'",
+                 downloadButton("overlay.table.download", "Download as CSV")
+               ),
+               
+               h4('ScatLay parameter'),
+               numericInput(inputId = 'theta', label = 'Scatter dot size', value = 0.01, 
+                            min = 0.001, max = 0.5, step = 0.001),
+               numericInput(inputId = 'pval_KDE', label = 'p-value threshold', value = 0.1, 
+                            min = 0.01, max = 1, step = 0.01),
+               selectInput(inputId = 'overlay_option',label = 'Overlay Option',
+                           choices = c("Intersect", "Union", "First Replicate", "Second Replicate"),
+                           selected = 'Intersect' ),
+               
                actionButton("submit_overlay","Submit")),
+             # mainPanel(
+             #   plotOutput('overlay.plot')
+             # )
              mainPanel(
-               plotOutput('overlay.plot')
-             ))
+               tabsetPanel(type = "tabs",id="overlay_tabs",
+                           tabPanel("Overlay Scatter", 
+                                    conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                     div(img(src="load.gif",width=240,height=180),
+                                                         h4("Processing ... Please wait"),
+                                                         style="text-align: center;")
+                                    ),
+                                    conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                     div(plotOutput("overlay.plot") )
+                                    )),
+                           tabPanel("2D Kernel Density", 
+                                    conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                     div(img(src="load.gif",width=240,height=180),
+                                                         h4("Processing ... Please wait"),
+                                                         style="text-align: center;")
+                                    ),
+                                    conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                     div(h4("2D Kernel Density"),
+                                                         h6("2D Kernel Density estimated from scatter of 2 replicates, used for p-value estimation of each gene"),
+                                                         plotlyOutput("overlayKDE.plot") )
+                                    )),
+                           tabPanel("DE Gene Table",
+                                    conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                                     div(img(src="load.gif",width=240,height=180),
+                                                         h4("Processing ... Please wait"),style="text-align: center;")
+                                    ),
+                                    conditionalPanel(condition="!$('html').hasClass('shiny-busy')",
+                                                     div(h4("Table of Differentially Expressed Genes"),
+                                                         h6("Differentially expressed genes have Non_overlap = TRUE and p-value < threshold"),
+                                                         DT::dataTableOutput('overlay.table'), 
+                                                         style = "font-size:80%")
+                                    ))
+                         )
+                     )
+             
+             )
 )
   ####################################################
 
@@ -2748,64 +2808,215 @@ server <- function(input,output,session){
   # data for t-sne
   plotOverlay <- eventReactive(input$submit_overlay, {
     overlay.start <- Sys.time()
-    type <- input$file_type
+    
+    # get column names to plot overlay
     x1 <- input$overlay.x1
     y1 <- input$overlay.y1
     x2 <- input$overlay.x2
     y2 <- input$overlay.y2
     
+    # get gene expression dataframe to plot overlay
+    type <- input$file_type
     if(type=='norm'){
       DS <- df_shiny()
     }else if(type=='raw'){ 
       DS <- df_raw_shiny()
     }
     
-    overlay.data <- DS
+    
+    # get scatter dot size theta to plot overlay
+    theta <- input$theta
+    
+    # get p-value threshold
+    pval_KDE <- input$pval_KDE
+    
+    # get overlay option: either intersect, union, first replicate, or second replicate
+    overlay_option <- input$overlay_option
+    
+    ### run scatter overlay ###
+    # extract overlay dataframe with 4 columns: cond1_rep1, cond1_rep2, cond2_rep1, cond2_rep2
+    overlay.data <- DS[,c(x1, y1, x2, y2)]
+    
+    # run overlay to get non-overlapping genes
+    py_df <- r2py_DataFrame(overlay.data) # from python source
+    
+    scatlay_res <- deRun(df = py_df, theta = theta) # from python source
+    
+    df_temp  <- scatlay_res[[2]]
+    df_temp2 <- scatlay_res[[3]]
+    df_temp3 <- scatlay_res[[4]]
+    exc1_names <- scatlay_res[[5]]
+    exc2_names <- scatlay_res[[6]]
+    
+    # get non-overlapping genes from scatter overlaying
+    if(overlay_option == "Intersect"){
+      exc_common0 <- scatlay_res[[7]] # highlighted genes
+    } else if(overlay_option == "Union"){
+      exc_common0 <- union(exc1_names, exc2_names)
+    } else if(overlay_option == "First Replicate"){
+      exc_common0 <- exc1_names
+    } else if(overlay_option == "First Replicate"){
+      exc_common0 <- exc2_names
+    }
+    
+    # get pvalue threshold
+    pval_res <- pvalRun(df = scatlay_res[[1]], 
+                          theta = theta, 
+                          exc_common0 = exc_common0, 
+                          pval_thres = pval_KDE)
+    exc_common <- pval_res[[1]]
+    pval_df <- pval_res[[2]]
+    
+    # if(pval_KDE == 1){
+    #   exc_common <- exc_common0
+    # }
+    
     
     overlay.end <- Sys.time()
     print("Overlay plot time")
     print(overlay.end - overlay.start)
-    return (list(overlay.data, x1, y1, x2, y2))
+    return (list(DS, x1, y1, x2, y2, theta, pval_KDE, overlay_option, #1 - 8
+                 overlay.data, df_temp, df_temp2, df_temp3, exc1_names, exc2_names, # 9-14
+                 exc_common0, exc_common, pval_df )) # 15 16 17
   })
   
   
   overlayplot <- function(){
     # get data 
     li <- plotOverlay()
-    overlay.data <- li[[1]]
-    x1 <- li[[2]]
-    y1 <- li[[3]]
-    x2 <- li[[4]]
-    y2 <- li[[5]]
+    df_temp  <- li[[10]]
+    df_temp2 <- li[[11]]
+    df_temp3 <- li[[12]]
+    exc_common0 <- li[[15]]
+    exc_common <- li[[16]]
+    theta <- li[[6]]
     
-    # get corresponding col num from col name
-    x1_col <- which(colnames(overlay.data)==x1)
-    y1_col <- which(colnames(overlay.data)==y1)
-    x2_col <- which(colnames(overlay.data)==x2)
-    y2_col <- which(colnames(overlay.data)==y2)
-    
-    # convert R to Python dataframe
-    py_run_file("df_converter.py")
-    temp <- py$r2py_DataFrame(overlay.data)
-    py$df <- temp[[1]]
-    py$column_names <- temp[[2]]
-    
-    # additional parameters to pass to python script
-    py$x1_val = x1_col
-    py$y1_val = y1_col
-    py$x2_val = x2_col
-    py$y2_val = y2_col
-    
-    # run ScatterOverlay python script
-    py_run_file("ScatterOverlay_ABT.py")
-    # py_run_file("test1_path.py")
-    
+    runFig(df_temp, df_temp2, df_temp3, 
+           exc_common=exc_common, theta=theta) # from python source
   }
   
   
   output$overlay.plot <- renderPlot({
     overlayplot()
   })
+  
+  output$overlayKDE.plot <- renderPlotly({
+    li <- plotOverlay()
+    overlay.data <- li[[9]]
+    
+    df_tpm_log <- dfTransform(overlay.data, 10); 
+    x <- rbind(as.matrix(df_tpm_log[,1:2]), as.matrix(df_tpm_log[,3:4]) ); 
+    
+    # pre_process x
+    # lfc_x <- abs(log2(x[,2] / x[,1]) ) %>% na.omit()
+    # keep_x <- which(lfc_x <= 1)
+    # x <- x[keep_x,]
+    
+    # generate 2D KDE plot in interactive 3D
+    pdf2d_plot <- MASS::kde2d(x[,1], x[,2], h=MASS::bandwidth.nrd(x)*2, n = 50)
+    p <- plot_ly(x = pdf2d_plot$x, y = pdf2d_plot$y, z = pdf2d_plot$z) %>% 
+          add_surface()
+    p
+  })
+  
+  output$overlay.table = DT::renderDataTable({
+    li <- plotOverlay()
+    pval_df <- li[[17]]
+    exc_common <- li[[16]]
+    
+    pval_df[exc_common,]
+  })
+  
+  output$overlay.table.download <- downloadHandler(
+    filename = function() {
+      theta <- input$theta
+      paste0("ScatLay_theta",theta,".csv")
+    },
+    content = function(file) {
+      li <- plotOverlay()
+      pval_df <- li[[17]]
+      write.csv(pval_df, file, row.names = FALSE)
+    }
+  )
+  
+  ###############################################################################
+  #### HELPER FUNCTION FOR SCATTER OVERLAY - GENERATE P-VALUE BASED ON KDE  #####
+  # pre-process dataframe
+  dfTransform <- function(x, logbase=10){
+    x_log <- log(x, base=logbase)
+    x_log[x_log == -Inf] <- 0
+    return(x_log)
+  }
+  
+  
+  # get p-value from kde
+  pvalKDE <- function(pdf2d, x){
+    # x = location to predict pvals
+    est <- pdf2d$estimate
+    est <- est - min(est)
+    prob <- predict(pdf2d, x=x) - min(est)
+    # pvals = integration from -Inf to location x
+    pvals <- sum(est[est<prob])/ sum(est) 
+    return(pvals)
+  }
+  
+  pvalAllGenes <- function(pdf2d, df_tpm_log, pval){
+    # df_tpm_log = dataframe, 4 columns, log transformed
+    pvals1 <- apply(df_tpm_log[,c(1,3)], MARGIN=1, function(x) pvalKDE(pdf2d, x)  )
+    pvals2 <- apply(df_tpm_log[,c(2,4)], MARGIN=1, function(x) pvalKDE(pdf2d, x)  )
+    
+    pval_df <- data.frame("Gene" = rownames(df_tpm_log),
+                          "P_value" = pmin(pvals1, pvals2))
+    rownames(pval_df) <- rownames(df_tpm_log)
+    
+    return(pval_df)
+  }
+  
+  pvalRun <- function(df, theta, exc_common0, pval_thres = 0.1){
+    # use kde to get probability density function, and integrate to have p-value
+    df_tpm_log <- dfTransform(df, 10); 
+    x <- rbind(as.matrix(df_tpm_log[,1:2]), as.matrix(df_tpm_log[,3:4]) ); 
+    cat("head(x): ", "\n"); print(head(x))
+    
+    # pre_process x
+    lfc_x <- abs(log2(x[,2] / x[,1]) ) %>% na.omit()
+    keep_x <- which(lfc_x <= 1)
+    x <- x[keep_x,]
+    dim(x)
+    
+    # get bandwidth
+    H_default = Hpi(x=x); cat("H_default =", H_default, "\n")
+    f <- mean(H_default)/theta; cat("f =", f, "\n")
+    H <- H_default/f; cat("H =", H, "\n")
+    n_grid = 150 #as.integer(max(ecoli_full[,c("b1","c1")])/ mean(H) ) /5
+    pdf2d <- kde(x=x, H=H, gridsize = c(n_grid, n_grid) )
+    # plot(pdf2d)
+    
+    # get genes with p-value < threshold
+    pval_df <- pvalAllGenes(pdf2d, df_tpm_log, pval=pval_thres); 
+    # if the genes are non-overlap from ScatLay python run (~ yellow dots, differentially expressed)
+    non_overlapping <- sapply(pval_df$Gene, function(x) x %in% exc_common0 )
+    pval_df[,"Non_overlap"] <- non_overlapping
+    
+    print("line 2988 - head(pval_df)");
+    print(head(pval_df));
+    
+    pval_df_filt <- pval_df %>% filter(P_value < pval_thres)
+    pval_genes <- pval_df_filt$Gene
+    
+    pval_df_filt <- pval_df %>% filter(P_value < pval_thres, Non_overlap == TRUE)
+    diff_theta_pval <- pval_df_filt$Gene
+    
+    print(head(pval_genes));
+    
+    cat("length of genes with p-value below", pval_thres, ":", length(pval_genes), "\n")
+    cat("length of de genes with p-value below", pval_thres, ":", length(diff_theta_pval), "\n")
+    
+    return(list(diff_theta_pval, pval_df))
+  }
+  
+  
+  ###############################################################################
   
   ###################################
   ###################################
