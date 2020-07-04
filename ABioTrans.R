@@ -1104,6 +1104,19 @@ ui <- navbarPage(
             plotlyOutput("uniprot_cel.plot"),
             DT::dataTableOutput("uniprot_cel_table"))
     )
+  )),
+  #########################################
+
+  ###### Protein Interaction #############
+  #########################################
+  tabPanel(
+    "P-P Interactions",
+    sidebarPanel(
+      fileInput("file_prot_Int", "Upload the accession files"),
+      actionButton("submit_prot_Int", "Submit")
+    ),
+    mainPanel(
+      h3("Protein-Protein Interactions")
   ))
   #########################################
 
@@ -3999,7 +4012,7 @@ RLE.plot <- reactive({
   )
 
   ###################################
-  ###################################
+  ######## Gene-Set Analysis ########
   ###################################
   ###################################
 
@@ -4295,6 +4308,204 @@ RLE.plot <- reactive({
   ###################################
   ###################################
   ###################################
+
+
+
+  ###################################
+  ###################################
+  #######  P-P Interactions   #######
+  ###################################
+  ###################################
+  
+  df_prot_Int <- reactive({
+    print("running")
+    if (is.null(input$file_prot_Int)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_prot_Int$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_prot_Int$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  observeEvent(input$abc, {
+
+    RCyjs::layout(rcy, "concentric")
+    print("done")
+
+  })
+
+  observeEvent(input$submit_prot_Int, {
+
+    print("running...")
+    Accessions <- df_prot_Int()
+    print("Please Wait... Fetching interaction data. It may take a while")
+    protein_interaction_df <- getInteraction(Accessions)
+    print("Fetched...")
+    
+    #migrating rowId to first colunm 
+    protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+    rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
+  
+    #making nodes
+    nodes <- as.character(protein_interaction_df[,1])
+    for (i in 1:nrow(protein_interaction_df))
+    {
+      if(!(is.na(protein_interaction_df[i,2])))
+      {
+        data_df <- strsplit(protein_interaction_df[i,2],"; ")
+        for(j in data_df)
+        {
+          nodes <- c(nodes,j)
+        }
+      }
+    }
+
+    print("Please Wait... Fetching Gene Names. It may take a while")
+    protein_gene_name <- getGeneNames(nodes)
+    print("Fetched...")
+
+    print("Rendering Visualization using Cytoscape")
+
+    g <- graphNEL(as.character(protein_gene_name[,1]), edgemode="undirected")
+    for (i in 1:nrow(protein_interaction_df))
+    {
+      if(!(is.na(protein_interaction_df[i,2])))
+      {
+        data_df <- strsplit(protein_interaction_df[i,2],"; ")
+        for(j in data_df)
+        {
+          g <- graph::addEdge(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]), as.character(protein_gene_name[j,1]), g)
+        }
+      }
+    }
+    
+    nodeDataDefaults(g, attr="label") <- "undefined"
+    nodeDataDefaults(g, attr="type") <- "undefined"
+    nodeDataDefaults(g, attr="flux") <- 0
+    edgeDataDefaults(g, attr="edgeType") <- "undefined"
+    
+    rcy <- RCyjs(title="RCyjs vignette")
+    setGraph(rcy, g)
+    print("set")
+    strategies <- getLayoutStrategies(rcy)
+    print(strategies)
+    
+    RCyjs::layout(rcy, "grid")
+    # print("lay")
+    fit(rcy, padding=200)
+    print("fit")
+    setDefaultStyle(rcy)
+    
+  })
+
+  getInteraction <- function(ProteinAccList) {
+
+      if(!has_internet())
+    {
+      message("Please connect to the internet as the package requires internect connection.")
+      return()
+    }
+    protein_interaction_df = data.frame()
+    baseUrl <- "http://www.uniprot.org/uniprot/"
+    Colnames = "interactor"
+    for (ProteinAcc in ProteinAccList)
+    {
+      #to see if Request == 200 or not
+      Request <- tryCatch(
+        {
+          GET(paste0(baseUrl , ProteinAcc,".xml") , timeout(60))
+        },error = function(cond)
+        {
+          message("Internet connection problem occurs and the function will return the original error")
+          message(cond)
+        }
+      )
+      #this link return information in tab formate (format = tab)
+      ProteinName_url <- paste0("?query=accession:",ProteinAcc,"&format=tab&columns=",Colnames)
+      RequestUrl <- paste0(baseUrl , ProteinName_url)
+      RequestUrl <- URLencode(RequestUrl)
+      
+      if (Request$status_code == 200){
+        # parse the information in DataFrame
+        ProteinDataTable <- tryCatch(read.csv(RequestUrl, header = TRUE, sep = '\t'), error=function(e) NULL)
+        if (!is.null(ProteinDataTable))
+        {
+          ProteinDataTable <- ProteinDataTable[1,]
+          ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+          # add Dataframes together if more than one accession
+          protein_interaction_df <- rbind(protein_interaction_df, ProteinInfoParsed)
+          print(paste0(ProteinAcc," interactions Fetched.."))
+        }
+      }else {
+        HandleBadRequests(Request$status_code)
+      }
+    }
+
+    return(protein_interaction_df)
+
+  }
+
+  getGeneNames <- function(ProteinAccList) {
+
+    baseUrl <- "http://www.uniprot.org/uniprot/"
+    Colnames = "genes(PREFERRED)"
+    
+    protein_gene_name = data.frame()
+    for (ProteinAcc in ProteinAccList)
+    {
+      #to see if Request == 200 or not
+      Request <- tryCatch(
+        {
+          GET(paste0(baseUrl , ProteinAcc,".xml") , timeout(10))
+        },error = function(cond)
+        {
+          message("Internet connection problem occurs and the function will return the original error")
+          message(cond)
+        }
+      ) 
+      #this link return information in tab formate (format = tab)
+      ProteinName_url <- paste0("?query=accession:",ProteinAcc,"&format=tab&columns=",Colnames)
+      RequestUrl <- paste0(baseUrl , ProteinName_url)
+      RequestUrl <- URLencode(RequestUrl)
+      if (Request$status_code == 200){
+        # parse the information in DataFrame
+        ProteinDataTable <- tryCatch(read.csv(RequestUrl, header = TRUE, sep = '\t'), error=function(e) NULL)
+        if (!is.null(ProteinDataTable))
+        {
+          ProteinDataTable <- ProteinDataTable[1,]
+          ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+          # add Dataframes together if more than one accession
+          protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+          print(paste0(ProteinAcc," name fetched"))
+        }
+        
+      }else {
+        HandleBadRequests(Request$status_code)
+      }
+    }
+
+    return(protein_gene_name)
+
+  }
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
 
 
 
