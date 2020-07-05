@@ -150,6 +150,18 @@ if (length(find.package(package = "RCyjs", quiet = T)) > 0) {
 
 ###################################################################################
 
+####################### Dependencies For Gene Mania ###################################
+
+if (length(find.package(package = "shinyjs", quiet = T)) > 0) {
+  library(shinyjs)
+} else {
+  install.packages("shinyjs")
+  library(shinyjs)
+}
+
+###################################################################################
+
+
 ####################### Dependencies For Microarray ###################################
 
 if (length(find.package(package = "devtools", quiet = T)) > 0) {
@@ -260,6 +272,8 @@ if (!wd == getwd()) {
   setwd(wd)
 }
 
+
+
 #
 # ## sourcing util files
 source(paste0("./www/utils.R"))
@@ -275,13 +289,14 @@ end.load <- Sys.time()
 print("loading time")
 print(end.load - start.load)
 ##### UI from here ###########
-ui <- navbarPage(
+ui <- tagList(
+  shinyjs::useShinyjs(),
+  navbarPage(
   id = "navbar",
   theme = shinytheme("flatly"),
   title = "ABioTrans",
   tabPanel(
     "Home",
-    # useShinyjs(),
     sidebarPanel(
       radioButtons(
         "file_type", "Choose File Type",
@@ -594,7 +609,6 @@ ui <- navbarPage(
   ),
   tabPanel(
     "DE Analysis",
-    # useShinyjs(),
     sidebarPanel(
       radioButtons("n_rep", "Replicates?", choices = c("Multiple" = 1, "Single" = 0)),
       conditionalPanel(
@@ -848,7 +862,6 @@ ui <- navbarPage(
   ##################################################
   tabPanel(
     "GO Analysis",
-    # useShinyjs(),
     sidebarPanel(
       conditionalPanel(
         condition = "input.go_tab == 'go_table' || input.go_tab == 'go_pie' ",
@@ -1117,6 +1130,34 @@ ui <- navbarPage(
     ),
     mainPanel(
       h3("Protein-Protein Interactions")
+  )),
+  #########################################
+
+  ###### Genemania #############
+  #########################################
+  tabPanel(
+    "Gene Mania",
+    sidebarPanel(
+    selectInput("organismID", "Choose organism:", 
+                  choices= list(
+                    "Arabidopsis_thaliana",
+                    "Caenorhabditis_elegans",
+                    "Danio_rerio",
+                    "Drosophila_melanogaster",
+                    "Escherichia_coli",
+                    "Homo_sapiens",
+                    "Mus_musculus",
+                    "Rattus_norvegicus",
+                    "Saccharomyces_cerevisiae"
+                  )),
+      fileInput("file_gene", "Upload the Gene Names"),
+      actionButton("genemania_submit", "Submit")
+    ),
+    mainPanel(
+      h3("Co-expression"),
+      div(id = "hide_link", 
+       p("Please click", htmlOutput("link")))
+        %>% shinyjs::hidden()
   ))
   #########################################
 
@@ -1126,10 +1167,13 @@ ui <- navbarPage(
     tabPanel('Raw-Value')
   )
 )
+)
 ####################################################
 
 server <- function(input, output, session) {
 
+
+  gene_mania_link <- reactiveVal("https://genemania.org")
 
   ########################################
   ##### Increases the Upload Limit #######
@@ -4340,13 +4384,6 @@ RLE.plot <- reactive({
 
   })
 
-  observeEvent(input$abc, {
-
-    RCyjs::layout(rcy, "concentric")
-    print("done")
-
-  })
-
   observeEvent(input$submit_prot_Int, {
 
     print("running...")
@@ -4508,6 +4545,63 @@ RLE.plot <- reactive({
 
 
 
+  ###################################
+  ###################################
+  #########  Gemne Mania  ###########
+  ###################################
+  ###################################
+  
+  df_genemania <- reactive({
+    print("running")
+    if (is.null(input$file_gene)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_gene$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    gene_names <- read.csv(input$file_gene$datapath)
+    gene_names <- na.omit(gene_names)
+    gene_names <- gene_names[!duplicated(gene_names[, 1]), ]
+
+    return(gene_names)
+
+  })
+
+  observeEvent(input$genemania_submit, {
+
+    print("running...")
+    organism_id <- input$organismID
+    gene_names <- df_genemania()
+    base_url <- "http://genemania.org/search/"
+
+    url <- paste0(base_url,organism_id)
+    for ( names in as.character(gene_names) )
+    {
+        url <- paste0(url,"/",names)
+    }
+    # print(gene_mania_link())
+    print(url)
+    gene_mania_link(url)
+    shinyjs::toggle("hide_link")
+    
+  })
+
+  output$link <- renderUI({
+    a("here", href = gene_mania_link(), inline = TRUE)
+  })
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+  
 
   # session$onSessionEnded(stopApp)
 }
