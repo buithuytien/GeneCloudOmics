@@ -161,7 +161,6 @@ if (length(find.package(package = "shinyjs", quiet = T)) > 0) {
 
 ###################################################################################
 
-
 ####################### Dependencies For Microarray ###################################
 
 if (length(find.package(package = "devtools", quiet = T)) > 0) {
@@ -1158,6 +1157,19 @@ ui <- tagList(
       div(id = "hide_link", 
        p("Please click", htmlOutput("link")))
         %>% shinyjs::hidden()
+  )),
+  #########################################
+
+  ######### Protein Sequences #############
+  #########################################
+  tabPanel(
+    "Protein Sequences",
+    sidebarPanel(
+      fileInput("file_prot_seq", "Upload the accession files"),
+      actionButton("submit_prot_seq", "Submit")
+    ),
+    mainPanel(
+      h3("Protein Sequences")
   ))
   #########################################
 
@@ -4596,6 +4608,7 @@ RLE.plot <- reactive({
   output$link <- renderUI({
     a("here", href = gene_mania_link(), inline = TRUE)
   })
+  
 
   ###################################
   ###################################
