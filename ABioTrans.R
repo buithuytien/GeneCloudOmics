@@ -1169,7 +1169,8 @@ ui <- tagList(
       actionButton("submit_prot_seq", "Submit")
     ),
     mainPanel(
-      h3("Protein Sequences")
+      h3("Protein Sequences"),
+      htmlOutput("fasta_text")
   ))
   #########################################
 
@@ -1186,6 +1187,8 @@ server <- function(input, output, session) {
 
 
   gene_mania_link <- reactiveVal("https://genemania.org")
+  count_fasta <- reactiveVal(0)
+  count_id <- reactiveVal(0)
 
   ########################################
   ##### Increases the Upload Limit #######
@@ -4609,6 +4612,58 @@ RLE.plot <- reactive({
     a("here", href = gene_mania_link(), inline = TRUE)
   })
   
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+
+  ###################################
+  ###################################
+  ######  Protein Sequences  ########
+  ###################################
+  ###################################
+  
+  df_prot_seq <- reactive({
+    print("running")
+    if (is.null(input$file_prot_seq)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_prot_seq$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    proteome_id <- read.csv(input$file_prot_seq$datapath)
+    proteome_id <- na.omit(proteome_id)
+    proteome_id <- proteome_id[!duplicated(proteome_id[, 1]), ]
+
+    return(proteome_id)
+
+  })
+
+  observeEvent(input$submit_prot_seq, {
+
+    print("running")
+    proteome_id <- df_prot_seq()
+    
+    py$Proteome_id <- proteome_id
+    py_run_file("getFASTA.py")
+    count_fasta(py$count)
+    count_id(py$size)
+
+  })
+
+  output$fasta_text <- renderUI({
+        h2(count_id()," protein ID submitted. Sequences of ", count_fasta()," proteins were retrieved.")
+  })
+
 
   ###################################
   ###################################
