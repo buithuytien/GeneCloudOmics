@@ -1128,7 +1128,14 @@ ui <- tagList(
       actionButton("submit_prot_Int", "Submit")
     ),
     mainPanel(
-      h3("Protein-Protein Interactions")
+      h3("Protein-Protein Interactions"),
+      tabsetPanel(
+          type = "tabs", id = "prot_inte_tab",
+          tabPanel("Protein Interaction",
+            DT::dataTableOutput("prot_int_table")),
+          tabPanel("Protein Name",
+            DT::dataTableOutput("prot_name_table"))
+    )
   )),
   #########################################
 
@@ -4376,6 +4383,14 @@ RLE.plot <- reactive({
   ###################################
   ###################################
   
+
+  ############ Initializing Variables ###############
+
+  df_interaction <- reactiveVal(0)
+  df_names <- reactiveVal(0)
+
+  ####################################################
+
   df_prot_Int <- reactive({
     print("running")
     if (is.null(input$file_prot_Int)) {
@@ -4399,12 +4414,14 @@ RLE.plot <- reactive({
 
   })
 
+
   observeEvent(input$submit_prot_Int, {
 
     print("running...")
     Accessions <- df_prot_Int()
     print("Please Wait... Fetching interaction data. It may take a while")
     protein_interaction_df <- getInteraction(Accessions)
+    df_interaction(protein_interaction_df)
     print("Fetched...")
     
     #migrating rowId to first colunm 
@@ -4427,6 +4444,7 @@ RLE.plot <- reactive({
 
     print("Please Wait... Fetching Gene Names. It may take a while")
     protein_gene_name <- getGeneNames(nodes)
+    df_names(protein_gene_name)
     print("Fetched...")
 
     print("Rendering Visualization using Cytoscape")
@@ -4553,6 +4571,20 @@ RLE.plot <- reactive({
 
   }
 
+  output$prot_int_table <- DT::renderDataTable({
+
+    protein_interaction_df <- df_interaction()
+    protein_interaction_df
+
+  })
+
+  output$prot_name_table <- DT::renderDataTable({
+
+    protein_gene_name <- df_names()
+    protein_gene_name
+
+  })
+
   ###################################
   ###################################
   ###################################
@@ -4653,7 +4685,7 @@ RLE.plot <- reactive({
     print("running")
     proteome_id <- df_prot_seq()
     
-    py$Proteome_id <- proteome_id
+    py$Proteome_id <- df_prot_seq()
     py_run_file("getFASTA.py")
     count_fasta(py$count)
     count_id(py$size)
