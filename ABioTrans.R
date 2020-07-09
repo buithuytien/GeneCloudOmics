@@ -977,7 +977,21 @@ ui <- tagList(
     )
   ),
 
+  ################### Support Vector Machine ##################### 
   
+  tabPanel('SVM',
+             sidebarPanel(
+               actionButton("submit_svm","Submit")),
+             mainPanel(
+               h3('SVM Plot'),
+                tabsetPanel(
+                  type = "tabs", id = "SVM_tabs",
+                  tabPanel("SVM Classification", plotOutput('svm_plot')),
+                  tabPanel("Raw Plot", plotOutput("svm_df_plot"))
+                )
+             )),
+    
+  #####################################################################
 
   tabPanel('t-SNE',
              sidebarPanel(
@@ -3596,6 +3610,102 @@ RLE.plot <- reactive({
 
   ###################################
   ########## New-Features ###########
+  ###################################
+  ###################################
+
+
+  ###################################
+  ###################################
+  ############   SVM     ############
+  ###################################
+  ###################################
+  
+  data_svm <- eventReactive(input$submit_svm, {
+    print("Running...")
+    svm.start <- Sys.time()
+    type <- input$file_type
+
+    if (type == "norm") {
+      DS <- df_shiny()
+    }
+    else if (type == "raw") {
+      DS <- df_raw_shiny()
+    }
+
+    print("1")
+
+    x1.1 <- as.data.frame(DS[,1:3])
+    x1.11 <- as.data.frame(DS[1:100,1:3])
+    x2.2 <- as.data.frame(DS[,4:6])
+    x2.22 <- as.data.frame(DS[1:100,4:6])
+
+    print("2")
+
+    x1.1 <-  setNames(stack(x1.1),c("x1.1","colName"))
+    x1.11 <-  setNames(stack(x1.11),c("x1.1","colName"))
+    x2.2 <-  setNames(stack(x2.2),c("x2.2","colName"))
+    x2.22 <-  setNames(stack(x2.22),c("x2.2","colName"))
+    
+    mut_type <- as.data.frame(x1.1[,2])
+    mut_type1 <- as.data.frame(x1.11[,2])
+
+    dat <- data.frame(matrix(ncol = 3, nrow = nrow(x1.1)))
+    dat1 <- data.frame(matrix(ncol = 3, nrow = nrow(x1.11)))
+    x <- c("x1.1", "x2.2", "y")
+    colnames(dat) <- x
+    colnames(dat1) <- x
+
+    print("3")
+
+    dat[,1] <- x1.1[,1]
+    dat[,2] <- x2.2[,1]
+    dat[,3] <- mut_type[,1]
+
+    print("4")
+
+    dat1[,1] <- x1.11[,1]
+    dat1[,2] <- x2.22[,1]
+    dat1[,3] <- mut_type1[,1]
+
+    dat[,3] <- as.factor(as.numeric(dat[,3]))
+    dat1[,3] <- as.factor(as.numeric(dat1[,3]))
+
+    return(dat1)
+
+  })
+
+  plotSVM <- function() {
+
+    dat <- data_svm()
+
+    print("training")
+    svmfit <- svm(y~., data = dat, kernel = "radial", cost = 10, gamma = 1)
+    print("done")
+    plot(svmfit , dat )
+
+  }
+
+  plotSVM_df <- function() {
+
+    dat <- data_svm()
+
+    ggplot(data = dat, aes(x = x2.2, y = x1.1, color = y, shape = y)) + 
+  geom_point(size = 2) +
+  scale_color_manual(values=c("#000000","#FF0000","#00BA00")) +
+  theme(legend.position = "none")
+
+  }
+
+  output$svm_plot <- renderPlot({
+    plotSVM()
+  })
+
+  output$svm_df_plot <- renderPlot({
+    plotSVM_df()
+  })
+  
+  ###################################
+  ###################################
   ###################################
   ###################################
 
