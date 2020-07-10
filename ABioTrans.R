@@ -1270,7 +1270,17 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Protein Sequences"),
-      htmlOutput("fasta_text")
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            htmlOutput("fasta_text")
+          )
   ))
   #########################################
 
@@ -5068,23 +5078,28 @@ RLE.plot <- reactive({
       return(NULL)
     }
 
-    proteome_id <- read.csv(input$file_prot_seq$datapath)
-    proteome_id <- na.omit(proteome_id)
-    proteome_id <- proteome_id[!duplicated(proteome_id[, 1]), ]
+    protein_Id <- read.csv(input$file_prot_seq$datapath)
+    protein_Id <- na.omit(protein_Id)
+    protein_Id <- protein_Id[!duplicated(protein_Id[, 1]), ]
 
-    return(proteome_id)
+    return(protein_Id)
 
   })
 
   observeEvent(input$submit_prot_seq, {
 
     print("running")
-    proteome_id <- df_prot_seq()
     
-    py$Proteome_id <- df_prot_seq()
+    protein_Id <- df_prot_seq()
+    py$protein_Id <- df_prot_seq()
     py_run_file("getFASTA.py")
     count_fasta(py$count)
     count_id(py$size)
+
+    showModal(modalDialog(
+        title = "Alert!!!",
+        "The fasta file is saved as download.fasta"
+      ))
 
   })
 

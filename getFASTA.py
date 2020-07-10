@@ -2,11 +2,11 @@ import requests
 import os, sys
 
 count = 0
-size = len(Proteome_id)
+size = len(protein_Id)
 print(size)
 
-for id in Proteome_id:
-    url = "https://www.uniprot.org/uniprot/?query=proteome:" + id + "&format=fasta"
+for id in protein_Id:
+    url = "https://www.uniprot.org/uniprot/" + id + ".fasta"
 
     try:
         r = requests.get(url,timeout=10)
@@ -21,10 +21,10 @@ for id in Proteome_id:
         print ("OOps: Something Else",err)
 
 
-    dir = os.getcwd() + "/" + id + ".fasta"
+    dir = os.getcwd() + "/donwload.fasta"
 
     if r.status_code == 200:
         count += 1
         print(id + " downloaded Successfully")
-        with open(dir,'wb') as f:
+        with open(dir,'ab+') as f:
             f.write(r.content)
