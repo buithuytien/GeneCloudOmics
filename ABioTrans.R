@@ -148,6 +148,13 @@ if (length(find.package(package = "RCyjs", quiet = T)) > 0) {
   library(RCyjs)
 }
 
+if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
+  library(cyjShiny)
+} else {
+  remotes::install_github("cytoscape/cyjShiny")
+  library(cyjShiny)
+}
+
 ###################################################################################
 
 ####################### Dependencies For Gene Mania ###################################
