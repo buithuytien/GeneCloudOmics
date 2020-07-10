@@ -271,7 +271,13 @@ if (!wd == getwd()) {
   setwd(wd)
 }
 
+########################### Style files for Cytoscape.js ################
 
+styles <- c(
+            "generic style"="basicStyle.js",
+            "style 01" = "style01.js")
+
+##########################################################################
 
 #
 # ## sourcing util files
@@ -287,6 +293,7 @@ enrichRdbs <- as.character(read.csv(paste0(wd, "/www/enrichRdbs.csv"))[, 1])
 end.load <- Sys.time()
 print("loading time")
 print(end.load - start.load)
+
 ##### UI from here ###########
 ui <- tagList(
   shinyjs::useShinyjs(),
@@ -1137,19 +1144,84 @@ ui <- tagList(
   #########################################
   tabPanel(
     "P-P Interactions",
+    tags$head(tags$style("#cyjShiny{height:95vh !important;}")),
+  sidebarLayout(
     sidebarPanel(
       fileInput("file_prot_Int", "Upload the accession files"),
-      actionButton("submit_prot_Int", "Submit")
+      # actionButton("submit_prot_Int", "Submit"),
+      selectInput("loadStyleFile", "Select Style: ", choices=styles),
+          selectInput("doLayout", "Select Layout:",
+                      choices=c("",
+                                "cose",
+                                "cola",
+                                "circle",
+                                "concentric",
+                                "breadthfirst",
+                                "grid",
+                                "random",
+                                "dagre",
+                                "cose-bilkent")),
+         # selectInput("showCondition", "Select Condition:", choices=rownames(output$tbl.lfc)),
+         # selectInput("selectName", "Select Node by ID:", choices = c("", sort(tbl.nodes$id))),
+          actionButton("sfn", "Select First Neighbor"),
+          br(),br(),
+          actionButton("fit", "Fit Graph"),br(),br(),
+          actionButton("fitSelected", "Fit Selected"),br(),br(),
+          actionButton("clearSelection", "Clear Selection"), br(),br(),
+          actionButton("removeGraphButton", "Remove Graph"), br(),br(),
+          actionButton("addRandomGraphFromDataFramesButton", "Add Random Graph"),br(),br(),
+          actionButton("getSelectedNodes", "Get Selected Nodes"), br(),br(),
+          htmlOutput("selectedNodesDisplay"),
+          width=2
     ),
     mainPanel(
       h3("Protein-Protein Interactions"),
       tabsetPanel(
           type = "tabs", id = "prot_inte_tab",
+          tabPanel("Visualization",
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            cyjShinyOutput('cyjShiny', height=350)
+          )),
           tabPanel("Protein Interaction",
-            DT::dataTableOutput("prot_int_table")),
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_int_table")
+          )),
           tabPanel("Protein Name",
-            DT::dataTableOutput("prot_name_table"))
-    )
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_name_table")
+          ))
+    ),
+    width=10
+  )
+  #  mainPanel(cyjShinyOutput('cyjShiny', height=400),
+  #           width=10,
+  #           tabPanel("Protein Name",
+  #           DT::dataTableOutput("prot_name_table"))
+  #  )
   )),
   #########################################
 
@@ -4499,6 +4571,17 @@ RLE.plot <- reactive({
   df_interaction <- reactiveVal(0)
   df_names <- reactiveVal(0)
 
+  tbl.nodes <- data.frame(id=c("A", "B", "C"),
+                        type=c("kinase", "TF", "glycoprotein"),
+                        lfc=c(1, 1, 1),
+                        count=c(0, 0, 0),
+                        stringsAsFactors=FALSE)
+
+  tbl.edges <- data.frame(source=c("A", "B", "C"),
+                        target=c("B", "C", "A"),
+                        interaction=c("phosphorylates", "synthetic lethal", "unknown"),
+                        stringsAsFactors=FALSE)
+
   ####################################################
 
   df_prot_Int <- reactive({
@@ -4525,71 +4608,230 @@ RLE.plot <- reactive({
   })
 
 
-  observeEvent(input$submit_prot_Int, {
+  observeEvent(input$fit, ignoreInit=TRUE, {
+       fit(session, 80)
+       })
 
-    print("running...")
-    Accessions <- df_prot_Int()
-    print("Please Wait... Fetching interaction data. It may take a while")
-    protein_interaction_df <- getInteraction(Accessions)
-    df_interaction(protein_interaction_df)
-    print("Fetched...")
+
+  observeEvent(input$loadStyleFile,  ignoreInit=TRUE, {
+       if(input$loadStyleFile != ""){
+          tryCatch({
+             loadStyleFile(input$loadStyleFile)
+             }, error=function(e) {
+                msg <- sprintf("ERROR in stylesheet file '%s': %s", input$loadStyleFile, e$message)
+                showNotification(msg, duration=NULL, type="error")
+                })
+           later(function() {updateSelectInput(session, "loadStyleFile", selected=character(0))}, 0.5)
+          }
+       })
+
+
+  observeEvent(input$doLayout,  ignoreInit=TRUE,{
+       if(input$doLayout != ""){
+          strategy <- input$doLayout
+          doLayout(session, strategy)
+          later(function() {updateSelectInput(session, "doLayout", selected=character(0))}, 1)
+          }
+       })
+
+
+  observeEvent(input$selectName,  ignoreInit=TRUE,{
+       selectNodes(session, input$selectName)
+       })
+
+
+  observeEvent(input$sfn,  ignoreInit=TRUE,{
+       selectFirstNeighbors(session)
+       })
+
+
+  observeEvent(input$fitSelected,  ignoreInit=TRUE,{
+       fitSelected(session, 100)
+       })
+
+
+  observeEvent(input$getSelectedNodes, ignoreInit=TRUE, {
+       output$selectedNodesDisplay <- renderText({" "})
+       getSelectedNodes(session)
+       })
+
+
+  observeEvent(input$clearSelection,  ignoreInit=TRUE, {
+       clearSelection(session)
+       })  
+
+
+  observeEvent(input$removeGraphButton, ignoreInit=TRUE, {
+        removeGraph(session)
+        })
+
+
+  observeEvent(input$addRandomGraphFromDataFramesButton, ignoreInit=TRUE, {
+    source.nodes <-  LETTERS[sample(1:5, 5)]
+    target.nodes <-  LETTERS[sample(1:5, 5)]
+    tbl.edges <- data.frame(source=source.nodes,
+                            target=target.nodes,
+                            interaction=rep("generic", length(source.nodes)),
+                            stringsAsFactors=FALSE)
+    all.nodes <- sort(unique(c(source.nodes, target.nodes, "orphan")))
+    tbl.nodes <- data.frame(id=all.nodes,
+                            type=rep("unspecified", length(all.nodes)),
+                            stringsAsFactors=FALSE)
+    addGraphFromDataFrame(session, tbl.edges, tbl.nodes)
+  })
+
+
+  observeEvent(input$selectedNodes, {
+          #  communicated here via assignement in cyjShiny.js
+          #     Shiny.setInputValue("selectedNodes", value, {priority: "event"});
+        newNodes <- input$selectedNodes;
+        output$selectedNodesDisplay <- renderText({
+           paste(newNodes)
+           })
+        })
+
+
+  output$cyjShiny <- renderCyjShiny({
+       print(" renderCyjShiny invoked")
+       print("graph.json:")
+       
+
+      print("running...")
+
+
+      tryCatch({
+
+        Accessions <- df_prot_Int()
+      print("Please Wait... Fetching interaction data. It may take a while")
+      protein_interaction_df <- getInteraction(Accessions)
+      df_interaction(protein_interaction_df)
+      print("Fetched...")
+      
+      #migrating rowId to first colunm 
+      # protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+      # rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
+    
+      #making nodes
+      nodes <- as.character(protein_interaction_df[,1])
+      for (i in 1:nrow(protein_interaction_df))
+      {
+        if(!(is.na(protein_interaction_df[i,2])))
+        {
+          data_df <- strsplit(protein_interaction_df[i,2],"; ")
+          for(j in data_df)
+          {
+            nodes <- c(nodes,j)
+          }
+        }
+      }
+
+      print("Please Wait... Fetching Gene Names. It may take a while")
+      protein_gene_name <- getGeneNames(nodes)
+      df_names(protein_gene_name)
+      print("Fetched...")
+      edge_source <- character()
+      edge_target <- character()
+
+       for (i in 1:nrow(protein_interaction_df))
+        {
+          if(!(is.na(protein_interaction_df[i,2])))
+          {
+            data_df <- strsplit(protein_interaction_df[i,2],"; ")
+            for(j in data_df)
+            {
+              edge_source <- c(edge_source,rep(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]),length(j)))
+              print(as.character(protein_gene_name[j,1]))
+              edge_target <- c(edge_target,as.character(protein_gene_name[j,1]))
+            }
+          }
+        }
+
+        tbl.nodes <- data.frame(id=nodes,
+                               type=nodes,
+                               stringsAsFactors=FALSE)
+
+
+        tbl.edges <- data.frame(source=edge_source,
+                               target=edge_target,
+                               interaction=edge_target,
+                               stringsAsFactors=FALSE)
+
+      }, error = function(error_condition) {
+        print("using defauslt value")
+      })
+
+        graph.json <- dataFramesToJSON(tbl.edges, tbl.nodes)
+
+       print(fromJSON(graph.json))
+       cyjShiny(graph=graph.json, layoutName="cola")
+       })
+  
+
+  # observeEvent(input$submit_prot_Int, {
+
+  #   print("running...")
+  #   Accessions <- df_prot_Int()
+  #   print("Please Wait... Fetching interaction data. It may take a while")
+  #   protein_interaction_df <- getInteraction(Accessions)
+  #   df_interaction(protein_interaction_df)
+  #   print("Fetched...")
     
     #migrating rowId to first colunm 
-    protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
-    rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
+    # protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+    # rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
   
     #making nodes
-    nodes <- as.character(protein_interaction_df[,1])
-    for (i in 1:nrow(protein_interaction_df))
-    {
-      if(!(is.na(protein_interaction_df[i,2])))
-      {
-        data_df <- strsplit(protein_interaction_df[i,2],"; ")
-        for(j in data_df)
-        {
-          nodes <- c(nodes,j)
-        }
-      }
-    }
+    # nodes <- as.character(protein_interaction_df[,1])
+    # for (i in 1:nrow(protein_interaction_df))
+    # {
+    #   if(!(is.na(protein_interaction_df[i,2])))
+    #   {
+    #     data_df <- strsplit(protein_interaction_df[i,2],"; ")
+    #     for(j in data_df)
+    #     {
+    #       nodes <- c(nodes,j)
+    #     }
+    #   }
+    # }
 
-    print("Please Wait... Fetching Gene Names. It may take a while")
-    protein_gene_name <- getGeneNames(nodes)
-    df_names(protein_gene_name)
-    print("Fetched...")
+    # print("Please Wait... Fetching Gene Names. It may take a while")
+    # protein_gene_name <- getGeneNames(nodes)
+    # df_names(protein_gene_name)
+    # print("Fetched...")
 
-    print("Rendering Visualization using Cytoscape")
+    # # print("Rendering Visualization using Cytoscape")
 
-    g <- graphNEL(as.character(protein_gene_name[,1]), edgemode="undirected")
-    for (i in 1:nrow(protein_interaction_df))
-    {
-      if(!(is.na(protein_interaction_df[i,2])))
-      {
-        data_df <- strsplit(protein_interaction_df[i,2],"; ")
-        for(j in data_df)
-        {
-          g <- graph::addEdge(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]), as.character(protein_gene_name[j,1]), g)
-        }
-      }
-    }
+    # # g <- graphNEL(as.character(protein_gene_name[,1]), edgemode="undirected")
+    # for (i in 1:nrow(protein_interaction_df))
+    # {
+    #   if(!(is.na(protein_interaction_df[i,2])))
+    #   {
+    #     data_df <- strsplit(protein_interaction_df[i,2],"; ")
+    #     for(j in data_df)
+    #     {
+    #       g <- graph::addEdge(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]), as.character(protein_gene_name[j,1]), g)
+    #     }
+    #   }
+    # }
     
-    nodeDataDefaults(g, attr="label") <- "undefined"
-    nodeDataDefaults(g, attr="type") <- "undefined"
-    nodeDataDefaults(g, attr="flux") <- 0
-    edgeDataDefaults(g, attr="edgeType") <- "undefined"
+    # nodeDataDefaults(g, attr="label") <- "undefined"
+    # nodeDataDefaults(g, attr="type") <- "undefined"
+    # nodeDataDefaults(g, attr="flux") <- 0
+    # edgeDataDefaults(g, attr="edgeType") <- "undefined"
     
-    rcy <- RCyjs(title="RCyjs vignette")
-    setGraph(rcy, g)
-    print("set")
-    strategies <- getLayoutStrategies(rcy)
-    print(strategies)
+    # rcy <- RCyjs(title="RCyjs vignette")
+    # setGraph(rcy, g)
+    # print("set")
+    # strategies <- getLayoutStrategies(rcy)
+    # print(strategies)
     
-    RCyjs::layout(rcy, "grid")
-    # print("lay")
-    fit(rcy, padding=200)
-    print("fit")
-    setDefaultStyle(rcy)
+    # RCyjs::layout(rcy, "grid")
+    # # print("lay")
+    # fit(rcy, padding=200)
+    # print("fit")
+    # setDefaultStyle(rcy)
     
-  })
+  # })
 
   getInteraction <- function(ProteinAccList) {
 
@@ -4633,6 +4875,9 @@ RLE.plot <- reactive({
         HandleBadRequests(Request$status_code)
       }
     }
+    
+    protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+    rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
 
     return(protein_interaction_df)
 
@@ -4683,7 +4928,31 @@ RLE.plot <- reactive({
 
   output$prot_int_table <- DT::renderDataTable({
 
+    
     protein_interaction_df <- df_interaction()
+    protein_gene_name <- df_names()
+    print(protein_interaction_df)
+    print("here")
+    print(class(protein_interaction_df))
+    if(df_names() == 0)
+    {
+      
+      protein_interaction_df <- tbl.nodes
+
+    } else {
+       
+        protein_interaction_df[,1] <- as.character(protein_interaction_df[,1])
+        for(i in 1:nrow(protein_interaction_df))
+        {
+            protein_interaction_df[i,1] <- paste0(protein_interaction_df[i,1],
+                                      ' (',
+                                      protein_gene_name[protein_interaction_df[i,1],1],
+                                      ')')
+        }
+        print(protein_interaction_df)
+        colnames(protein_interaction_df)[2] <- "Interacts With"
+
+    }
     protein_interaction_df
 
   })
@@ -4691,6 +4960,16 @@ RLE.plot <- reactive({
   output$prot_name_table <- DT::renderDataTable({
 
     protein_gene_name <- df_names()
+    if(protein_gene_name == 0)
+    {
+      protein_gene_name <- tbl.edges
+    } else {
+       
+        protein_gene_name <- cbind(ID = rownames(protein_gene_name),protein_gene_name)
+        rownames(protein_gene_name) <- 1:nrow(protein_gene_name)
+        colnames(protein_gene_name)[2] <- "Names"
+
+    } 
     protein_gene_name
 
   })
@@ -4816,4 +5095,4 @@ RLE.plot <- reactive({
   # session$onSessionEnded(stopApp)
 }
 
-shinyApp(ui, server)
+app <- shinyApp(ui = ui, server = server)
