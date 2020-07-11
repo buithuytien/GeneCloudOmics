@@ -155,6 +155,13 @@ if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
   library(cyjShiny)
 }
 
+if (length(find.package(package = "later", quiet = T)) > 0) {
+  library(later)
+} else {
+  install.packages("later")
+  library(later)
+}
+
 ###################################################################################
 
 ####################### Dependencies For Gene Mania ###################################
@@ -4734,7 +4741,7 @@ RLE.plot <- reactive({
       {
         if(!(is.na(protein_interaction_df[i,2])))
         {
-          data_df <- strsplit(protein_interaction_df[i,2],"; ")
+          data_df <- strsplit(as.character(protein_interaction_df[i,2]),"; ")
           for(j in data_df)
           {
             nodes <- c(nodes,j)
@@ -4742,9 +4749,13 @@ RLE.plot <- reactive({
         }
       }
 
+      print(nodes)
+
       print("Please Wait... Fetching Gene Names. It may take a while")
       protein_gene_name <- getGeneNames(nodes)
       df_names(protein_gene_name)
+      print("........................")
+      print(as.character(protein_gene_name[,1]))
       print("Fetched...")
       edge_source <- character()
       edge_target <- character()
@@ -4753,7 +4764,7 @@ RLE.plot <- reactive({
         {
           if(!(is.na(protein_interaction_df[i,2])))
           {
-            data_df <- strsplit(protein_interaction_df[i,2],"; ")
+            data_df <- strsplit(as.character(protein_interaction_df[i,2]),"; ")
             for(j in data_df)
             {
               edge_source <- c(edge_source,rep(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]),length(j)))
@@ -4763,8 +4774,8 @@ RLE.plot <- reactive({
           }
         }
 
-        tbl.nodes <- data.frame(id=nodes,
-                               type=nodes,
+        tbl.nodes <- data.frame(id=as.character(protein_gene_name[,1]),
+                               type=as.character(protein_gene_name[,1]),
                                stringsAsFactors=FALSE)
 
 
@@ -4932,10 +4943,22 @@ RLE.plot <- reactive({
           # add Dataframes together if more than one accession
           protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
           print(paste0(ProteinAcc," name fetched"))
-        }
+        }  else
+      {
+        ProteinDataTable <- as.character(ProteinAcc)
+        ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+        print(ProteinInfoParsed)
+        # add Dataframes together if more than one accession
+        protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+      }
         
       }else {
         HandleBadRequests(Request$status_code)
+
+          ProteinDataTable <- as.character(ProteinAcc)
+          ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+          # add Dataframes together if more than one accession
+          protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
       }
     }
 
