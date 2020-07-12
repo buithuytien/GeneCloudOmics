@@ -303,6 +303,8 @@ loadPkg()
 species.choices <<- c("Homo sapiens" = "org.Hs.eg.db", "Mus musculus" = "org.Mm.eg.db", "Rattus norvegicus" = "org.Rn.eg.db", "Gallus gallus" = "org.Gg.eg.db", "Danio rerio" = "org.Dr.eg.db", "Drosophila melanogaster" = "org.Dm.eg.db", "Caenorhabditis elegans" = "org.Ce.eg.db", "Saccharomyces cereviasiae" = "org.Sc.sgd.db", "Arabidopsis thaliana" = "org.At.tair.db", "Escherichia coli (strain K12)" = "org.EcK12.eg.db", "Escherichia coli (strain Sakai)" = "org.EcSakai.eg.db", "Anopheles gambiae" = "org.Ag.eg.db", "Bos taurus" = "org.Bt.eg.db", "Canis familiaris" = "org.Cf.eg.db", "Macaca mulatta" = "org.Mmu.eg.db", "Plasmodium falciparum" = "org.Pf.plasmo.db", "Pan troglodytes" = "org.Pt.eg.db", "Sus scrofa" = "org.Ss.eg.db", "Xenopus tropicalis" = "org.Xl.eg.db")
 DBS <<- list("org.Hs.eg.db" = org.Hs.eg.db, "org.Mm.eg.db" = org.Mm.eg.db, "org.Rn.eg.db" = org.Rn.eg.db, "org.Gg.eg.db" = org.Gg.eg.db, "org.Dr.eg.db" = org.Dr.eg.db, "org.Dm.eg.db" = org.Dm.eg.db, "org.Ce.eg.db" = org.Ce.eg.db, "org.Sc.sgd.db" = org.Sc.sgd.db, "org.At.tair.db" = org.At.tair.db, "org.EcK12.eg.db" = org.EcK12.eg.db, "org.EcSakai.eg.db" = org.EcSakai.eg.db, "org.Ag.eg.db" = org.Ag.eg.db, "org.Bt.eg.db" = org.Bt.eg.db, "org.Cf.eg.db" = org.Cf.eg.db, "org.Mmu.eg.db" = org.Mmu.eg.db, "org.Pf.plasmo.db" = org.Pf.plasmo.db, "org.Pt.eg.db" = org.Pt.eg.db, "org.Ss.eg.db" = org.Ss.eg.db, "org.Xl.eg.db" = org.Xl.eg.db)
 enrichRdbs <- as.character(read.csv(paste0(wd, "/www/enrichRdbs.csv"))[, 1])
+gene_names <- read.csv(paste0(wd, "/www/TransTable_Human.csv"))
+
 
 end.load <- Sys.time()
 print("loading time")
@@ -4913,56 +4915,72 @@ RLE.plot <- reactive({
 
   getGeneNames <- function(ProteinAccList) {
 
-    baseUrl <- "http://www.uniprot.org/uniprot/"
-    Colnames = "genes(PREFERRED)"
+    # baseUrl <- "http://www.uniprot.org/uniprot/"
+    # Colnames = "genes(PREFERRED)"
     
+    # protein_gene_name = data.frame()
+    # for (ProteinAcc in ProteinAccList)
+    # {
+    #   #to see if Request == 200 or not
+    #   Request <- tryCatch(
+    #     {
+    #       GET(paste0(baseUrl , ProteinAcc,".xml") , timeout(10))
+    #     },error = function(cond)
+    #     {
+    #       message("Internet connection problem occurs and the function will return the original error")
+    #       message(cond)
+    #     }
+    #   ) 
+    #   #this link return information in tab formate (format = tab)
+    #   ProteinName_url <- paste0("?query=accession:",ProteinAcc,"&format=tab&columns=",Colnames)
+    #   RequestUrl <- paste0(baseUrl , ProteinName_url)
+    #   RequestUrl <- URLencode(RequestUrl)
+    #   if (Request$status_code == 200){
+    #     # parse the information in DataFrame
+    #     ProteinDataTable <- tryCatch(read.csv(RequestUrl, header = TRUE, sep = '\t'), error=function(e) NULL)
+    #     if (!is.null(ProteinDataTable))
+    #     {
+    #       ProteinDataTable <- ProteinDataTable[1,]
+    #       ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+    #       # add Dataframes together if more than one accession
+    #       protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+    #       print(paste0(ProteinAcc," name fetched"))
+    #     }  else
+    #   {
+    #     ProteinDataTable <- as.character(ProteinAcc)
+    #     ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+    #     print(ProteinInfoParsed)
+    #     # add Dataframes together if more than one accession
+    #     protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+    #   }
+        
+    #   }else {
+    #     HandleBadRequests(Request$status_code)
+
+    #       ProteinDataTable <- as.character(ProteinAcc)
+    #       ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+    #       # add Dataframes together if more than one accession
+    #       protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+    #   }
+    # }
+
+    # return(protein_gene_name)
+
     protein_gene_name = data.frame()
+    gene_names_df <- data.frame(
+      key = gene_names[,1],
+      pair = gene_names[,2]
+    )
     for (ProteinAcc in ProteinAccList)
     {
-      #to see if Request == 200 or not
-      Request <- tryCatch(
-        {
-          GET(paste0(baseUrl , ProteinAcc,".xml") , timeout(10))
-        },error = function(cond)
-        {
-          message("Internet connection problem occurs and the function will return the original error")
-          message(cond)
-        }
-      ) 
-      #this link return information in tab formate (format = tab)
-      ProteinName_url <- paste0("?query=accession:",ProteinAcc,"&format=tab&columns=",Colnames)
-      RequestUrl <- paste0(baseUrl , ProteinName_url)
-      RequestUrl <- URLencode(RequestUrl)
-      if (Request$status_code == 200){
-        # parse the information in DataFrame
-        ProteinDataTable <- tryCatch(read.csv(RequestUrl, header = TRUE, sep = '\t'), error=function(e) NULL)
-        if (!is.null(ProteinDataTable))
-        {
-          ProteinDataTable <- ProteinDataTable[1,]
+          ProteinDataTable <- as.character(lookup(ProteinAcc, gene_names_df, missing="Not found"))
           ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
           # add Dataframes together if more than one accession
           protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
-          print(paste0(ProteinAcc," name fetched"))
-        }  else
-      {
-        ProteinDataTable <- as.character(ProteinAcc)
-        ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
-        print(ProteinInfoParsed)
-        # add Dataframes together if more than one accession
-        protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
-      }
-        
-      }else {
-        HandleBadRequests(Request$status_code)
-
-          ProteinDataTable <- as.character(ProteinAcc)
-          ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
-          # add Dataframes together if more than one accession
-          protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
-      }
     }
 
-    return(protein_gene_name)
+     return(protein_gene_name)
+
 
   }
 
@@ -4977,23 +4995,46 @@ RLE.plot <- reactive({
     if(df_names() == 0)
     {
       
-      protein_interaction_df <- tbl.nodes
+      p_int_formatted <- tbl.nodes
 
     } else {
        
         protein_interaction_df[,1] <- as.character(protein_interaction_df[,1])
-        for(i in 1:nrow(protein_interaction_df))
+
+        p_int_formatted <- data.frame()
+        count = 0
+        n = 1
+        for ( id in protein_interaction_df[,1])
         {
-            protein_interaction_df[i,1] <- paste0(protein_interaction_df[i,1],
-                                      ' (',
-                                      protein_gene_name[protein_interaction_df[i,1],1],
-                                      ')')
+          count = count + 1
+          if(!is.null(protein_interaction_df[,2]))
+          {
+            a = strsplit(as.character(protein_interaction_df[,2]),"; ")
+            
+            for(int_with in a[[count]])
+            {
+              p_int_row <- data.frame(id = as.character(paste0(as.character(lookup(id, gene_names_df, missing="Not found"))," ( ", id," )")),
+                                  Interacts_With = as.character(paste0(as.character(lookup(int_with, gene_names_df, missing="Not found"))," ( ", int_with," )")),
+                                  row.names = n)
+              p_int_formatted <- rbind(p_int_formatted,p_int_row)
+              n = n + 1
+            }
+          }
         }
-        print(protein_interaction_df)
-        colnames(protein_interaction_df)[2] <- "Interacts With"
+
+        # for(i in 1:nrow(protein_interaction_df))
+        # {
+        #     protein_interaction_df[i,1] <- paste0(protein_interaction_df[i,1],
+        #                               ' (',
+        #                               protein_gene_name[protein_interaction_df[i,1],1],
+        #                               ')')
+        # }
+        # print(protein_interaction_df)
+        # colnames(protein_interaction_df)[2] <- "Interacts With"
 
     }
-    protein_interaction_df
+    
+    p_int_formatted
 
   })
 
