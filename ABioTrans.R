@@ -162,6 +162,13 @@ if (length(find.package(package = "later", quiet = T)) > 0) {
   library(later)
 }
 
+if (length(find.package(package = "qdapTools", quiet = T)) > 0) {
+  library(qdapTools)
+} else {
+  install.packages("qdapTools")
+  library(qdapTools)
+}
+
 ###################################################################################
 
 ####################### Dependencies For Gene Mania ###################################
@@ -5033,7 +5040,7 @@ RLE.plot <- reactive({
         # colnames(protein_interaction_df)[2] <- "Interacts With"
 
     }
-    
+
     p_int_formatted
 
   })
