@@ -313,6 +313,14 @@ enrichRdbs <- as.character(read.csv(paste0(wd, "/www/enrichRdbs.csv"))[, 1])
 gene_names <- read.csv(paste0(wd, "/www/TransTable_Human.csv"))
 
 
+#################### Complex Enrichment ##########################
+
+complexes <- load(paste0(wd, "/www/allComplexes.RData")) #allComplexes is masked under complexes
+up_corum_mapping <- read.csv(paste0(wd, "/www/UniProt_CORUM_Mapping.csv"))
+
+##################################################################
+
+
 end.load <- Sys.time()
 print("loading time")
 print(end.load - start.load)
@@ -1138,6 +1146,20 @@ ui <- tagList(
   navbarMenu(
     "Gene set Analysis",
     
+    ###### Complex Enrichement #############
+  #########################################
+  tabPanel(
+    "Complex Enrichement",
+    sidebarPanel(
+      fileInput("file_complex", "Upload the accession files")
+      # actionButton("submit_complex", "Submit")
+    ),
+    mainPanel(
+      h3("Complex Enrichement"),
+      DT::dataTableOutput("complex_table")
+  )),
+
+
     ###### UNIPROT #############
   #########################################
   tabPanel(
@@ -4294,6 +4316,119 @@ RLE.plot <- reactive({
 
   ###################################
   ######## Gene-Set Analysis ########
+  ###################################
+  ###################################
+
+
+
+  ###################################
+  ###################################
+  ###### Complex Enrichment #########
+  ###################################
+  ###################################
+  
+  
+  df_complex <- reactive({
+    print("running")
+    if (is.null(input$file_complex)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_complex$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_complex$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  output$complex_table <- DT::renderDataTable({
+
+    
+       print("running")
+      gene_id <- df_complex()
+
+      corum_table <- data.frame()
+      n <- 1
+
+      for (id in gene_id) {
+        check <- lookup(id, as.data.frame(up_corum_mapping))
+        print(class(check))
+         if(!is.na(check))
+         {
+           for (c_id in as.matrix(check)) {
+              c_row <- data.frame(Uniprot_id = id,
+                                  Corum_id = c_id,
+                                  Complex_Name = as.character(allComplexes[paste0(c_id),"Complex_Name"]),
+                                  Complex_comment = allComplexes[paste0(c_id),"Complex_comment"],
+                                  row.names = n)
+              corum_table <- rbind(corum_table, c_row)
+              n = n + 1
+           }
+           
+         } else {
+            c_row <- data.frame(Uniprot_id = id,
+                                Corum_id = "No Match",
+                                Complex_Name = "No Match",
+                                Complex_comment = "No Match",
+                                row.names = n)
+              corum_table <- rbind(corum_table, c_row)
+               n = n + 1
+         }
+      }
+      corum_table
+
+  })
+
+  # observeEvent(input$submit_complex, {
+  #     print("running")
+  #     gene_id <- df_complex()
+  #     # print(allComplexes[c_id,"Complex_Name"])
+
+  #     corum_table <- data.frame()
+  #     n <- 1
+
+  #     for (id in gene_id) {
+  #       check <- lookup(id, as.data.frame(up_corum_mapping))
+  #       print(class(check))
+  #        if(!is.na(check))
+  #        {
+  #          for (c_id in as.matrix(check)) {
+  #             c_row <- data.frame(Uniprot_id = id,
+  #                                 Corum_id = c_id,
+  #                                 Complex_Name = allComplexes[c_id,"Complex_Name"],
+  #                                 Complex_comment = allComplexes[id,"Complex_comment"],
+  #                                 row.names = n)
+  #             corum_table <- rbind(corum_table, c_row)
+  #             n = n + 1
+  #          }
+           
+  #        } else {
+  #           c_row <- data.frame(Uniprot_id = id,
+  #                               Corum_id = "No Match",
+  #                               Complex_Name = "No Match",
+  #                               Complex_comment = "No Match",
+  #                               row.names = n)
+  #             corum_table <- rbind(corum_table, c_row)
+  #              n = n + 1
+  #        }
+  #     }
+  #     print(corum_table)
+
+  # })
+
+
+  ###################################
+  ###################################
   ###################################
   ###################################
 
