@@ -17,6 +17,21 @@
        "overlay-color": "gray"
        }},
 
+    {"selector": "node[[degree >= 5]]", "css": {
+        "width": "60px",
+        "height": "60px"
+    }},
+
+    {"selector": "node[[degree >= 8]]", "css": {
+        "width": "70px",
+        "height": "70px"
+    }},
+
+    {"selector": "node[[degree >= 12]]", "css": {
+        "width": "80px",
+        "height": "80px"
+    }},
+
    {"selector": "edge", "css": {
        "opacity": 0.5,
        "curve-style": "bezier"

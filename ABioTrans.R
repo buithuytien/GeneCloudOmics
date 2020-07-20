@@ -295,9 +295,9 @@ if (!wd == getwd()) {
 ########################### Style files for Cytoscape.js ################
 
 styles <- c(
-            "generic style"="basicStyle.js",
-            "expermentStyle"="expermentStyle.js",
-            "style 01" = "style01.js")
+            "generic style"="./www/style/basicStyle.js",
+            "expermentStyle"="./www/style/expermentStyle.js",
+            "style 01" = "./www/style/style01.js")
 
 ##########################################################################
 
@@ -1248,7 +1248,7 @@ ui <- tagList(
   sidebarLayout(
     sidebarPanel(
       fileInput("file_prot_Int", "Upload the accession files"),
-      # actionButton("submit_prot_Int", "Submit"),
+      actionButton("submit_prot_Int", "Submit"),br(),br(),
       selectInput("loadStyleFile", "Select Style: ", choices=styles),
           selectInput("doLayout", "Select Layout:",
                       choices=c("",
@@ -5044,16 +5044,16 @@ RLE.plot <- reactive({
   df_interaction <- reactiveVal(0)
   df_names <- reactiveVal(0)
 
-  tbl.nodes <- data.frame(id=c("A", "B", "C"),
-                        type=c("kinase", "TF", "glycoprotein"),
-                        lfc=c(1, 1, 1),
-                        count=c(0, 0, 0),
-                        stringsAsFactors=FALSE)
+  # tbl.nodes <- data.frame(id=c("A", "B", "C"),
+  #                       type=c("kinase", "TF", "glycoprotein"),
+  #                       lfc=c(1, 1, 1),
+  #                       count=c(0, 0, 0),
+  #                       stringsAsFactors=FALSE)
 
-  tbl.edges <- data.frame(source=c("A", "B", "C"),
-                        target=c("B", "C", "A"),
-                        interaction=c("phosphorylates", "synthetic lethal", "unknown"),
-                        stringsAsFactors=FALSE)
+  # tbl.edges <- data.frame(source=c("A", "B", "C"),
+  #                       target=c("B", "C", "A"),
+  #                       interaction=c("phosphorylates", "synthetic lethal", "unknown"),
+  #                       stringsAsFactors=FALSE)
 
   ####################################################
 
@@ -5155,8 +5155,6 @@ RLE.plot <- reactive({
 
 
   observeEvent(input$selectedNodes, {
-          #  communicated here via assignement in cyjShiny.js
-          #     Shiny.setInputValue("selectedNodes", value, {priority: "event"});
         newNodes <- input$selectedNodes;
         output$selectedNodesDisplay <- renderText({
            paste(newNodes)
@@ -5172,9 +5170,9 @@ RLE.plot <- reactive({
       print("running...")
 
 
-      tryCatch({
+      # tryCatch({
 
-        Accessions <- df_prot_Int()
+      Accessions <- df_prot_int_id()
       print("Please Wait... Fetching interaction data. It may take a while")
       protein_interaction_df <- getInteraction(Accessions)
       df_interaction(protein_interaction_df)
@@ -5233,14 +5231,14 @@ RLE.plot <- reactive({
                                interaction=edge_target,
                                stringsAsFactors=FALSE)
 
-      }, error = function(error_condition) {
-        print("using defauslt value")
-      })
+      # }, error = function(error_condition) {
+      #   print("using defauslt value")
+      # })
 
-        graph.json <- dataFramesToJSON(tbl.edges, tbl.nodes)
+       graph.json <- dataFramesToJSON(tbl.edges, tbl.nodes)
 
        print(fromJSON(graph.json))
-       cyjShiny(graph=graph.json, layoutName="cola")
+       cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
        })
   
 
@@ -5309,6 +5307,11 @@ RLE.plot <- reactive({
     # setDefaultStyle(rcy)
     
   # })
+
+  df_prot_int_id <- eventReactive(input$submit_prot_Int, {
+      Accessions <- df_prot_Int()
+      return(Accessions)
+  })
 
   getInteraction <- function(ProteinAccList) {
 
@@ -5421,7 +5424,7 @@ RLE.plot <- reactive({
     # )
     for (ProteinAcc in ProteinAccList)
     {
-          ProteinDataTable <- as.character(lookup(ProteinAcc, as.data.frame(id_to_name), missing="Not found"))
+          ProteinDataTable <- as.character(lookup(ProteinAcc, as.data.frame(id_to_name), missing=ProteinAcc))
           ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
           # add Dataframes together if more than one accession
           protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
@@ -5443,7 +5446,7 @@ RLE.plot <- reactive({
     if(df_names() == 0)
     {
       
-      p_int_formatted <- tbl.nodes
+      p_int_formatted <- data.frame()
 
     } else {
        
@@ -5487,11 +5490,10 @@ RLE.plot <- reactive({
   })
 
   output$prot_name_table <- DT::renderDataTable({
-
     protein_gene_name <- df_names()
     if(protein_gene_name == 0)
     {
-      protein_gene_name <- tbl.edges
+      protein_gene_name <- data.frame()
     } else {
        
         protein_gene_name <- cbind(ID = rownames(protein_gene_name),protein_gene_name)
