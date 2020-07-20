@@ -1227,18 +1227,21 @@ ui <- tagList(
     "Gene ontology",
     sidebarPanel(
       fileInput("file_uniprot", "Upload the accession files"),
-      actionButton("submit_uniprot", "Submit"),
+      actionButton("submit_uniprot", "Submit"),br(),br(),
       conditionalPanel(
         condition = "input.uniprot_tabs == 'Biological process'",
-        downloadButton("download_bio_pro", "Download as CSV")
+        downloadButton("download_bio_plot", "Download Plot"),br(),br(),
+        downloadButton("download_bio_pro", "Download Table")
       ),
       conditionalPanel(
         condition = "input.uniprot_tabs == 'Molecular function'",
-        downloadButton("download_mole_func", "Download as CSV")
+        downloadButton("download_mole_plot", "Download Plot"),br(),br(),
+        downloadButton("download_mole_func", "Download Table")
       ),
       conditionalPanel(
         condition = "input.uniprot_tabs == 'Cellular component'",
-        downloadButton("download_cell_comp", "Download as CSV")
+        downloadButton("download_cell_plot", "Download Plot"),br(),br(),
+        downloadButton("download_cell_comp", "Download Table")
       )
     ),
     mainPanel(
@@ -4884,15 +4887,22 @@ RLE.plot <- reactive({
     
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
-    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$cellular_components, occurences$Frequences), y=occurences$Frequences)) +
+    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$cellular_components, Frequences), y=Frequences)) +
       geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("cellular component")+
       geom_text(aes(label = occurences$freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
       theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
     
-    bar_plot
+    return(bar_plot)
   
-    ggplotly(bar_plot, tooltip = c("text"))
+    # ggplotly(bar_plot, tooltip = c("text"))
   }
+
+  output$download_cell_plot <- downloadHandler(
+         filename = function(){paste("Cellular-Component",'.png',sep='')},
+         content = function(file){
+          ggsave(file,plot=plotCE())
+    }
+  )
   
   plotBIO <- function() {
     # get data
@@ -4926,15 +4936,22 @@ RLE.plot <- reactive({
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
-    bar_plot <- ggplot(data=occurences, aes(x= reorder(occurences$biological_process ,occurences$Frequences)  , y=occurences$Frequences)) +
+    bar_plot <- ggplot(data=occurences, aes(x= reorder(biological_process ,Frequences)  , y=Frequences)) +
       geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("Biological function")+
     # geom_text(aes(label = occurences$freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
       theme_minimal() +coord_flip() +theme(text = element_text(size=12))
 
-    bar_plot
+    return(bar_plot)
   
-    ggplotly(bar_plot, tooltip = c("text"))
+    # ggplotly(bar_plot, tooltip = c("text"))
   }
+
+  output$download_bio_plot <- downloadHandler(
+         filename = function(){paste("Biological-Process",'.png',sep='')},
+         content = function(file){
+          ggsave(file,plot=plotBIO())
+    }
+  )
 
   plotMol <- function() {
     # get data
@@ -4968,26 +4985,33 @@ RLE.plot <- reactive({
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
-    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$molecular_functions , occurences$Frequences), y=occurences$Frequences)) +
+    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$molecular_functions , Frequences), y=Frequences)) +
       geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("molecular function")+
       geom_text(aes(label = occurences$Freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
       theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
 
-    bar_plot
+    return(bar_plot)
   
-    ggplotly(bar_plot, tooltip = c("text"))
+    # ggplotly(bar_plot, tooltip = c("text"))
   }
 
+  output$download_mole_plot <- downloadHandler(
+         filename = function(){paste("Molecular-Function",'.png',sep='')},
+         content = function(file){
+          ggsave(file,plot=plotMol())
+    }
+  )
+
   output$uniprot_cel.plot <- renderPlotly({
-    plotCE()
+    ggplotly(plotCE(), tooltip = c("text"))
   })
 
   output$uniprot_bio.plot <- renderPlotly({
-    plotBIO()
+    ggplotly(plotBIO(), tooltip = c("text"))
   })
 
   output$uniprot_molc.plot <- renderPlotly({
-    plotMol()
+    ggplotly(plotMol(), tooltip = c("text"))
   })
 
   download_cel_table <- reactiveVal(0)
