@@ -1227,7 +1227,19 @@ ui <- tagList(
     "Gene ontology",
     sidebarPanel(
       fileInput("file_uniprot", "Upload the accession files"),
-      actionButton("submit_uniprot", "Submit")
+      actionButton("submit_uniprot", "Submit"),
+      conditionalPanel(
+        condition = "input.uniprot_tabs == 'Biological process'",
+        downloadButton("download_bio_pro", "Download as CSV")
+      ),
+      conditionalPanel(
+        condition = "input.uniprot_tabs == 'Molecular function'",
+        downloadButton("download_mole_func", "Download as CSV")
+      ),
+      conditionalPanel(
+        condition = "input.uniprot_tabs == 'Cellular component'",
+        downloadButton("download_cell_comp", "Download as CSV")
+      )
     ),
     mainPanel(
       h3("Gene ontology"),
@@ -4978,6 +4990,8 @@ RLE.plot <- reactive({
     plotMol()
   })
 
+  download_cel_table <- reactiveVal(0)
+
   output$uniprot_cel_table <- DT::renderDataTable({
 
     GO_df <- plotUniprot()
@@ -5010,9 +5024,21 @@ RLE.plot <- reactive({
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
+    download_cel_table(occurences)
     occurences
 
   })
+
+  output$download_cell_comp <- downloadHandler(
+    filename = function() {
+      paste("Cellular-Component", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_cel_table(), file, row.names = FALSE)
+    }
+  )
+
+  download_bio_table <- reactiveVal(0)
 
    output$uniprot_bio_table <- DT::renderDataTable({
 
@@ -5045,10 +5071,22 @@ RLE.plot <- reactive({
       mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
-
+    
+    download_bio_table(occurences)
     occurences
 
   })
+
+  output$download_bio_pro <- downloadHandler(
+    filename = function() {
+      paste("Biological-Process", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_bio_table(), file, row.names = FALSE)
+    }
+  )
+
+  download_mol_table <- reactiveVal(0)
 
   output$uniprot_molc_table <- DT::renderDataTable({
 
@@ -5082,9 +5120,19 @@ RLE.plot <- reactive({
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
+    download_mol_table(occurences)
     occurences
 
   })
+
+  output$download_mole_func <- downloadHandler(
+    filename = function() {
+      paste("Molecular-Function", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_mol_table(), file, row.names = FALSE)
+    }
+  )
 
   ###################################
   ###################################
