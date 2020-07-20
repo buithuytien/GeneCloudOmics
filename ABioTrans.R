@@ -1154,7 +1154,8 @@ ui <- tagList(
     "Complex Enrichement",
     sidebarPanel(
       fileInput("file_complex", "Upload the accession files"),
-      actionButton("submit_complex", "Submit")
+      actionButton("submit_complex", "Submit"),br(),br(),
+      downloadButton("complex_download", "Download as CSV")
     ),
     mainPanel(
       h3("Complex Enrichement"),
@@ -1167,7 +1168,8 @@ ui <- tagList(
     "Protein Function",
     sidebarPanel(
       fileInput("file_prot_func", "Upload the accession files"),
-      actionButton("submit_prot_func", "Submit")
+      actionButton("submit_prot_func", "Submit"),br(),br(),
+      downloadButton("prot_func_download", "Download as CSV")
     ),
     mainPanel(
       h3("Protein Function"),
@@ -1180,7 +1182,8 @@ ui <- tagList(
     "Protein Expression",
     sidebarPanel(
       fileInput("file_prot_expr", "Upload the accession files"),
-      actionButton("submit_prot_expr", "Submit")
+      actionButton("submit_prot_expr", "Submit"),br(),br(),
+      downloadButton("prot_expr_download", "Download as CSV")
     ),
     mainPanel(
       h3("Protein Expression"),
@@ -1193,7 +1196,8 @@ ui <- tagList(
     "Subcellular Localization",
     sidebarPanel(
       fileInput("file_prot_local", "Upload the accession files"),
-      actionButton("submit_prot_local", "Submit")
+      actionButton("submit_prot_local", "Submit"),br(),br(),
+      downloadButton("prot_local_download", "Download as CSV")
     ),
     mainPanel(
       h3("Subcellular Localization"),
@@ -1206,7 +1210,8 @@ ui <- tagList(
     "Protein Domains",
     sidebarPanel(
       fileInput("file_prot_domain", "Upload the accession files"),
-      actionButton("submit_prot_domain", "Submit")
+      actionButton("submit_prot_domain", "Submit"),br(),br(),
+      downloadButton("prot_domain_download", "Download as CSV")
     ),
     mainPanel(
       h3("Protein Domains"),
@@ -4383,8 +4388,10 @@ RLE.plot <- reactive({
   ###################################
   ###################################
   
-  
+  download_com_table <- reactiveVal(0)
+
   df_complex <- reactive({
+    print("running...")
     if (is.null(input$file_complex)) {
       return(NULL)
     }
@@ -4408,7 +4415,6 @@ RLE.plot <- reactive({
 
   df_com_table <- function(){
 
-    print("running")
       gene_id <- df_com_id()
 
       corum_table <- data.frame()
@@ -4439,6 +4445,7 @@ RLE.plot <- reactive({
                n = n + 1
          }
       }
+      download_com_table(corum_table)
       return(corum_table)
 
   }
@@ -4451,6 +4458,15 @@ RLE.plot <- reactive({
       df <- df_complex()
       return(df)
   })
+
+  output$complex_download <- downloadHandler(
+    filename = function() {
+      paste("complex", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_com_table(), file, row.names = FALSE)
+    }
+  )
 
   # observeEvent(input$submit_complex, {
   #     print("running")
@@ -4502,9 +4518,10 @@ RLE.plot <- reactive({
   ###################################
   ###################################
   
-  
-  df_prot_func <- reactive({
+  download_prot_func <- reactiveVal(0)
 
+  df_prot_func <- reactive({
+    print("running...")
     if (is.null(input$file_prot_func)) {
       return(NULL)
     }
@@ -4530,7 +4547,6 @@ RLE.plot <- reactive({
 
     Accessions <- df_func_id()
        
-      print("running...")
       print("fetching...")
       df <- GetProteinFunction(Accessions)
       print("fetched...")
@@ -4539,6 +4555,7 @@ RLE.plot <- reactive({
                                   "ID" = row.names(df),
                                   "Function" = df[,"Function..CC."]
                                   )
+      download_prot_func(output_table)
       return(output_table)
 
   }
@@ -4552,6 +4569,15 @@ RLE.plot <- reactive({
       return(df)
   })
 
+  output$prot_func_download <- downloadHandler(
+    filename = function() {
+      paste("Protein-Function", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_prot_func(), file, row.names = FALSE)
+    }
+  )
+
   ###################################
   ###################################
   ###################################
@@ -4563,9 +4589,10 @@ RLE.plot <- reactive({
   ###################################
   ###################################
   
-  
+  download_prot_expr <- reactiveVal(0)
+
   df_prot_expr <- reactive({
-    print("running")
+    print("running...")
     if (is.null(input$file_prot_expr)) {
       return(NULL)
     }
@@ -4589,7 +4616,6 @@ RLE.plot <- reactive({
 
   df_expr_table <- function() {
 
-    print("running...")
     Accessions <- df_expr_id()
     print("fetching...")
     df <- GetExpression(Accessions)
@@ -4599,6 +4625,8 @@ RLE.plot <- reactive({
                                 "ID" = row.names(df),
                                 "Tissue Specificity" = df[,"Tissue.specificity"]
                                 )
+
+    download_prot_expr(output_table)                            
     return(output_table)
 
   }
@@ -4612,6 +4640,15 @@ RLE.plot <- reactive({
       return(df)
   })
 
+  output$prot_expr_download <- downloadHandler(
+    filename = function() {
+      paste("Protein-Expression", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_prot_expr(), file, row.names = FALSE)
+    }
+  )
+
   ###################################
   ###################################
   ###################################
@@ -4624,8 +4661,10 @@ RLE.plot <- reactive({
   ###################################
   
   
+  download_prot_local <- reactiveVal(0)
+
   df_prot_local <- reactive({
-    print("running")
+    print("running...")
     if (is.null(input$file_prot_local)) {
       return(NULL)
     }
@@ -4649,7 +4688,6 @@ RLE.plot <- reactive({
 
   df_local_table <- function() {
 
-    print("running...")
     Accessions <- df_local_id()
     print("fetching...")
     df <- GetSubcellular_location(Accessions)
@@ -4659,6 +4697,7 @@ RLE.plot <- reactive({
                                 "ID" = row.names(df),
                                 "Subcellular Location" = df[,"Subcellular.location..CC."]
                                 )
+    download_prot_local(output_table)                            
     return(output_table)
 
   }
@@ -4672,6 +4711,15 @@ RLE.plot <- reactive({
       return(df)
   })
 
+  output$prot_local_download <- downloadHandler(
+    filename = function() {
+      paste("Subcellular-Localization", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_prot_local(), file, row.names = FALSE)
+    }
+  )
+
   ###################################
   ###################################
   ###################################
@@ -4683,9 +4731,11 @@ RLE.plot <- reactive({
   ###################################
   ###################################
   
-  
+
+  download_prot_domain <- reactiveVal(0)
+
   df_prot_domain <- reactive({
-    print("running")
+    print("running...")
     if (is.null(input$file_prot_domain)) {
       return(NULL)
     }
@@ -4709,7 +4759,7 @@ RLE.plot <- reactive({
 
   df_domain_table <- function() {
 
-    print("running...")
+    
     Accessions <- df_domain_id()
     print("fetching...")
     df <- GetFamily_Domains(Accessions)
@@ -4720,6 +4770,7 @@ RLE.plot <- reactive({
                                 "Protein Families" = df[,"Protein.families"],
                                 "Protein Domain" = df[,"Domain..FT."]
                                 )
+    download_prot_domain(output_table)                           
     return(output_table)
 
   }
@@ -4732,6 +4783,15 @@ RLE.plot <- reactive({
       df <- df_prot_domain()
       return(df)
   })
+
+  output$prot_domain_download <- downloadHandler(
+    filename = function() {
+      paste("Protein-Domains", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_prot_domain(), file, row.names = FALSE)
+    }
+  )
 
   ###################################
   ###################################
@@ -4779,7 +4839,7 @@ RLE.plot <- reactive({
     print("Done") 
     return(GeneOntologyObj)
   })
-
+  
   plotCE <- function() {
     # get data
     GO_df <- plotUniprot()
