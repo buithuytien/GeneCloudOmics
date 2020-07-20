@@ -16,20 +16,31 @@
        "overlay-opacity": 0.2,
        "overlay-color": "gray"
        }},
+       
 
-    {"selector": "node[[degree >= 5]]", "css": {
+    {"selector": "node[[degree >= 2]][[degree < 5]]", "css": {
+        "width": "50px",
+        "height": "50px"
+    }},
+
+    {"selector": "node[[degree >= 5]][[degree < 8]]", "css": {
         "width": "60px",
         "height": "60px"
     }},
 
-    {"selector": "node[[degree >= 8]]", "css": {
+    {"selector": "node[[degree >= 8]][[degree < 12]]", "css": {
         "width": "70px",
         "height": "70px"
     }},
 
-    {"selector": "node[[degree >= 12]]", "css": {
+    {"selector": "node[[degree >= 12]][[degree < 17]]", "css": {
         "width": "80px",
         "height": "80px"
+    }},
+
+    {"selector": "node[[degree >= 17]]", "css": {
+        "width": "100px",
+        "height": "100px"
     }},
 
    {"selector": "edge", "css": {

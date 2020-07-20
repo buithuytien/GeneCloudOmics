@@ -296,8 +296,9 @@ if (!wd == getwd()) {
 
 styles <- c(
             "generic style"="./www/style/basicStyle.js",
-            "expermentStyle"="./www/style/expermentStyle.js",
-            "style 01" = "./www/style/style01.js")
+            "red-yellow"="./www/style/red-yellow.js",
+            "red-pink" = "./www/style/red-pink.js",
+            "green-blue"="./www/style/green-blue.js")
 
 ##########################################################################
 
