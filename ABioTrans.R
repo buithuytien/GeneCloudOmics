@@ -1165,8 +1165,8 @@ ui <- tagList(
   tabPanel(
     "Protein Function",
     sidebarPanel(
-      fileInput("file_prot_func", "Upload the accession files")
-      # actionButton("submit_complex", "Submit")
+      fileInput("file_prot_func", "Upload the accession files"),
+      actionButton("submit_prot_func", "Submit")
     ),
     mainPanel(
       h3("Protein Function"),
@@ -1178,8 +1178,8 @@ ui <- tagList(
   tabPanel(
     "Protein Expression",
     sidebarPanel(
-      fileInput("file_prot_expr", "Upload the accession files")
-      # actionButton("submit_complex", "Submit")
+      fileInput("file_prot_expr", "Upload the accession files"),
+      actionButton("submit_prot_expr", "Submit")
     ),
     mainPanel(
       h3("Protein Expression"),
@@ -1191,8 +1191,8 @@ ui <- tagList(
   tabPanel(
     "Subcellular Localization",
     sidebarPanel(
-      fileInput("file_prot_local", "Upload the accession files")
-      # actionButton("submit_complex", "Submit")
+      fileInput("file_prot_local", "Upload the accession files"),
+      actionButton("submit_prot_local", "Submit")
     ),
     mainPanel(
       h3("Subcellular Localization"),
@@ -1204,8 +1204,8 @@ ui <- tagList(
   tabPanel(
     "Protein Domains",
     sidebarPanel(
-      fileInput("file_prot_domain", "Upload the accession files")
-      # actionButton("submit_complex", "Submit")
+      fileInput("file_prot_domain", "Upload the accession files"),
+      actionButton("submit_prot_domain", "Submit")
     ),
     mainPanel(
       h3("Protein Domains"),
@@ -4384,7 +4384,6 @@ RLE.plot <- reactive({
   
   
   df_complex <- reactive({
-    print("running")
     if (is.null(input$file_complex)) {
       return(NULL)
     }
@@ -4504,7 +4503,7 @@ RLE.plot <- reactive({
   
   
   df_prot_func <- reactive({
-    print("running")
+
     if (is.null(input$file_prot_func)) {
       return(NULL)
     }
@@ -4526,20 +4525,30 @@ RLE.plot <- reactive({
 
   })
 
+  df_func_table <- function() {
+
+    Accessions <- df_func_id()
+       
+      print("running...")
+      print("fetching...")
+      df <- GetProteinFunction(Accessions)
+      print("fetched...")
+      output_table <- data.frame()
+      output_table <- data.frame(
+                                  "ID" = row.names(df),
+                                  "Function" = df[,"Function..CC."]
+                                  )
+      return(output_table)
+
+  }
+
   output$prot_func_table <- DT::renderDataTable({
+    df_func_table()
+  })
 
-    print("running...")
-    Accessions <- df_prot_func()
-    print("fetching...")
-    df <- GetProteinFunction(Accessions)
-    print("fetched...")
-    output_table <- data.frame()
-    output_table <- data.frame(
-                                "ID" = row.names(df),
-                                "Function" = df[,"Function..CC."]
-                                )
-    output_table
-
+  df_func_id <- eventReactive(input$submit_prot_func, {
+      df <- df_prot_func()
+      return(df)
   })
 
   ###################################
@@ -4577,10 +4586,10 @@ RLE.plot <- reactive({
 
   })
 
-  output$prot_expr_table <- DT::renderDataTable({
+  df_expr_table <- function() {
 
     print("running...")
-    Accessions <- df_prot_expr()
+    Accessions <- df_expr_id()
     print("fetching...")
     df <- GetExpression(Accessions)
     print("fetched...")
@@ -4589,8 +4598,17 @@ RLE.plot <- reactive({
                                 "ID" = row.names(df),
                                 "Tissue Specificity" = df[,"Tissue.specificity"]
                                 )
-    output_table
+    return(output_table)
 
+  }
+
+  output$prot_expr_table <- DT::renderDataTable({
+    df_expr_table()
+  })
+
+  df_expr_id <- eventReactive(input$submit_prot_expr, {
+      df <- df_prot_expr()
+      return(df)
   })
 
   ###################################
@@ -4628,10 +4646,10 @@ RLE.plot <- reactive({
 
   })
 
-  output$prot_local_table <- DT::renderDataTable({
+  df_local_table <- function() {
 
     print("running...")
-    Accessions <- df_prot_local()
+    Accessions <- df_local_id()
     print("fetching...")
     df <- GetSubcellular_location(Accessions)
     print("fetched...")
@@ -4640,8 +4658,17 @@ RLE.plot <- reactive({
                                 "ID" = row.names(df),
                                 "Subcellular Location" = df[,"Subcellular.location..CC."]
                                 )
-    output_table
+    return(output_table)
 
+  }
+
+  output$prot_local_table <- DT::renderDataTable({
+      df_local_table()
+  })
+
+  df_local_id <- eventReactive(input$submit_prot_local, {
+      df <- df_prot_local()
+      return(df)
   })
 
   ###################################
@@ -4679,10 +4706,10 @@ RLE.plot <- reactive({
 
   })
 
-  output$prot_domain_table <- DT::renderDataTable({
+  df_domain_table <- function() {
 
     print("running...")
-    Accessions <- df_prot_domain()
+    Accessions <- df_domain_id()
     print("fetching...")
     df <- GetFamily_Domains(Accessions)
     print("fetched...")
@@ -4692,8 +4719,17 @@ RLE.plot <- reactive({
                                 "Protein Families" = df[,"Protein.families"],
                                 "Protein Domain" = df[,"Domain..FT."]
                                 )
-    output_table
+    return(output_table)
 
+  }
+
+  output$prot_domain_table <- DT::renderDataTable({
+      df_domain_table()
+  })
+
+  df_domain_id <- eventReactive(input$submit_prot_domain, {
+      df <- df_prot_domain()
+      return(df)
   })
 
   ###################################
