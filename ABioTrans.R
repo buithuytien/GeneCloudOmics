@@ -4441,7 +4441,8 @@ RLE.plot <- reactive({
          if(!is.na(check))
          {
            for (c_id in as.matrix(check)) {
-              c_row <- data.frame(Uniprot_id = id,
+             row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+              c_row <- data.frame(Uniprot_id = sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name),
                                   Corum_id = c_id,
                                   Complex_Name = as.character(allComplexes[paste0(c_id),"Complex_Name"]),
                                   Complex_comment = allComplexes[paste0(c_id),"Complex_comment"],
@@ -4451,7 +4452,7 @@ RLE.plot <- reactive({
            }
            
          } else {
-            c_row <- data.frame(Uniprot_id = id,
+            c_row <- data.frame(Uniprot_id = paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )"),
                                 Corum_id = "No Match",
                                 Complex_Name = "No Match",
                                 Complex_comment = "No Match",
@@ -4467,7 +4468,7 @@ RLE.plot <- reactive({
 
   output$complex_table <- DT::renderDataTable({
       df_com_table()
-  })
+  }, escape = FALSE)
 
   df_com_id <- eventReactive(input$submit_complex, {
       df <- df_complex()
@@ -4532,6 +4533,7 @@ RLE.plot <- reactive({
   ######## Protein Function #########
   ###################################
   ###################################
+
   
   download_prot_func <- reactiveVal(0)
 
@@ -4560,10 +4562,19 @@ RLE.plot <- reactive({
 
   df_func_table <- function() {
 
-    Accessions <- df_func_id()
+      Accessions <- df_func_id()
        
       print("fetching...")
       df <- GetProteinFunction(Accessions)
+      
+      count <- 1
+      for(id in row.names(df))
+      {
+          row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+          row.names(df)[count] <- sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name)
+          count <- count + 1
+      }
+
       print("fetched...")
       output_table <- data.frame()
       output_table <- data.frame(
@@ -4577,7 +4588,7 @@ RLE.plot <- reactive({
 
   output$prot_func_table <- DT::renderDataTable({
     df_func_table()
-  })
+  }, escape = FALSE)
 
   df_func_id <- eventReactive(input$submit_prot_func, {
       df <- df_prot_func()
@@ -4634,6 +4645,15 @@ RLE.plot <- reactive({
     Accessions <- df_expr_id()
     print("fetching...")
     df <- GetExpression(Accessions)
+
+    count <- 1
+    for(id in row.names(df))
+    {
+        row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+        row.names(df)[count] <- sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name)
+        count <- count + 1
+    }
+
     print("fetched...")
     output_table <- data.frame()
     output_table <- data.frame(
@@ -4648,7 +4668,7 @@ RLE.plot <- reactive({
 
   output$prot_expr_table <- DT::renderDataTable({
     df_expr_table()
-  })
+  }, escape = FALSE)
 
   df_expr_id <- eventReactive(input$submit_prot_expr, {
       df <- df_prot_expr()
@@ -4706,6 +4726,15 @@ RLE.plot <- reactive({
     Accessions <- df_local_id()
     print("fetching...")
     df <- GetSubcellular_location(Accessions)
+
+    count <- 1
+    for(id in row.names(df))
+    {
+        row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+        row.names(df)[count] <- sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name)
+        count <- count + 1
+    }
+
     print("fetched...")
     output_table <- data.frame()
     output_table <- data.frame(
@@ -4719,7 +4748,7 @@ RLE.plot <- reactive({
 
   output$prot_local_table <- DT::renderDataTable({
       df_local_table()
-  })
+  }, escape = FALSE)
 
   df_local_id <- eventReactive(input$submit_prot_local, {
       df <- df_prot_local()
@@ -4778,6 +4807,15 @@ RLE.plot <- reactive({
     Accessions <- df_domain_id()
     print("fetching...")
     df <- GetFamily_Domains(Accessions)
+
+    count <- 1
+    for(id in row.names(df))
+    {
+        row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+        row.names(df)[count] <- sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name)
+        count <- count + 1
+    }
+
     print("fetched...")
     output_table <- data.frame()
     output_table <- data.frame(
@@ -4792,7 +4830,7 @@ RLE.plot <- reactive({
 
   output$prot_domain_table <- DT::renderDataTable({
       df_domain_table()
-  })
+  }, escape = FALSE)
 
   df_domain_id <- eventReactive(input$submit_prot_domain, {
       df <- df_prot_domain()
