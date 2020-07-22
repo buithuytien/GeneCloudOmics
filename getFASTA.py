@@ -2,10 +2,10 @@ import requests
 import os, sys
 
 count = 0
-size = len(protein_Id)
+size = len(Protein_id)
 print(size)
 
-for id in protein_Id:
+for id in Protein_id:
     url = "https://www.uniprot.org/uniprot/" + id + ".fasta"
 
     try:
