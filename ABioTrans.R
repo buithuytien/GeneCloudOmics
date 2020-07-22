@@ -125,6 +125,63 @@ if (length(find.package(package = "scales", quiet = T)) > 0) {
 
 ###################################################################################
 
+####################### Dependencies For Protein Interactions ###################################
+
+if (length(find.package(package = "httr", quiet = T)) > 0) {
+  library(httr)
+} else {
+  install.packages("httr")
+  library(httr)
+}
+
+if (length(find.package(package = "curl", quiet = T)) > 0) {
+  library(curl)
+} else {
+  install.packages("curl")
+  library(curl)
+}
+
+if (length(find.package(package = "RCyjs", quiet = T)) > 0) {
+  library(RCyjs)
+} else {
+  install.packages("RCyjs")
+  library(RCyjs)
+}
+
+if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
+  library(cyjShiny)
+} else {
+  remotes::install_github("cytoscape/cyjShiny")
+  library(cyjShiny)
+}
+
+if (length(find.package(package = "later", quiet = T)) > 0) {
+  library(later)
+} else {
+  install.packages("later")
+  library(later)
+}
+
+if (length(find.package(package = "qdapTools", quiet = T)) > 0) {
+  library(qdapTools)
+} else {
+  install.packages("qdapTools")
+  library(qdapTools)
+}
+
+###################################################################################
+
+####################### Dependencies For Gene Mania ###################################
+
+if (length(find.package(package = "shinyjs", quiet = T)) > 0) {
+  library(shinyjs)
+} else {
+  install.packages("shinyjs")
+  library(shinyjs)
+}
+
+###################################################################################
+
 ####################### Dependencies For Microarray ###################################
 
 if (length(find.package(package = "devtools", quiet = T)) > 0) {
@@ -235,6 +292,16 @@ if (!wd == getwd()) {
   setwd(wd)
 }
 
+########################### Style files for Cytoscape.js ################
+
+styles <- c(
+            "generic style"="./www/style/basicStyle.js",
+            "red-yellow"="./www/style/red-yellow.js",
+            "red-pink" = "./www/style/red-pink.js",
+            "green-blue"="./www/style/green-blue.js")
+
+##########################################################################
+
 #
 # ## sourcing util files
 source(paste0("./www/utils.R"))
@@ -245,18 +312,30 @@ loadPkg()
 species.choices <<- c("Homo sapiens" = "org.Hs.eg.db", "Mus musculus" = "org.Mm.eg.db", "Rattus norvegicus" = "org.Rn.eg.db", "Gallus gallus" = "org.Gg.eg.db", "Danio rerio" = "org.Dr.eg.db", "Drosophila melanogaster" = "org.Dm.eg.db", "Caenorhabditis elegans" = "org.Ce.eg.db", "Saccharomyces cereviasiae" = "org.Sc.sgd.db", "Arabidopsis thaliana" = "org.At.tair.db", "Escherichia coli (strain K12)" = "org.EcK12.eg.db", "Escherichia coli (strain Sakai)" = "org.EcSakai.eg.db", "Anopheles gambiae" = "org.Ag.eg.db", "Bos taurus" = "org.Bt.eg.db", "Canis familiaris" = "org.Cf.eg.db", "Macaca mulatta" = "org.Mmu.eg.db", "Plasmodium falciparum" = "org.Pf.plasmo.db", "Pan troglodytes" = "org.Pt.eg.db", "Sus scrofa" = "org.Ss.eg.db", "Xenopus tropicalis" = "org.Xl.eg.db")
 DBS <<- list("org.Hs.eg.db" = org.Hs.eg.db, "org.Mm.eg.db" = org.Mm.eg.db, "org.Rn.eg.db" = org.Rn.eg.db, "org.Gg.eg.db" = org.Gg.eg.db, "org.Dr.eg.db" = org.Dr.eg.db, "org.Dm.eg.db" = org.Dm.eg.db, "org.Ce.eg.db" = org.Ce.eg.db, "org.Sc.sgd.db" = org.Sc.sgd.db, "org.At.tair.db" = org.At.tair.db, "org.EcK12.eg.db" = org.EcK12.eg.db, "org.EcSakai.eg.db" = org.EcSakai.eg.db, "org.Ag.eg.db" = org.Ag.eg.db, "org.Bt.eg.db" = org.Bt.eg.db, "org.Cf.eg.db" = org.Cf.eg.db, "org.Mmu.eg.db" = org.Mmu.eg.db, "org.Pf.plasmo.db" = org.Pf.plasmo.db, "org.Pt.eg.db" = org.Pt.eg.db, "org.Ss.eg.db" = org.Ss.eg.db, "org.Xl.eg.db" = org.Xl.eg.db)
 enrichRdbs <- as.character(read.csv(paste0(wd, "/www/enrichRdbs.csv"))[, 1])
+id_to_name <- read.csv(paste0(wd, "/www/TransTable_Human.csv"))
+
+
+#################### Complex Enrichment ##########################
+
+complexes <- load(paste0(wd, "/www/allComplexes.RData")) #allComplexes is masked under complexes
+up_corum_mapping <- read.csv(paste0(wd, "/www/UniProt_CORUM_Mapping.csv"))
+
+##################################################################
+
 
 end.load <- Sys.time()
 print("loading time")
 print(end.load - start.load)
+
 ##### UI from here ###########
-ui <- navbarPage(
+ui <- tagList(
+  shinyjs::useShinyjs(),
+  navbarPage(
   id = "navbar",
   theme = shinytheme("flatly"),
   title = "ABioTrans",
   tabPanel(
     "Home",
-    # useShinyjs(),
     sidebarPanel(
       radioButtons(
         "file_type", "Choose File Type",
@@ -569,7 +648,6 @@ ui <- navbarPage(
   ),
   tabPanel(
     "DE Analysis",
-    # useShinyjs(),
     sidebarPanel(
       radioButtons("n_rep", "Replicates?", choices = c("Multiple" = 1, "Single" = 0)),
       conditionalPanel(
@@ -823,7 +901,6 @@ ui <- navbarPage(
   ##################################################
   tabPanel(
     "GO Analysis",
-    # useShinyjs(),
     sidebarPanel(
       conditionalPanel(
         condition = "input.go_tab == 'go_table' || input.go_tab == 'go_pie' ",
@@ -940,7 +1017,21 @@ ui <- navbarPage(
     )
   ),
 
+  ################### Support Vector Machine ##################### 
   
+  tabPanel('SVM',
+             sidebarPanel(
+               actionButton("submit_svm","Submit")),
+             mainPanel(
+               h3('SVM Plot'),
+                tabsetPanel(
+                  type = "tabs", id = "SVM_tabs",
+                  tabPanel("SVM Classification", plotOutput('svm_plot')),
+                  tabPanel("Raw Plot", plotOutput("svm_df_plot"))
+                )
+             )),
+    
+  #####################################################################
 
   tabPanel('t-SNE',
              sidebarPanel(
@@ -1057,13 +1148,101 @@ ui <- navbarPage(
   navbarMenu(
     "Gene set Analysis",
     
+  ###### Complex Enrichement #############
+  #########################################
+  tabPanel(
+    "Complex Enrichement",
+    sidebarPanel(
+      fileInput("file_complex", "Upload the accession files"),
+      actionButton("submit_complex", "Submit"),br(),br(),
+      downloadButton("complex_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Complex Enrichement"),
+      DT::dataTableOutput("complex_table")
+  )),
+
+  ###### Protein Function #############
+  #########################################
+  tabPanel(
+    "Protein Function",
+    sidebarPanel(
+      fileInput("file_prot_func", "Upload the accession files"),
+      actionButton("submit_prot_func", "Submit"),br(),br(),
+      downloadButton("prot_func_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Protein Function"),
+      DT::dataTableOutput("prot_func_table")
+  )),
+
+  ###### Protein Expression #############
+  #########################################
+  tabPanel(
+    "Protein Expression",
+    sidebarPanel(
+      fileInput("file_prot_expr", "Upload the accession files"),
+      actionButton("submit_prot_expr", "Submit"),br(),br(),
+      downloadButton("prot_expr_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Protein Expression"),
+      DT::dataTableOutput("prot_expr_table")
+  )),
+
+  ###### Subcellular Localization #############
+  #########################################
+  tabPanel(
+    "Subcellular Localization",
+    sidebarPanel(
+      fileInput("file_prot_local", "Upload the accession files"),
+      actionButton("submit_prot_local", "Submit"),br(),br(),
+      downloadButton("prot_local_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Subcellular Localization"),
+      DT::dataTableOutput("prot_local_table")
+  )),
+
+  ########## Protein Domains ##############
+  #########################################
+  tabPanel(
+    "Protein Domains",
+    sidebarPanel(
+      fileInput("file_prot_domain", "Upload the accession files"),
+      actionButton("submit_prot_domain", "Submit"),br(),br(),
+      downloadButton("prot_domain_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Protein Domains"),
+      DT::dataTableOutput("prot_domain_table")
+  )),
+
+
+
+
     ###### UNIPROT #############
   #########################################
   tabPanel(
     "Gene ontology",
     sidebarPanel(
       fileInput("file_uniprot", "Upload the accession files"),
-      actionButton("submit_uniprot", "Submit")
+      actionButton("submit_uniprot", "Submit"),br(),br(),
+      conditionalPanel(
+        condition = "input.uniprot_tabs == 'Biological process'",
+        downloadButton("download_bio_plot", "Download Plot"),br(),br(),
+        downloadButton("download_bio_pro", "Download Table")
+      ),
+      conditionalPanel(
+        condition = "input.uniprot_tabs == 'Molecular function'",
+        downloadButton("download_mole_plot", "Download Plot"),br(),br(),
+        downloadButton("download_mole_func", "Download Table")
+      ),
+      conditionalPanel(
+        condition = "input.uniprot_tabs == 'Cellular component'",
+        downloadButton("download_cell_plot", "Download Plot"),br(),br(),
+        downloadButton("download_cell_comp", "Download Table")
+      )
     ),
     mainPanel(
       h3("Gene ontology"),
@@ -1079,6 +1258,143 @@ ui <- navbarPage(
             plotlyOutput("uniprot_cel.plot"),
             DT::dataTableOutput("uniprot_cel_table"))
     )
+  )),
+  #########################################
+
+  ###### Protein Interaction #############
+  #########################################
+  tabPanel(
+    "P-P Interactions",
+    tags$head(tags$style("#cyjShiny{height:95vh !important;}")),
+  sidebarLayout(
+    sidebarPanel(
+      fileInput("file_prot_Int", "Upload the accession files"),
+      actionButton("submit_prot_Int", "Submit"),br(),br(),
+      selectInput("loadStyleFile", "Select Style: ", choices=styles),
+          selectInput("doLayout", "Select Layout:",
+                      choices=c("",
+                                "cose",
+                                "cola",
+                                "circle",
+                                "concentric",
+                                "breadthfirst",
+                                "grid",
+                                "random",
+                                "dagre",
+                                "cose-bilkent")),
+         # selectInput("showCondition", "Select Condition:", choices=rownames(output$tbl.lfc)),
+         # selectInput("selectName", "Select Node by ID:", choices = c("", sort(tbl.nodes$id))),
+          actionButton("sfn", "Select First Neighbor"),
+          br(),br(),
+          actionButton("fit", "Fit Graph"),br(),br(),
+          actionButton("fitSelected", "Fit Selected"),br(),br(),
+          actionButton("clearSelection", "Clear Selection"), br(),br(),
+          actionButton("removeGraphButton", "Remove Graph"), br(),br(),
+          actionButton("addRandomGraphFromDataFramesButton", "Add Random Graph"),br(),br(),
+          actionButton("getSelectedNodes", "Get Selected Nodes"), br(),br(),
+          htmlOutput("selectedNodesDisplay"),
+          width=2
+    ),
+    mainPanel(
+      h3("Protein-Protein Interactions"),
+      tabsetPanel(
+          type = "tabs", id = "prot_inte_tab",
+          tabPanel("Visualization",
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            cyjShinyOutput('cyjShiny', height=350)
+          )),
+          tabPanel("Protein Interaction",
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_int_table")
+          )),
+          tabPanel("Protein Name",
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_name_table")
+          ))
+    ),
+    width=10
+  )
+  #  mainPanel(cyjShinyOutput('cyjShiny', height=400),
+  #           width=10,
+  #           tabPanel("Protein Name",
+  #           DT::dataTableOutput("prot_name_table"))
+  #  )
+  )),
+  #########################################
+
+  ###### Genemania #############
+  #########################################
+  tabPanel(
+    "Gene Mania",
+    sidebarPanel(
+    selectInput("organismID", "Choose organism:", 
+                  choices= list(
+                    "Arabidopsis_thaliana",
+                    "Caenorhabditis_elegans",
+                    "Danio_rerio",
+                    "Drosophila_melanogaster",
+                    "Escherichia_coli",
+                    "Homo_sapiens",
+                    "Mus_musculus",
+                    "Rattus_norvegicus",
+                    "Saccharomyces_cerevisiae"
+                  )),
+      fileInput("file_gene", "Upload the Gene Names"),
+      actionButton("genemania_submit", "Submit")
+    ),
+    mainPanel(
+      h3("Co-expression"),
+      div(id = "hide_link", 
+       p("Please click", htmlOutput("link")))
+        %>% shinyjs::hidden()
+  )),
+  #########################################
+
+  ######### Protein Sequences #############
+  #########################################
+  tabPanel(
+    "Protein Sequences",
+    sidebarPanel(
+      fileInput("file_prot_seq", "Upload the accession files"),
+      actionButton("submit_prot_seq", "Submit")
+    ),
+    mainPanel(
+      h3("Protein Sequences"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            htmlOutput("fasta_text")
+          )
   ))
   #########################################
 
@@ -1088,10 +1404,15 @@ ui <- navbarPage(
     tabPanel('Raw-Value')
   )
 )
+)
 ####################################################
 
 server <- function(input, output, session) {
 
+
+  gene_mania_link <- reactiveVal("https://genemania.org")
+  count_fasta <- reactiveVal(0)
+  count_id <- reactiveVal(0)
 
   ########################################
   ##### Increases the Upload Limit #######
@@ -3496,6 +3817,102 @@ RLE.plot <- reactive({
   ###################################
 
 
+  ###################################
+  ###################################
+  ############   SVM     ############
+  ###################################
+  ###################################
+  
+  data_svm <- eventReactive(input$submit_svm, {
+    print("Running...")
+    svm.start <- Sys.time()
+    type <- input$file_type
+
+    if (type == "norm") {
+      DS <- df_shiny()
+    }
+    else if (type == "raw") {
+      DS <- df_raw_shiny()
+    }
+
+    print("1")
+
+    x1.1 <- as.data.frame(DS[,1:3])
+    x1.11 <- as.data.frame(DS[1:100,1:3])
+    x2.2 <- as.data.frame(DS[,4:6])
+    x2.22 <- as.data.frame(DS[1:100,4:6])
+
+    print("2")
+
+    x1.1 <-  setNames(stack(x1.1),c("x1.1","colName"))
+    x1.11 <-  setNames(stack(x1.11),c("x1.1","colName"))
+    x2.2 <-  setNames(stack(x2.2),c("x2.2","colName"))
+    x2.22 <-  setNames(stack(x2.22),c("x2.2","colName"))
+    
+    mut_type <- as.data.frame(x1.1[,2])
+    mut_type1 <- as.data.frame(x1.11[,2])
+
+    dat <- data.frame(matrix(ncol = 3, nrow = nrow(x1.1)))
+    dat1 <- data.frame(matrix(ncol = 3, nrow = nrow(x1.11)))
+    x <- c("x1.1", "x2.2", "y")
+    colnames(dat) <- x
+    colnames(dat1) <- x
+
+    print("3")
+
+    dat[,1] <- x1.1[,1]
+    dat[,2] <- x2.2[,1]
+    dat[,3] <- mut_type[,1]
+
+    print("4")
+
+    dat1[,1] <- x1.11[,1]
+    dat1[,2] <- x2.22[,1]
+    dat1[,3] <- mut_type1[,1]
+
+    dat[,3] <- as.factor(as.numeric(dat[,3]))
+    dat1[,3] <- as.factor(as.numeric(dat1[,3]))
+
+    return(dat1)
+
+  })
+
+  plotSVM <- function() {
+
+    dat <- data_svm()
+
+    print("training")
+    svmfit <- svm(y~., data = dat, kernel = "radial", cost = 10, gamma = 1)
+    print("done")
+    plot(svmfit , dat )
+
+  }
+
+  plotSVM_df <- function() {
+
+    dat <- data_svm()
+
+    ggplot(data = dat, aes(x = x2.2, y = x1.1, color = y, shape = y)) + 
+  geom_point(size = 2) +
+  scale_color_manual(values=c("#000000","#FF0000","#00BA00")) +
+  theme(legend.position = "none")
+
+  }
+
+  output$svm_plot <- renderPlot({
+    plotSVM()
+  })
+
+  output$svm_df_plot <- renderPlot({
+    plotSVM_df()
+  })
+  
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+
 
   ###################################
   ###################################
@@ -3974,6 +4391,462 @@ RLE.plot <- reactive({
   )
 
   ###################################
+  ######## Gene-Set Analysis ########
+  ###################################
+  ###################################
+
+
+
+  ###################################
+  ###################################
+  ###### Complex Enrichement ########
+  ###################################
+  ###################################
+  
+  download_com_table <- reactiveVal(0)
+
+  df_complex <- reactive({
+    print("running...")
+    if (is.null(input$file_complex)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_complex$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_complex$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  df_com_table <- function(){
+
+      gene_id <- df_com_id()
+
+      corum_table <- data.frame()
+      n <- 1
+
+      for (id in gene_id) {
+        check <- lookup(id, as.data.frame(up_corum_mapping))
+        print(class(check))
+         if(!is.na(check))
+         {
+           for (c_id in as.matrix(check)) {
+             row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+              c_row <- data.frame(Uniprot_id = sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name),
+                                  Corum_id = c_id,
+                                  Complex_Name = as.character(allComplexes[paste0(c_id),"Complex_Name"]),
+                                  Complex_comment = allComplexes[paste0(c_id),"Complex_comment"],
+                                  row.names = n)
+              corum_table <- rbind(corum_table, c_row)
+              n = n + 1
+           }
+           
+         } else {
+            c_row <- data.frame(Uniprot_id = paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )"),
+                                Corum_id = "No Match",
+                                Complex_Name = "No Match",
+                                Complex_comment = "No Match",
+                                row.names = n)
+              corum_table <- rbind(corum_table, c_row)
+               n = n + 1
+         }
+      }
+      download_com_table(corum_table)
+      return(corum_table)
+
+  }
+
+  output$complex_table <- DT::renderDataTable({
+      df_com_table()
+  }, escape = FALSE)
+
+  df_com_id <- eventReactive(input$submit_complex, {
+      df <- df_complex()
+      return(df)
+  })
+
+  output$complex_download <- downloadHandler(
+    filename = function() {
+      paste("complex", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_com_table(), file, row.names = FALSE)
+    }
+  )
+
+  # observeEvent(input$submit_complex, {
+  #     print("running")
+  #     gene_id <- df_complex()
+  #     # print(allComplexes[c_id,"Complex_Name"])
+
+  #     corum_table <- data.frame()
+  #     n <- 1
+
+  #     for (id in gene_id) {
+  #       check <- lookup(id, as.data.frame(up_corum_mapping))
+  #       print(class(check))
+  #        if(!is.na(check))
+  #        {
+  #          for (c_id in as.matrix(check)) {
+  #             c_row <- data.frame(Uniprot_id = id,
+  #                                 Corum_id = c_id,
+  #                                 Complex_Name = allComplexes[c_id,"Complex_Name"],
+  #                                 Complex_comment = allComplexes[id,"Complex_comment"],
+  #                                 row.names = n)
+  #             corum_table <- rbind(corum_table, c_row)
+  #             n = n + 1
+  #          }
+           
+  #        } else {
+  #           c_row <- data.frame(Uniprot_id = id,
+  #                               Corum_id = "No Match",
+  #                               Complex_Name = "No Match",
+  #                               Complex_comment = "No Match",
+  #                               row.names = n)
+  #             corum_table <- rbind(corum_table, c_row)
+  #              n = n + 1
+  #        }
+  #     }
+  #     print(corum_table)
+
+  # })
+
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+
+  ###################################
+  ###################################
+  ######## Protein Function #########
+  ###################################
+  ###################################
+
+  
+  download_prot_func <- reactiveVal(0)
+
+  df_prot_func <- reactive({
+    print("running...")
+    if (is.null(input$file_prot_func)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_prot_func$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_prot_func$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  df_func_table <- function() {
+
+      Accessions <- df_func_id()
+       
+      print("fetching...")
+      df <- GetProteinFunction(Accessions)
+      
+      count <- 1
+      for(id in row.names(df))
+      {
+          row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+          row.names(df)[count] <- sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name)
+          count <- count + 1
+      }
+
+      print("fetched...")
+      output_table <- data.frame()
+      output_table <- data.frame(
+                                  "ID" = row.names(df),
+                                  "Function" = df[,"Function..CC."]
+                                  )
+      download_prot_func(output_table)
+      return(output_table)
+
+  }
+
+  output$prot_func_table <- DT::renderDataTable({
+    df_func_table()
+  }, escape = FALSE)
+
+  df_func_id <- eventReactive(input$submit_prot_func, {
+      df <- df_prot_func()
+      return(df)
+  })
+
+  output$prot_func_download <- downloadHandler(
+    filename = function() {
+      paste("Protein-Function", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_prot_func(), file, row.names = FALSE)
+    }
+  )
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+  ###################################
+  ###################################
+  ####### Protein Expression ########
+  ###################################
+  ###################################
+  
+  download_prot_expr <- reactiveVal(0)
+
+  df_prot_expr <- reactive({
+    print("running...")
+    if (is.null(input$file_prot_expr)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_prot_expr$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_prot_expr$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  df_expr_table <- function() {
+
+    Accessions <- df_expr_id()
+    print("fetching...")
+    df <- GetExpression(Accessions)
+
+    count <- 1
+    for(id in row.names(df))
+    {
+        row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+        row.names(df)[count] <- sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name)
+        count <- count + 1
+    }
+
+    print("fetched...")
+    output_table <- data.frame()
+    output_table <- data.frame(
+                                "ID" = row.names(df),
+                                "Tissue Specificity" = df[,"Tissue.specificity"]
+                                )
+
+    download_prot_expr(output_table)                            
+    return(output_table)
+
+  }
+
+  output$prot_expr_table <- DT::renderDataTable({
+    df_expr_table()
+  }, escape = FALSE)
+
+  df_expr_id <- eventReactive(input$submit_prot_expr, {
+      df <- df_prot_expr()
+      return(df)
+  })
+
+  output$prot_expr_download <- downloadHandler(
+    filename = function() {
+      paste("Protein-Expression", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_prot_expr(), file, row.names = FALSE)
+    }
+  )
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+  ###################################
+  ###################################
+  #### Subcellular Localization #####
+  ###################################
+  ###################################
+  
+  
+  download_prot_local <- reactiveVal(0)
+
+  df_prot_local <- reactive({
+    print("running...")
+    if (is.null(input$file_prot_local)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_prot_local$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_prot_local$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  df_local_table <- function() {
+
+    Accessions <- df_local_id()
+    print("fetching...")
+    df <- GetSubcellular_location(Accessions)
+
+    count <- 1
+    for(id in row.names(df))
+    {
+        row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+        row.names(df)[count] <- sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name)
+        count <- count + 1
+    }
+
+    print("fetched...")
+    output_table <- data.frame()
+    output_table <- data.frame(
+                                "ID" = row.names(df),
+                                "Subcellular Location" = df[,"Subcellular.location..CC."]
+                                )
+    download_prot_local(output_table)                            
+    return(output_table)
+
+  }
+
+  output$prot_local_table <- DT::renderDataTable({
+      df_local_table()
+  }, escape = FALSE)
+
+  df_local_id <- eventReactive(input$submit_prot_local, {
+      df <- df_prot_local()
+      return(df)
+  })
+
+  output$prot_local_download <- downloadHandler(
+    filename = function() {
+      paste("Subcellular-Localization", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_prot_local(), file, row.names = FALSE)
+    }
+  )
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+  ###################################
+  ###################################
+  ######## Protein Domains ##########
+  ###################################
+  ###################################
+  
+
+  download_prot_domain <- reactiveVal(0)
+
+  df_prot_domain <- reactive({
+    print("running...")
+    if (is.null(input$file_prot_domain)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_prot_domain$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_prot_domain$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  df_domain_table <- function() {
+
+    
+    Accessions <- df_domain_id()
+    print("fetching...")
+    df <- GetFamily_Domains(Accessions)
+
+    count <- 1
+    for(id in row.names(df))
+    {
+        row_name <- paste0(id," (",as.character(lookup(as.character(id), as.data.frame(id_to_name), missing="No Match"))," )")
+        row.names(df)[count] <- sprintf('<a href="https://www.uniprot.org/uniprot/%s" class="btn btn-primary">%s</a>',id,row_name)
+        count <- count + 1
+    }
+
+    print("fetched...")
+    output_table <- data.frame()
+    output_table <- data.frame(
+                                "ID" = row.names(df),
+                                "Protein Families" = df[,"Protein.families"],
+                                "Protein Domain" = df[,"Domain..FT."]
+                                )
+    download_prot_domain(output_table)                           
+    return(output_table)
+
+  }
+
+  output$prot_domain_table <- DT::renderDataTable({
+      df_domain_table()
+  }, escape = FALSE)
+
+  df_domain_id <- eventReactive(input$submit_prot_domain, {
+      df <- df_prot_domain()
+      return(df)
+  })
+
+  output$prot_domain_download <- downloadHandler(
+    filename = function() {
+      paste("Protein-Domains", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_prot_domain(), file, row.names = FALSE)
+    }
+  )
+
+  ###################################
   ###################################
   ###################################
   ###################################
@@ -4019,7 +4892,7 @@ RLE.plot <- reactive({
     print("Done") 
     return(GeneOntologyObj)
   })
-
+  
   plotCE <- function() {
     # get data
     GO_df <- plotUniprot()
@@ -4052,15 +4925,22 @@ RLE.plot <- reactive({
     
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
-    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$cellular_components, occurences$Frequences), y=occurences$Frequences)) +
+    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$cellular_components, Frequences), y=Frequences)) +
       geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("cellular component")+
       geom_text(aes(label = occurences$freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
       theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
     
-    bar_plot
+    return(bar_plot)
   
-    ggplotly(bar_plot, tooltip = c("text"))
+    # ggplotly(bar_plot, tooltip = c("text"))
   }
+
+  output$download_cell_plot <- downloadHandler(
+         filename = function(){paste("Cellular-Component",'.png',sep='')},
+         content = function(file){
+          ggsave(file,plot=plotCE())
+    }
+  )
   
   plotBIO <- function() {
     # get data
@@ -4094,15 +4974,22 @@ RLE.plot <- reactive({
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
-    bar_plot <- ggplot(data=occurences, aes(x= reorder(occurences$biological_process ,occurences$Frequences)  , y=occurences$Frequences)) +
+    bar_plot <- ggplot(data=occurences, aes(x= reorder(biological_process ,Frequences)  , y=Frequences)) +
       geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("Biological function")+
     # geom_text(aes(label = occurences$freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
       theme_minimal() +coord_flip() +theme(text = element_text(size=12))
 
-    bar_plot
+    return(bar_plot)
   
-    ggplotly(bar_plot, tooltip = c("text"))
+    # ggplotly(bar_plot, tooltip = c("text"))
   }
+
+  output$download_bio_plot <- downloadHandler(
+         filename = function(){paste("Biological-Process",'.png',sep='')},
+         content = function(file){
+          ggsave(file,plot=plotBIO())
+    }
+  )
 
   plotMol <- function() {
     # get data
@@ -4136,27 +5023,36 @@ RLE.plot <- reactive({
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
-    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$molecular_functions , occurences$Frequences), y=occurences$Frequences)) +
+    bar_plot <- ggplot(data=occurences, aes(x=reorder(occurences$molecular_functions , Frequences), y=Frequences)) +
       geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Frequency") + ylab("molecular function")+
       geom_text(aes(label = occurences$Freq), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
       theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
 
-    bar_plot
+    return(bar_plot)
   
-    ggplotly(bar_plot, tooltip = c("text"))
+    # ggplotly(bar_plot, tooltip = c("text"))
   }
 
+  output$download_mole_plot <- downloadHandler(
+         filename = function(){paste("Molecular-Function",'.png',sep='')},
+         content = function(file){
+          ggsave(file,plot=plotMol())
+    }
+  )
+
   output$uniprot_cel.plot <- renderPlotly({
-    plotCE()
+    ggplotly(plotCE(), tooltip = c("text"))
   })
 
   output$uniprot_bio.plot <- renderPlotly({
-    plotBIO()
+    ggplotly(plotBIO(), tooltip = c("text"))
   })
 
   output$uniprot_molc.plot <- renderPlotly({
-    plotMol()
+    ggplotly(plotMol(), tooltip = c("text"))
   })
+
+  download_cel_table <- reactiveVal(0)
 
   output$uniprot_cel_table <- DT::renderDataTable({
 
@@ -4190,9 +5086,21 @@ RLE.plot <- reactive({
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
+    download_cel_table(occurences)
     occurences
 
   })
+
+  output$download_cell_comp <- downloadHandler(
+    filename = function() {
+      paste("Cellular-Component", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_cel_table(), file, row.names = FALSE)
+    }
+  )
+
+  download_bio_table <- reactiveVal(0)
 
    output$uniprot_bio_table <- DT::renderDataTable({
 
@@ -4225,10 +5133,22 @@ RLE.plot <- reactive({
       mutate(freq = percent(occurences$Freq / sum(occurences$Freq))) -> occurences
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
-
+    
+    download_bio_table(occurences)
     occurences
 
   })
+
+  output$download_bio_pro <- downloadHandler(
+    filename = function() {
+      paste("Biological-Process", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_bio_table(), file, row.names = FALSE)
+    }
+  )
+
+  download_mol_table <- reactiveVal(0)
 
   output$uniprot_molc_table <- DT::renderDataTable({
 
@@ -4262,7 +5182,497 @@ RLE.plot <- reactive({
 
     occurences <- dplyr::filter(occurences, occurences[,1]!="NA")
 
+    download_mol_table(occurences)
     occurences
+
+  })
+
+  output$download_mole_func <- downloadHandler(
+    filename = function() {
+      paste("Molecular-Function", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(download_mol_table(), file, row.names = FALSE)
+    }
+  )
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+
+
+  ###################################
+  ###################################
+  #######  P-P Interactions   #######
+  ###################################
+  ###################################
+  
+
+  ############ Initializing Variables ###############
+
+  df_interaction <- reactiveVal(0)
+  df_names <- reactiveVal(0)
+
+  # tbl.nodes <- data.frame(id=c("A", "B", "C"),
+  #                       type=c("kinase", "TF", "glycoprotein"),
+  #                       lfc=c(1, 1, 1),
+  #                       count=c(0, 0, 0),
+  #                       stringsAsFactors=FALSE)
+
+  # tbl.edges <- data.frame(source=c("A", "B", "C"),
+  #                       target=c("B", "C", "A"),
+  #                       interaction=c("phosphorylates", "synthetic lethal", "unknown"),
+  #                       stringsAsFactors=FALSE)
+
+  ####################################################
+
+  df_prot_Int <- reactive({
+    print("running")
+    if (is.null(input$file_prot_Int)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_prot_Int$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_prot_Int$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+
+  observeEvent(input$fit, ignoreInit=TRUE, {
+       fit(session, 80)
+       })
+
+
+  observeEvent(input$loadStyleFile,  ignoreInit=TRUE, {
+       if(input$loadStyleFile != ""){
+          tryCatch({
+             loadStyleFile(input$loadStyleFile)
+             }, error=function(e) {
+                msg <- sprintf("ERROR in stylesheet file '%s': %s", input$loadStyleFile, e$message)
+                showNotification(msg, duration=NULL, type="error")
+                })
+           later(function() {updateSelectInput(session, "loadStyleFile", selected=character(0))}, 0.5)
+          }
+       })
+
+
+  observeEvent(input$doLayout,  ignoreInit=TRUE,{
+       if(input$doLayout != ""){
+          strategy <- input$doLayout
+          doLayout(session, strategy)
+          later(function() {updateSelectInput(session, "doLayout", selected=character(0))}, 1)
+          }
+       })
+
+
+  observeEvent(input$selectName,  ignoreInit=TRUE,{
+       selectNodes(session, input$selectName)
+       })
+
+
+  observeEvent(input$sfn,  ignoreInit=TRUE,{
+       selectFirstNeighbors(session)
+       })
+
+
+  observeEvent(input$fitSelected,  ignoreInit=TRUE,{
+       fitSelected(session, 100)
+       })
+
+
+  observeEvent(input$getSelectedNodes, ignoreInit=TRUE, {
+       output$selectedNodesDisplay <- renderText({" "})
+       getSelectedNodes(session)
+       })
+
+
+  observeEvent(input$clearSelection,  ignoreInit=TRUE, {
+       clearSelection(session)
+       })  
+
+
+  observeEvent(input$removeGraphButton, ignoreInit=TRUE, {
+        removeGraph(session)
+        })
+
+
+  observeEvent(input$addRandomGraphFromDataFramesButton, ignoreInit=TRUE, {
+    source.nodes <-  LETTERS[sample(1:5, 5)]
+    target.nodes <-  LETTERS[sample(1:5, 5)]
+    tbl.edges <- data.frame(source=source.nodes,
+                            target=target.nodes,
+                            interaction=rep("generic", length(source.nodes)),
+                            stringsAsFactors=FALSE)
+    all.nodes <- sort(unique(c(source.nodes, target.nodes, "orphan")))
+    tbl.nodes <- data.frame(id=all.nodes,
+                            type=rep("unspecified", length(all.nodes)),
+                            stringsAsFactors=FALSE)
+    addGraphFromDataFrame(session, tbl.edges, tbl.nodes)
+  })
+
+
+  observeEvent(input$selectedNodes, {
+        newNodes <- input$selectedNodes;
+        output$selectedNodesDisplay <- renderText({
+           paste(newNodes)
+           })
+        })
+
+
+  output$cyjShiny <- renderCyjShiny({
+       print(" renderCyjShiny invoked")
+       print("graph.json:")
+       
+
+      print("running...")
+
+
+      # tryCatch({
+
+      Accessions <- df_prot_int_id()
+      print("Please Wait... Fetching interaction data. It may take a while")
+      protein_interaction_df <- getInteraction(Accessions)
+      df_interaction(protein_interaction_df)
+      print("Fetched...")
+      
+      #migrating rowId to first colunm 
+      # protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+      # rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
+    
+      #making nodes
+      nodes <- as.character(protein_interaction_df[,1])
+      for (i in 1:nrow(protein_interaction_df))
+      {
+        if(!(is.na(protein_interaction_df[i,2])))
+        {
+          data_df <- strsplit(as.character(protein_interaction_df[i,2]),"; ")
+          for(j in data_df)
+          {
+            nodes <- c(nodes,j)
+          }
+        }
+      }
+
+      print(nodes)
+
+      print("Please Wait... Fetching Gene Names. It may take a while")
+      protein_gene_name <- getGeneNames(nodes)
+      df_names(protein_gene_name)
+      print("........................")
+      print(as.character(protein_gene_name[,1]))
+      print("Fetched...")
+      edge_source <- character()
+      edge_target <- character()
+
+       for (i in 1:nrow(protein_interaction_df))
+        {
+          if(!(is.na(protein_interaction_df[i,2])))
+          {
+            data_df <- strsplit(as.character(protein_interaction_df[i,2]),"; ")
+            for(j in data_df)
+            {
+              edge_source <- c(edge_source,rep(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]),length(j)))
+              print(as.character(protein_gene_name[j,1]))
+              edge_target <- c(edge_target,as.character(protein_gene_name[j,1]))
+            }
+          }
+        }
+
+        tbl.nodes <- data.frame(id=as.character(protein_gene_name[,1]),
+                               type=as.character(protein_gene_name[,1]),
+                               stringsAsFactors=FALSE)
+
+
+        tbl.edges <- data.frame(source=edge_source,
+                               target=edge_target,
+                               interaction=edge_target,
+                               stringsAsFactors=FALSE)
+
+      # }, error = function(error_condition) {
+      #   print("using defauslt value")
+      # })
+
+       graph.json <- dataFramesToJSON(tbl.edges, tbl.nodes)
+
+       print(fromJSON(graph.json))
+       cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
+       })
+  
+
+  # observeEvent(input$submit_prot_Int, {
+
+  #   print("running...")
+  #   Accessions <- df_prot_Int()
+  #   print("Please Wait... Fetching interaction data. It may take a while")
+  #   protein_interaction_df <- getInteraction(Accessions)
+  #   df_interaction(protein_interaction_df)
+  #   print("Fetched...")
+    
+    #migrating rowId to first colunm 
+    # protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+    # rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
+  
+    #making nodes
+    # nodes <- as.character(protein_interaction_df[,1])
+    # for (i in 1:nrow(protein_interaction_df))
+    # {
+    #   if(!(is.na(protein_interaction_df[i,2])))
+    #   {
+    #     data_df <- strsplit(protein_interaction_df[i,2],"; ")
+    #     for(j in data_df)
+    #     {
+    #       nodes <- c(nodes,j)
+    #     }
+    #   }
+    # }
+
+    # print("Please Wait... Fetching Gene Names. It may take a while")
+    # protein_gene_name <- getGeneNames(nodes)
+    # df_names(protein_gene_name)
+    # print("Fetched...")
+
+    # # print("Rendering Visualization using Cytoscape")
+
+    # # g <- graphNEL(as.character(protein_gene_name[,1]), edgemode="undirected")
+    # for (i in 1:nrow(protein_interaction_df))
+    # {
+    #   if(!(is.na(protein_interaction_df[i,2])))
+    #   {
+    #     data_df <- strsplit(protein_interaction_df[i,2],"; ")
+    #     for(j in data_df)
+    #     {
+    #       g <- graph::addEdge(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]), as.character(protein_gene_name[j,1]), g)
+    #     }
+    #   }
+    # }
+    
+    # nodeDataDefaults(g, attr="label") <- "undefined"
+    # nodeDataDefaults(g, attr="type") <- "undefined"
+    # nodeDataDefaults(g, attr="flux") <- 0
+    # edgeDataDefaults(g, attr="edgeType") <- "undefined"
+    
+    # rcy <- RCyjs(title="RCyjs vignette")
+    # setGraph(rcy, g)
+    # print("set")
+    # strategies <- getLayoutStrategies(rcy)
+    # print(strategies)
+    
+    # RCyjs::layout(rcy, "grid")
+    # # print("lay")
+    # fit(rcy, padding=200)
+    # print("fit")
+    # setDefaultStyle(rcy)
+    
+  # })
+
+  df_prot_int_id <- eventReactive(input$submit_prot_Int, {
+      Accessions <- df_prot_Int()
+      return(Accessions)
+  })
+
+  getInteraction <- function(ProteinAccList) {
+
+      if(!has_internet())
+    {
+      message("Please connect to the internet as the package requires internect connection.")
+      return()
+    }
+    protein_interaction_df = data.frame()
+    baseUrl <- "http://www.uniprot.org/uniprot/"
+    Colnames = "interactor"
+    for (ProteinAcc in ProteinAccList)
+    {
+      #to see if Request == 200 or not
+      Request <- tryCatch(
+        {
+          GET(paste0(baseUrl , ProteinAcc,".xml") , timeout(60))
+        },error = function(cond)
+        {
+          message("Internet connection problem occurs and the function will return the original error")
+          message(cond)
+        }
+      )
+      #this link return information in tab formate (format = tab)
+      ProteinName_url <- paste0("?query=accession:",ProteinAcc,"&format=tab&columns=",Colnames)
+      RequestUrl <- paste0(baseUrl , ProteinName_url)
+      RequestUrl <- URLencode(RequestUrl)
+      
+      if (Request$status_code == 200){
+        # parse the information in DataFrame
+        ProteinDataTable <- tryCatch(read.csv(RequestUrl, header = TRUE, sep = '\t'), error=function(e) NULL)
+        if (!is.null(ProteinDataTable))
+        {
+          ProteinDataTable <- ProteinDataTable[1,]
+          ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+          # add Dataframes together if more than one accession
+          protein_interaction_df <- rbind(protein_interaction_df, ProteinInfoParsed)
+          print(paste0(ProteinAcc," interactions Fetched.."))
+        }
+      }else {
+        HandleBadRequests(Request$status_code)
+      }
+    }
+    
+    protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+    rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
+
+    return(protein_interaction_df)
+
+  }
+
+  getGeneNames <- function(ProteinAccList) {
+
+    # baseUrl <- "http://www.uniprot.org/uniprot/"
+    # Colnames = "genes(PREFERRED)"
+    
+    # protein_gene_name = data.frame()
+    # for (ProteinAcc in ProteinAccList)
+    # {
+    #   #to see if Request == 200 or not
+    #   Request <- tryCatch(
+    #     {
+    #       GET(paste0(baseUrl , ProteinAcc,".xml") , timeout(10))
+    #     },error = function(cond)
+    #     {
+    #       message("Internet connection problem occurs and the function will return the original error")
+    #       message(cond)
+    #     }
+    #   ) 
+    #   #this link return information in tab formate (format = tab)
+    #   ProteinName_url <- paste0("?query=accession:",ProteinAcc,"&format=tab&columns=",Colnames)
+    #   RequestUrl <- paste0(baseUrl , ProteinName_url)
+    #   RequestUrl <- URLencode(RequestUrl)
+    #   if (Request$status_code == 200){
+    #     # parse the information in DataFrame
+    #     ProteinDataTable <- tryCatch(read.csv(RequestUrl, header = TRUE, sep = '\t'), error=function(e) NULL)
+    #     if (!is.null(ProteinDataTable))
+    #     {
+    #       ProteinDataTable <- ProteinDataTable[1,]
+    #       ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+    #       # add Dataframes together if more than one accession
+    #       protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+    #       print(paste0(ProteinAcc," name fetched"))
+    #     }  else
+    #   {
+    #     ProteinDataTable <- as.character(ProteinAcc)
+    #     ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+    #     print(ProteinInfoParsed)
+    #     # add Dataframes together if more than one accession
+    #     protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+    #   }
+        
+    #   }else {
+    #     HandleBadRequests(Request$status_code)
+
+    #       ProteinDataTable <- as.character(ProteinAcc)
+    #       ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+    #       # add Dataframes together if more than one accession
+    #       protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+    #   }
+    # }
+
+    # return(protein_gene_name)
+
+    protein_gene_name = data.frame()
+    # print(gene_names)
+    # gene_names_df <- data.frame(
+    #   key = gene_names[,1],
+    #   pair = gene_names[,2]
+    # )
+    for (ProteinAcc in ProteinAccList)
+    {
+          ProteinDataTable <- as.character(lookup(ProteinAcc, as.data.frame(id_to_name), missing=ProteinAcc))
+          ProteinInfoParsed <- as.data.frame(ProteinDataTable,row.names = ProteinAcc)
+          # add Dataframes together if more than one accession
+          protein_gene_name <- rbind(protein_gene_name, ProteinInfoParsed)
+    }
+
+     return(protein_gene_name)
+
+
+  }
+
+  output$prot_int_table <- DT::renderDataTable({
+
+    
+    protein_interaction_df <- df_interaction()
+    protein_gene_name <- df_names()
+    print(protein_interaction_df)
+    print("here")
+    print(class(protein_interaction_df))
+    if(df_names() == 0)
+    {
+      
+      p_int_formatted <- data.frame()
+
+    } else {
+       
+        protein_interaction_df[,1] <- as.character(protein_interaction_df[,1])
+
+        p_int_formatted <- data.frame()
+        count = 0
+        n = 1
+        for ( id in protein_interaction_df[,1])
+        {
+          count = count + 1
+          if(!is.null(protein_interaction_df[,2]))
+          {
+            a = strsplit(as.character(protein_interaction_df[,2]),"; ")
+            
+            for(int_with in a[[count]])
+            {
+              p_int_row <- data.frame(id = as.character(paste0(as.character(lookup(id, as.data.frame(id_to_name), missing="Not found"))," ( ", id," )")),
+                                  Interacts_With = as.character(paste0(as.character(lookup(int_with, as.data.frame(id_to_name), missing="Not found"))," ( ", int_with," )")),
+                                  row.names = n)
+              p_int_formatted <- rbind(p_int_formatted,p_int_row)
+              n = n + 1
+            }
+          }
+        }
+
+        # for(i in 1:nrow(protein_interaction_df))
+        # {
+        #     protein_interaction_df[i,1] <- paste0(protein_interaction_df[i,1],
+        #                               ' (',
+        #                               protein_gene_name[protein_interaction_df[i,1],1],
+        #                               ')')
+        # }
+        # print(protein_interaction_df)
+        # colnames(protein_interaction_df)[2] <- "Interacts With"
+
+    }
+
+    p_int_formatted
+
+  })
+
+  output$prot_name_table <- DT::renderDataTable({
+    protein_gene_name <- df_names()
+    if(protein_gene_name == 0)
+    {
+      protein_gene_name <- data.frame()
+    } else {
+       
+        protein_gene_name <- cbind(ID = rownames(protein_gene_name),protein_gene_name)
+        rownames(protein_gene_name) <- 1:nrow(protein_gene_name)
+        colnames(protein_gene_name)[2] <- "Names"
+
+    } 
+    protein_gene_name
 
   })
 
@@ -4273,7 +5683,123 @@ RLE.plot <- reactive({
 
 
 
+  ###################################
+  ###################################
+  #########  Gemne Mania  ###########
+  ###################################
+  ###################################
+  
+  df_genemania <- reactive({
+    print("running")
+    if (is.null(input$file_gene)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_gene$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    gene_names <- read.csv(input$file_gene$datapath)
+    gene_names <- na.omit(gene_names)
+    gene_names <- gene_names[!duplicated(gene_names[, 1]), ]
+
+    return(gene_names)
+
+  })
+
+  observeEvent(input$genemania_submit, {
+
+    print("running...")
+    organism_id <- input$organismID
+    gene_names <- df_genemania()
+    base_url <- "http://genemania.org/search/"
+
+    url <- paste0(base_url,organism_id)
+    for ( names in as.character(gene_names) )
+    {
+        url <- paste0(url,"/",names)
+    }
+    # print(gene_mania_link())
+    print(url)
+    gene_mania_link(url)
+    shinyjs::toggle("hide_link")
+    
+  })
+
+  output$link <- renderUI({
+    a("here", href = gene_mania_link(), inline = TRUE)
+  })
+  
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+
+  ###################################
+  ###################################
+  ######  Protein Sequences  ########
+  ###################################
+  ###################################
+  
+  df_prot_seq <- reactive({
+    print("running")
+    if (is.null(input$file_prot_seq)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_prot_seq$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    protein_Id <- read.csv(input$file_prot_seq$datapath)
+    protein_Id <- na.omit(protein_Id)
+    protein_Id <- protein_Id[!duplicated(protein_Id[, 1]), ]
+
+    return(protein_Id)
+
+  })
+
+  observeEvent(input$submit_prot_seq, {
+
+    print("running")
+    
+    Protein_id <- df_prot_seq()
+    py$Protein_id <- df_prot_seq()
+    py_run_file("getFASTA.py")
+    count_fasta(py$count)
+    count_id(py$size)
+
+    showModal(modalDialog(
+        title = "Alert!!!",
+        "The fasta file is saved as download.fasta"
+      ))
+
+  })
+
+  output$fasta_text <- renderUI({
+        h2(count_id()," protein ID submitted. Sequences of ", count_fasta()," proteins were retrieved.")
+  })
+
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+  
+
   # session$onSessionEnded(stopApp)
 }
 
-shinyApp(ui, server)
+app <- shinyApp(ui = ui, server = server)
