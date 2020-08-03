@@ -1239,6 +1239,7 @@ ui <- tagList(
       fileInput("file_path_enri", "Upload the accession files"),
       actionButton("submit_path_enri", "Submit"),br(),br(),
       selectInput("loadStyleFile_path", "Select Style: ", choices=styles),
+      selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
           selectInput("doLayout_path", "Select Layout:",
                       choices=c("",
                                 "cose",
@@ -4970,7 +4971,7 @@ RLE.plot <- reactive({
 
     bar_plot <- ggplot(data=path_enrich_df, aes(x=reorder(path_enrich_df$term_name , path_enrich_df$intersection), y=path_enrich_df$intersection)) +
       geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Molecular function") + ylab("Number of Genes") +
-      geom_text(aes(label = test$intersection), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
+      geom_text(aes(label = path_enrich_df$intersection), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
       theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
 
      
@@ -5058,6 +5059,8 @@ RLE.plot <- reactive({
   #          })
   #       })
 
+  pathway_overlap <- reactiveVal(0)
+
   output$path_enri_visu <- renderCyjShiny({
 
     print("visualization")
@@ -5099,19 +5102,69 @@ RLE.plot <- reactive({
       }
     }
 
+    overlap_cnt <- matrix(0,nrow = (nrow(mat_id)*(nrow(mat_id)-1))/2,ncol = 3)
+    overlap_name <- character()
+    pair_1 <- character()
+    pair_2 <- character()
+    for(i in 1:nrow(mat_id))
+    {
+      if(i == nrow(mat_id)) next()
+      start <- i+1
+      for(j in start:nrow(mat_id))
+      {
+        overlap_name <- c(overlap_name,paste0(rownames(mat_id)[i]," & ",rownames(mat_id)[j]))
+        pair_1 <- c(pair_1,rownames(mat_id)[i])
+        pair_2 <- c(pair_2,rownames(mat_id)[j])
+      }
+    }
+    rownames(overlap_cnt) <- overlap_name
+    overlap_cnt <- as.data.frame(overlap_cnt)
+    overlap_cnt[,2] <- as.character(pair_1)
+    overlap_cnt[,3] <- as.character(pair_2)
+    overlap_cnt[,1] <- as.numeric(overlap_cnt[,1])
+    for(i in 1:length(edge_source))
+    {
+      overlap_cnt[paste0(edge_source[i]," & ",edge_target[i]),1] <- overlap_cnt[paste0(edge_source[i]," & ",edge_target[i]),1] + 1
+    }
+
+    pathway_overlap(overlap_cnt)
+    # updateSelectInput(session, "overlap_min", choices = unique(sort(overlap_cnt[,1])), selected = unique(sort(overlap_cnt[,1]))[1]) 
+
+    overlap_val <- input$overlap_min
+    new_source <- character()
+    new_target <- character()
+
+    for(i in 1:nrow(overlap_cnt))
+    {
+      if(overlap_cnt[i,1] >= as.numeric(overlap_val))
+      {
+        new_source <- c(new_source,overlap_cnt[i,2])
+        new_target <- c(new_target,overlap_cnt[i,3])
+      }
+    }
+
     path_enri.nodes <- data.frame(id=as.character(path_df$term_name),
                                type=as.character(path_df$term_name),
                                stringsAsFactors=FALSE)
 
-    path_enri.edges <- data.frame(source=edge_source,
-                               target=edge_target,
-                               interaction=edge_target,
+    path_enri.edges <- data.frame(source=new_source,
+                               target=new_target,
+                               interaction=new_target,
                                stringsAsFactors=FALSE)
     
     graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
     cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
 
   })
+
+  observe({
+    overlap_cnt <- pathway_overlap()
+    if(overlap_cnt != 0)
+    {
+      updateSelectInput(session, "overlap_min", choices = unique(sort(overlap_cnt[,1])), selected = unique(sort(overlap_cnt[,1]))[1])
+    }
+  })
+  
 
   ###################################
   ###################################
