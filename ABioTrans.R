@@ -1239,7 +1239,15 @@ ui <- tagList(
       fileInput("file_path_enri", "Upload the accession files"),
       actionButton("submit_path_enri", "Submit"),br(),br(),
       selectInput("loadStyleFile_path", "Select Style: ", choices=styles),
-      selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
+      # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
+      sliderInput("overlap_min", "Minimum Overlap",
+                  min = 0, max = 100,
+                  value = 50),
+          sliderInput("overlap_node_min", "Minimum Node Overlap",
+                  min = 0, max = 100,
+                  value = 50),
+          selectInput("showCondition", "Select Condition:", choices=c("A","B","C")),
+          selectInput("edge_wt", "Select wt:", choices=c("A","B","C")),
           selectInput("doLayout_path", "Select Layout:",
                       choices=c("",
                                 "cose",
@@ -4916,6 +4924,7 @@ RLE.plot <- reactive({
   
 
   pathway_enri_df <- reactiveVal(0)
+  pathway_enri_nodes <- reactiveVal(0)
 
   df_path_enri <- reactive({
     print("running...")
@@ -4966,6 +4975,8 @@ RLE.plot <- reactive({
       "intersection" = prot_num[,1]
     )
 
+    pathway_enri_nodes(path_enrich_df)
+
     path_enrich_df <- path_enrich_df[order(path_enrich_df$intersection),]
 
 
@@ -4986,6 +4997,15 @@ RLE.plot <- reactive({
 
   observeEvent(input$fit_path, ignoreInit=TRUE, {
        fit(session, 80)
+       })
+
+  
+  observeEvent(input$showCondition, ignoreInit=TRUE, {
+       condition.name <- isolate(input$showCondition)
+       values <- as.numeric(pathway_enri_nodes()[,2])
+       node.names <- pathway_enri_nodes()[,1]
+       print(values)
+       setNodeAttributes(session, attributeName="lfc", nodes=node.names, values)
        })
 
 
@@ -5061,6 +5081,10 @@ RLE.plot <- reactive({
 
   pathway_overlap <- reactiveVal(0)
 
+  new_source_var <- reactiveVal(0)
+  new_target_var <- reactiveVal(0)
+  overlap_wt <- reactiveVal(0)
+
   output$path_enri_visu <- renderCyjShiny({
 
     print("visualization")
@@ -5073,6 +5097,7 @@ RLE.plot <- reactive({
     colnames(mat_id) <- col_names
     rownames(mat_id) <- path_df$term_name
 
+
     for(j in 1:nrow(path_df))
     {
       for(i in strsplit(path_df[j,"intersection"],",")[[1]])
@@ -5080,6 +5105,7 @@ RLE.plot <- reactive({
         mat_id[j,i] <- 1
       }
     }
+
 
     edge_source <- character()
     edge_target <- character()
@@ -5133,6 +5159,7 @@ RLE.plot <- reactive({
     overlap_val <- input$overlap_min
     new_source <- character()
     new_target <- character()
+    num_value <- numeric()
 
     for(i in 1:nrow(overlap_cnt))
     {
@@ -5140,8 +5167,13 @@ RLE.plot <- reactive({
       {
         new_source <- c(new_source,overlap_cnt[i,2])
         new_target <- c(new_target,overlap_cnt[i,3])
+        num_value <- c(num_value,overlap_cnt[i,1])
       }
     }
+
+    new_source_var(new_source)
+    new_target_var(new_target)
+    overlap_wt(num_value)
 
     path_enri.nodes <- data.frame(id=as.character(path_df$term_name),
                                type=as.character(path_df$term_name),
@@ -5157,13 +5189,23 @@ RLE.plot <- reactive({
 
   })
 
-  observe({
-    overlap_cnt <- pathway_overlap()
-    if(overlap_cnt != 0)
-    {
-      updateSelectInput(session, "overlap_min", choices = unique(sort(overlap_cnt[,1])), selected = unique(sort(overlap_cnt[,1]))[1])
-    }
-  })
+  observeEvent(input$edge_wt, ignoreInit=TRUE, {
+       condition.name <- isolate(input$showCondition)
+       
+       print(overlap_wt())
+       setEdgeAttributes(session, attributeName="wt", sourceNodes=new_source_var(),
+                    targetNodes=new_target_var(),
+                    interactions=new_target_var(),
+                    values=overlap_wt())
+       })
+
+  # observe({
+  #   overlap_cnt <- pathway_overlap()
+  #   if(overlap_cnt != 0)
+  #   {
+  #     updateSelectInput(session, "overlap_min", choices = unique(sort(overlap_cnt[,1])), selected = unique(sort(overlap_cnt[,1]))[1])
+  #   }
+  # })
   
 
   ###################################
