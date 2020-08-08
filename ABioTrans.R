@@ -5106,6 +5106,22 @@ RLE.plot <- reactive({
       }
     }
 
+    mat_id_raw <- mat_id
+    mat_id <- matrix(data = 0, nrow = 0, ncol = nrow(gene_id))
+    mat_row_names <- character()
+
+    for(i in 1:nrow(pathway_enri_nodes()))
+    {
+      if(as.numeric(pathway_enri_nodes()[i,2])>=input$overlap_node_min)
+      {
+        mat_id <- rbind(mat_id, mat_id_raw[i,])
+        mat_row_names <- c(mat_row_names,as.character(rownames(mat_id_raw)[i]))
+      }
+    }
+
+    print(mat_row_names)
+    rownames(mat_id) <- mat_row_names
+    print(mat_id)
 
     edge_source <- character()
     edge_target <- character()
@@ -5175,8 +5191,8 @@ RLE.plot <- reactive({
     new_target_var(new_target)
     overlap_wt(num_value)
 
-    path_enri.nodes <- data.frame(id=as.character(path_df$term_name),
-                               type=as.character(path_df$term_name),
+    path_enri.nodes <- data.frame(id=as.character(rownames(mat_id)),
+                               type=as.character(rownames(mat_id)),
                                stringsAsFactors=FALSE)
 
     path_enri.edges <- data.frame(source=new_source,
