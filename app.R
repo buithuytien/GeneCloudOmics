@@ -152,12 +152,12 @@ if (length(find.package(package = "curl", quiet = T)) > 0) {
   library(curl)
 }
 
-# if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
-#   library(cyjShiny)
-# } else {
-#   remotes::install_github("cytoscape/cyjShiny")
-#   library(cyjShiny)
-# }
+if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
+  library(cyjShiny)
+} else {
+  remotes::install_github("cytoscape/cyjShiny")
+  library(cyjShiny)
+}
 
 if (length(find.package(package = "later", quiet = T)) > 0) {
   library(later)
@@ -288,13 +288,13 @@ if (length(find.package(package = "devtools", quiet = T)) > 0) {
 
 
 
-wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
-print(wd == getwd())
-print(wd)
-print(getwd())
-if (!wd == getwd()) {
-  setwd(wd)
-}
+# wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
+# print(wd == getwd())
+# print(wd)
+# print(getwd())
+# if (!wd == getwd()) {
+#   setwd(wd)
+# }
 
 ########################### Style files for Cytoscape.js ################
 
@@ -306,6 +306,7 @@ styles <- c(
 
 ##########################################################################
 
+print("Hi")
 #
 # ## sourcing util files
 source(paste0("./www/utils.R"))
@@ -313,13 +314,13 @@ source(paste0("./www/utils.R"))
 #
 loadPkg()
 
-id_to_name <- read.csv(paste0(wd, "/www/TransTable_Human.csv"))
+id_to_name <- read.csv(paste0("./www/TransTable_Human.csv"))
 
 
 #################### Complex Enrichment ##########################
 
-complexes <- load(paste0(wd, "/www/allComplexes.RData")) #allComplexes is masked under complexes
-up_corum_mapping <- read.csv(paste0(wd, "/www/UniProt_CORUM_Mapping.csv"))
+complexes <- load(paste0("./www/allComplexes.RData")) #allComplexes is masked under complexes
+up_corum_mapping <- read.csv(paste0("./www/UniProt_CORUM_Mapping.csv"))
 
 ##################################################################
 
