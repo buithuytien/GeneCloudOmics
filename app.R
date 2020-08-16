@@ -14,6 +14,12 @@ if (length(find.package(package = "shiny", quiet = T)) > 0) {
   library(shiny)
 }
 
+if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
+  library(cyjShiny)
+} else {
+  remotes::install_github("cytoscape/cyjShiny")
+  library(cyjShiny)
+}
 
 if (length(find.package(package = "shinythemes", quiet = T)) > 0) {
   library(shinythemes)
@@ -150,13 +156,6 @@ if (length(find.package(package = "curl", quiet = T)) > 0) {
 } else {
   install.packages("curl")
   library(curl)
-}
-
-if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
-  library(cyjShiny)
-} else {
-  remotes::install_github("cytoscape/cyjShiny")
-  library(cyjShiny)
 }
 
 if (length(find.package(package = "later", quiet = T)) > 0) {
