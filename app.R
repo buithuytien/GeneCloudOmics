@@ -83,12 +83,12 @@ if (length(find.package(package = "reticulate", quiet = T)) > 0) {
 
 ####################### Dependencies For RAFSIL ###################################
 
-# if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
-#   library(RAFSIL)
-# } else {
-#   install.packages("RAFSIL")
-#   library(RAFSIL)
-# }
+if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+  library(RAFSIL)
+} else {
+  install.packages("RAFSIL")
+  library(RAFSIL)
+}
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
