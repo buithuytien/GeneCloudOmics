@@ -336,6 +336,35 @@ ui <- tagList(
   title = "ABioTrans",
   tabPanel(
     "Home",
+    br(),
+    sidebarLayout(
+    sidebarPanel(
+      img(
+        src = "Abiotrans-logo.png",
+        width = "100%", height = "100%"
+      )
+    ),
+    mainPanel(
+      h2("Welcome to ABioTrans Plus", align = "center",style = "color:#73C6B6;font-weight: bold;"),
+      p("The Biostatistical Tool for Gene Expression Data Analysis", align = "center"),
+      h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;")," is a web-based bio-statistical/informatics tool developed in R for gene expression analysis."),
+      h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;")," allows the user to directly read ",span("RNA-Seq or Microarray", style = "font-weight: bold;"),
+         " data files, pre-process them and perform several statistical and data mining analyses. It provides easy options for multiple statistical distribution fitting,
+         Pearson and Spearman rank correlations, PCA, k-means and hierarchical clustering, differential expression (DE) analysis, 
+         Shannon entropy and noise (square of the coefficient of variation) analyses, Entropy analysis, support vector machine (SVM) and Random Forest clustering, tSNE and SOM analyses."),
+      h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;"), " also provides several gene and protein datasets analyses such as gene ontology (GO) classifications, pathways enrichment,
+         protein-protein interaction (PPI), subcellular localization, protein complex enrichment, protein domains annotation and Protein Sequence Download."),
+      br(),
+      h4("Please cite"),
+      h4("Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics. 10:499. doi.org/10.3389/fgene.2019.00499"),
+      HTML("<h4>Link to -> <a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full'>[https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full]</a></h4>")
+    )
+  )
+  ),
+  navbarMenu('Preprocessing',
+  tabPanel(
+    "RnaSeq Data",
+    value = "active_tab",
     sidebarPanel(
       radioButtons(
         "file_type", "Choose File Type",
@@ -361,22 +390,7 @@ ui <- tagList(
       ),
       p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
       fileInput("metafile1", "Choose Meta Data File"),
-      actionButton("submit_input", "Submit")
-    ),
-    mainPanel(
-      h3("Welcome to ABioTrans --"),
-      h3("A Biostatistical tool for Transcriptomics Analysis"),
-      img(
-        src = "Abiotrans-logo.png",
-        width = 570, height = 370
-      )
-    )
-  ),
-  navbarMenu('Preprocessing',
-  tabPanel(
-    "RnaSeq Data",
-    value = "active_tab",
-    sidebarPanel(
+      actionButton("submit_input", "Submit"),
       h4("Filtering"),
       splitLayout(
         numericInput("min_val", "Min. value", min = 0.1, step = 0.1, value = 1.0),
