@@ -305,7 +305,6 @@ styles <- c(
 
 ##########################################################################
 
-print("Hi")
 #
 # ## sourcing util files
 source(paste0("./www/utils.R"))
