@@ -356,8 +356,7 @@ ui <- tagList(
          protein-protein interaction (PPI), subcellular localization, protein complex enrichment, protein domains annotation and Protein Sequence Download."),
       br(),
       h4("Please cite"),
-      h4("Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics. 10:499. doi.org/10.3389/fgene.2019.00499"),
-      HTML("<h4>Link to -> <a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full'>[https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full]</a></h4>")
+      HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>")
     )
   )
   ),
