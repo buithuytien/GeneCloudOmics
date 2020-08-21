@@ -334,8 +334,11 @@ ui <- tagList(
   id = "navbar",
   theme = shinytheme("flatly"),
   title = "ABioTrans",
+  navbarMenu("Home",
+  tabsetPanel(
+    id = "main_page",
   tabPanel(
-    "Home",
+    "Main Page",
     br(),
     sidebarLayout(
     sidebarPanel(
@@ -356,14 +359,14 @@ ui <- tagList(
          protein-protein interaction (PPI), subcellular localization, protein complex enrichment, protein domains annotation and Protein Sequence Download."),
       br(),
       h4("Please cite"),
-      HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>")
+      HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>"),
+      div(style="text-align: center;",actionButton("start_analysis", label = "Start Analysis", icon = icon("paper-plane"))),
     )
   )
   ),
-  navbarMenu('Preprocessing',
   tabPanel(
-    "RnaSeq Data",
-    value = "active_tab",
+    "Home",
+    br(),
     sidebarPanel(
       radioButtons(
         "file_type", "Choose File Type",
@@ -389,7 +392,22 @@ ui <- tagList(
       ),
       p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
       fileInput("metafile1", "Choose Meta Data File"),
-      actionButton("submit_input", "Submit"),
+      actionButton("submit_input", "Submit")
+    ),
+    mainPanel(
+      h3("Welcome to ABioTrans --"),
+      h3("A Biostatistical tool for Transcriptomics Analysis"),
+      img(
+        src = "Abiotrans-logo.png",
+        width = 570, height = 370
+      )
+    )
+  ))),
+  navbarMenu('Preprocessing',
+  tabPanel(
+    "RnaSeq Data",
+    value = "active_tab",
+    sidebarPanel(
       h4("Filtering"),
       splitLayout(
         numericInput("min_val", "Min. value", min = 0.1, step = 0.1, value = 1.0),
@@ -1853,6 +1871,10 @@ server <- function(input, output, session) {
   ####################################
   ########## PREPROCESSING ###########
   ####################################
+
+  observeEvent(input$start_analysis, {
+    updateTabsetPanel(session, inputId = "main_page", selected = "Home")
+  })
 
   # filter normalized counts
   df_shiny <- eventReactive(input$submit_preprocessing, {
