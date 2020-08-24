@@ -308,7 +308,7 @@ styles <- c(
 #
 # ## sourcing util files
 source(paste0("./www/utils.R"))
-# source("ui.R")
+# source("ui.R")    
 #
 loadPkg()
 
@@ -356,7 +356,9 @@ ui <- tagList(
          protein-protein interaction (PPI), subcellular localization, protein complex enrichment, protein domains annotation and Protein Sequence Download."),
       br(),
       h4("Please cite"),
-      HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>")
+      HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>"),
+      div(style="display:inline-block;text-align: center;",actionButton("start_analysis", label = "Process RNASeq Data", icon = icon("paper-plane"))),
+      div(style="display:inline-block;text-align: center;",actionButton("start_analysis2", label = "Process Micro Array Data", icon = icon("paper-plane")))
     )
   )
   ),
@@ -364,6 +366,10 @@ ui <- tagList(
   tabPanel(
     "RnaSeq Data",
     value = "active_tab",
+    tabsetPanel(
+      id = "Rnaseq_pre",
+    tabPanel(
+      "Upload data",
     sidebarPanel(
       radioButtons(
         "file_type", "Choose File Type",
@@ -389,7 +395,20 @@ ui <- tagList(
       ),
       p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
       fileInput("metafile1", "Choose Meta Data File"),
-      actionButton("submit_input", "Submit"),
+      actionButton("submit_input", "Submit")
+    ),
+    mainPanel(
+      # h3("Welcome to ABioTrans --"),
+      # h3("A Biostatistical tool for Transcriptomics Analysis"),
+      # img(
+      #   src = "Abiotrans-logo.png",
+      #   width = 570, height = 370
+      # )
+    )
+    ),
+    tabPanel(
+        "Preprocessing",
+        sidebarPanel(
       h4("Filtering"),
       splitLayout(
         numericInput("min_val", "Min. value", min = 0.1, step = 0.1, value = 1.0),
@@ -416,7 +435,7 @@ ui <- tagList(
       )
     ),
     mainPanel(
-      h3("Preprocessing"),
+      h3("Preprocessing Rnaseq data"),
       tabsetPanel(
         type = "tabs", id = "preprocessing_tabs",
         tabPanel(
@@ -476,6 +495,8 @@ ui <- tagList(
           h3("Data description"),
           DT::dataTableOutput("meta_table")
         )
+      )
+    )
       )
     )
   ),
@@ -1494,7 +1515,7 @@ server <- function(input, output, session) {
         paste("Please check these input:", errors, "and try again!")
       ))
     } else {
-      updateNavbarPage(session, inputId = "navbar", selected = "active_tab")
+      updateTabsetPanel(session, inputId = "Rnaseq_pre", selected = "Analysis")
     }
 
     # update input
