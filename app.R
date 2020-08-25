@@ -1072,6 +1072,7 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Complex Enrichement"),
+      uiOutput("help_text"),
       DT::dataTableOutput("complex_table")
   )),
 
@@ -4175,6 +4176,7 @@ RLE.plot <- reactive({
   }, escape = FALSE)
 
   df_com_id <- eventReactive(input$submit_complex, {
+      hide("help_text")
       df <- df_complex()
       return(df)
   })
@@ -4187,6 +4189,10 @@ RLE.plot <- reactive({
       write.csv(download_com_table(), file, row.names = FALSE)
     }
   )
+
+    output$help_text <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   # observeEvent(input$submit_complex, {
   #     print("running")
