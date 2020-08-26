@@ -194,91 +194,91 @@ if (length(find.package(package = "devtools", quiet = T)) > 0) {
   library(devtools)
 }
 
-# if (length(find.package(package = "remotes", quiet = T)) > 0) {
-#   library(remotes)
-# } else {
-#   devtools::install_github("r-lib/remotes")
-#   library(remotes)
-# }
+if (length(find.package(package = "remotes", quiet = T)) > 0) {
+  library(remotes)
+} else {
+  devtools::install_github("r-lib/remotes")
+  library(remotes)
+}
 
-# if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
-#   suppressPackageStartupMessages({library("maEndToEnd")})
-# } else {
-#   remotes::install_github("b-klaus/maEndToEnd", ref="master")
-#   suppressPackageStartupMessages({library("maEndToEnd")})
-# }
+if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
+  suppressPackageStartupMessages({library("maEndToEnd")})
+} else {
+  remotes::install_github("b-klaus/maEndToEnd", ref="master")
+  suppressPackageStartupMessages({library("maEndToEnd")})
+}
 
-# if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
-#     library(moments)
-#   } else {
-#     print("Package oligoClasses not installed")
-#     install.packages("oligoClasses")
-#     print("Package oligoClasses installed")
-#     library(oligoClasses)
-#   }
+if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package oligoClasses not installed")
+    install.packages("oligoClasses")
+    print("Package oligoClasses installed")
+    library(oligoClasses)
+  }
 
-# if (length(find.package(package = "ArrayExpress", quiet = T)) > 0) {
-#     library(moments)
-#   } else {
-#     print("Package ArrayExpress not installed")
-#     install.packages("ArrayExpress")
-#     print("Package ArrayExpress installed")
-#     library(ArrayExpress)
-#   }
+if (length(find.package(package = "ArrayExpress", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package ArrayExpress not installed")
+    install.packages("ArrayExpress")
+    print("Package ArrayExpress installed")
+    library(ArrayExpress)
+  }
 
-# if (length(find.package(package = "pd.hugene.1.0.st.v1", quiet = T)) > 0) {
-#     library(moments)
-#   } else {
-#     print("Package pd.hugene.1.0.st.v1 not installed")
-#     install.packages("pd.hugene.1.0.st.v1")
-#     print("Package pd.hugene.1.0.st.v1 installed")
-#     library(pd.hugene.1.0.st.v1)
-#   }
+if (length(find.package(package = "pd.hugene.1.0.st.v1", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package pd.hugene.1.0.st.v1 not installed")
+    install.packages("pd.hugene.1.0.st.v1")
+    print("Package pd.hugene.1.0.st.v1 installed")
+    library(pd.hugene.1.0.st.v1)
+  }
 
-# if (length(find.package(package = "hugene10sttranscriptcluster.db", quiet = T)) > 0) {
-#     library(moments)
-#   } else {
-#     print("Package hugene10sttranscriptcluster.db not installed")
-#     install.packages("hugene10sttranscriptcluster.db")
-#     print("Package hugene10sttranscriptcluster.db installed")
-#     library(hugene10sttranscriptcluster.db)
-#   }
+if (length(find.package(package = "hugene10sttranscriptcluster.db", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package hugene10sttranscriptcluster.db not installed")
+    install.packages("hugene10sttranscriptcluster.db")
+    print("Package hugene10sttranscriptcluster.db installed")
+    library(hugene10sttranscriptcluster.db)
+  }
 
-# if (length(find.package(package = "arrayQualityMetrics", quiet = T)) > 0) {
-#     library(moments)
-#   } else {
-#     print("Package arrayQualityMetrics not installed")
-#     install.packages("arrayQualityMetrics")
-#     print("Package arrayQualityMetrics installed")
-#     library(arrayQualityMetrics)
-#   }
+if (length(find.package(package = "arrayQualityMetrics", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package arrayQualityMetrics not installed")
+    install.packages("arrayQualityMetrics")
+    print("Package arrayQualityMetrics installed")
+    library(arrayQualityMetrics)
+  }
 
-# if (length(find.package(package = "limma", quiet = T)) > 0) {
-#     library(moments)
-#   } else {
-#     print("Package limma not installed")
-#     install.packages("limma")
-#     print("Package limma installed")
-#     library(limma)
-#   }
+if (length(find.package(package = "limma", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package limma not installed")
+    install.packages("limma")
+    print("Package limma installed")
+    library(limma)
+  }
 
-# if (length(find.package(package = "topGO", quiet = T)) > 0) {
-#     library(moments)
-#   } else {
-#     print("Package topGO not installed")
-#     install.packages("topGO")
-#     print("Package topGO installed")
-#     library(topGO)
-#   }
+if (length(find.package(package = "topGO", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package topGO not installed")
+    install.packages("topGO")
+    print("Package topGO installed")
+    library(topGO)
+  }
 
-# if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
-#     library(moments)
-#   } else {
-#     print("Package ReactomePA not installed")
-#     install.packages("ReactomePA")
-#     print("Package ReactomePA installed")
-#     library(ReactomePA)
-#   }
+if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
+    library(moments)
+  } else {
+    print("Package ReactomePA not installed")
+    install.packages("ReactomePA")
+    print("Package ReactomePA installed")
+    library(ReactomePA)
+  }
 
 ###################################################################################
 
@@ -357,15 +357,15 @@ ui <- tagList(
       br(),
       h4("Please cite"),
       HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>"),
-      div(style="display:inline-block;text-align: center;",actionButton("start_analysis", label = "Process RNASeq Data", icon = icon("paper-plane"))),
-      div(style="display:inline-block;text-align: center;",actionButton("start_analysis2", label = "Process Micro Array Data", icon = icon("paper-plane")))
+      div(style="display:inline-block;text-align: center;",actionButton("start_rnaseq", label = "Process RNASeq Data", icon = icon("paper-plane"))),
+      div(style="display:inline-block;text-align: center;",actionButton("start_micro", label = "Process Micro Array Data", icon = icon("paper-plane")))
     )
   )
   ),
   navbarMenu('Preprocessing',
   tabPanel(
     "RnaSeq Data",
-    value = "active_tab",
+    value = "active_tab_rnaseq",
     tabsetPanel(
       id = "Rnaseq_pre",
     tabPanel(
@@ -502,6 +502,7 @@ ui <- tagList(
   ),
   tabPanel(
     "Microarray Data",
+    value = "active_tab_micro",
     sidebarPanel(
         p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
         fileInput("file_micro", "Choose Microarray Data"),
@@ -510,7 +511,14 @@ ui <- tagList(
           downloadButton("downloadMicroMeta", "Download Meta Data as CSV")
       ),
       mainPanel(
-      h3("Preprocessing Microarray Data")
+      h3("Preprocessing Microarray Data"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          )
     )
   )
   ),
@@ -531,6 +539,7 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Heatscatter"),
+      uiOutput("help_text_scatter"),
       plotlyOutput("scatter.plot")
     )
   ),
@@ -568,7 +577,10 @@ ui <- tagList(
       h3("Distribution Fit"),
       tabsetPanel(
         type = "tabs", id = "dist_tabs",
-        tabPanel("Distribution Fit", plotOutput("dist.plot")),
+        tabPanel(
+          "Distribution Fit",
+          uiOutput("help_text_dis_fit"),
+          plotOutput("dist.plot")),
         tabPanel(
           "AIC table",
           conditionalPanel(
@@ -617,7 +629,10 @@ ui <- tagList(
       ),
       tabsetPanel(
         type = "tabs", id = "cor_tabs",
-        tabPanel("Correlation heatmap", plotOutput("corr.plot")),
+        tabPanel(
+          "Correlation heatmap",
+           uiOutput("help_text_correlation"),
+           plotOutput("corr.plot")),
         tabPanel("Correlation plot", plotOutput("corr.plot2")),
         tabPanel("Correlation matrix", div(tableOutput("corr.matrix"), style = "font-size:80%"))
       )
@@ -674,7 +689,9 @@ ui <- tagList(
       h3("PCA"),
       tabsetPanel(
         type = "tabs", id = "pca_tabs",
-        tabPanel("PCA variance", plotlyOutput("pcavar.plot")),
+        tabPanel("PCA variance", 
+        uiOutput("help_text_PCA"),
+        plotlyOutput("pcavar.plot")),
         tabPanel("PCA-2D plot", plotlyOutput("pca2d.plot")),
         tabPanel("PCA-3D plot", plotlyOutput("pca3d.plot"))
       )
@@ -733,6 +750,7 @@ ui <- tagList(
         type = "tabs", id = "DE_tabs",
         tabPanel(
           "DE genes",
+          uiOutput("help_text_DE_anal"),
           # h3("Differential Expression Analysis"),
           conditionalPanel(
             condition = "$('html').hasClass('shiny-busy')",
@@ -840,6 +858,7 @@ ui <- tagList(
         type = "tabs", id = "heatmap_tabs",
         tabPanel(
           "Heatmap",
+          uiOutput("help_text_heatmap"),
           conditionalPanel(
             condition = "$('html').hasClass('shiny-busy')",
             div(img(src = "load.gif", width = 240, height = 180),
@@ -890,6 +909,7 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Noise"),
+      uiOutput("help_text_Noise"),
       conditionalPanel(
         condition = "$('html').hasClass('shiny-busy')",
         div(img(src = "load.gif", width = 240, height = 180), h4("Processing ... Please wait"), style = "text-align: center;")
@@ -926,6 +946,7 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Shannon entropy"),
+      uiOutput("help_text_Entropy"),
       plotlyOutput("entropy.plot")
     )
   ),
@@ -939,7 +960,9 @@ ui <- tagList(
                h3('SVM Plot'),
                 tabsetPanel(
                   type = "tabs", id = "SVM_tabs",
-                  tabPanel("SVM Classification", plotOutput('svm_plot')),
+                  tabPanel("SVM Classification",
+                  uiOutput("help_text_SVM"),
+                  plotOutput('svm_plot')),
                   tabPanel("Raw Plot", plotOutput("svm_df_plot"))
                 )
              )),
@@ -958,6 +981,7 @@ ui <- tagList(
                actionButton("submit_tsne2","Submit")),
              mainPanel(
                h3('t-SNE Plot'),
+               uiOutput("help_text_tsne"),
                plotOutput('tsne2.plot')
              )),
     tabPanel(
@@ -995,7 +1019,9 @@ ui <- tagList(
       mainPanel(
         h3("Clustering With Random Forest"),
         tabsetPanel(type = "tabs",id="rf_tabs",
-                           tabPanel("RF plot", plotlyOutput("rf.plot")),
+                           tabPanel("RF plot", 
+                           uiOutput("help_text_rf"),
+                           plotlyOutput("rf.plot")),
                            tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
                            tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
                )
@@ -1043,7 +1069,9 @@ ui <- tagList(
         h3("SOM Analysis"),
         tabsetPanel(
           type = "tabs", id = "som_tabs",
-          tabPanel("Property plot", plotOutput("som_property.plot")),
+          tabPanel("Property plot", 
+          uiOutput("help_text_SOM"),
+          plotOutput("som_property.plot")),
           tabPanel("Count plot", plotOutput("som_count.plot")),
           tabPanel("Codes plot", plotOutput("som_codes.plot")),
           tabPanel("Distance plot", plotOutput("som_dist.plot")),
@@ -1072,8 +1100,18 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Complex Enrichement"),
-      uiOutput("help_text"),
-      DT::dataTableOutput("complex_table")
+      uiOutput("help_text_complex_en"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("complex_table")
+          ),
   )),
 
   ###### Protein Function #############
@@ -1087,7 +1125,18 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Protein Function"),
-      DT::dataTableOutput("prot_func_table")
+      uiOutput("help_text_prot_fn"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_func_table")
+          ),
   )),
 
   ###### Protein Expression #############
@@ -1101,7 +1150,18 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Protein Expression"),
-      DT::dataTableOutput("prot_expr_table")
+      uiOutput("help_text_prot_exp"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_expr_table")
+          ), 
   )),
 
   ###### Subcellular Localization #############
@@ -1115,7 +1175,18 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Subcellular Localization"),
-      DT::dataTableOutput("prot_local_table")
+      uiOutput("help_text_sub_loc"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_local_table")
+          ), 
   )),
 
   ########## Protein Domains ##############
@@ -1129,7 +1200,18 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Protein Domains"),
-      DT::dataTableOutput("prot_domain_table")
+      uiOutput("help_text_pro_dom"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_domain_table")
+          ), 
   )),
 
   ########## Pathway Enrichnment ##############
@@ -1178,17 +1260,39 @@ ui <- tagList(
       tabsetPanel(
           type = "tabs", id = "path_enri_tab",
           tabPanel("Plot",
-          plotlyOutput("path_enri.plot")
+          uiOutput("help_text_path_enri"),
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
           ),
-          tabPanel("Visualization",
-          cyjShinyOutput('path_enri_visu', height=350)
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            plotlyOutput("path_enri.plot")
+          ), 
+          ),
+          tabPanel(
+            "Visualization",
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            cyjShinyOutput('path_enri_visu', height=350)
+          ),
           )
       )
     )
   )),
 
 
-    ###### UNIPROT #############
+  ########## UNIPROT #############
   #########################################
   tabPanel(
     "Gene ontology",
@@ -1216,14 +1320,47 @@ ui <- tagList(
       tabsetPanel(
           type = "tabs", id = "uniprot_tabs",
           tabPanel("Biological process",
-           plotlyOutput("uniprot_bio.plot"),
+          uiOutput("help_text_bio_pr"),
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            plotlyOutput("uniprot_bio.plot"),
             DT::dataTableOutput("uniprot_bio_table")),
+          ),
           tabPanel("Molecular function",
-           plotlyOutput("uniprot_molc.plot"),
-            DT::dataTableOutput("uniprot_molc_table")),
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            plotlyOutput("uniprot_molc.plot"),
+            DT::dataTableOutput("uniprot_molc_table")
+          ),
+           ),
           tabPanel("Cellular component",
+          conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
             plotlyOutput("uniprot_cel.plot"),
-            DT::dataTableOutput("uniprot_cel_table"))
+            DT::dataTableOutput("uniprot_cel_table")
+          ),
+          )
     )
   )),
   #########################################
@@ -1267,6 +1404,7 @@ ui <- tagList(
       tabsetPanel(
           type = "tabs", id = "prot_inte_tab",
           tabPanel("Visualization",
+          uiOutput("help_text_p_inte"),
           conditionalPanel(
             condition = "$('html').hasClass('shiny-busy')",
             div(img(src = "load.gif", width = 240, height = 180),
@@ -1335,9 +1473,20 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Co-expression"),
-      div(id = "hide_link", 
-       p("Please click", htmlOutput("link")))
-        %>% shinyjs::hidden()
+      uiOutput("help_text_gene_mania"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            div(id = "hide_link", 
+            p("Please click", htmlOutput("link")))
+              %>% shinyjs::hidden()
+          ),
   )),
   #########################################
 
@@ -1351,6 +1500,7 @@ ui <- tagList(
     ),
     mainPanel(
       h3("Protein Sequences"),
+      uiOutput("help_text_prot_seq"),
       conditionalPanel(
             condition = "$('html').hasClass('shiny-busy')",
             div(img(src = "load.gif", width = 240, height = 180),
@@ -1425,6 +1575,13 @@ server <- function(input, output, session) {
     ##############################################
     ##############################################
 
+    observeEvent(input$start_rnaseq, {
+    updateNavbarPage(session, inputId = "navbar", selected = "active_tab_rnaseq")
+    })
+
+    observeEvent(input$start_micro, {
+    updateNavbarPage(session, inputId = "navbar", selected = "active_tab_micro")
+    })
 
     ### preprocessing tab
     f <- group_names()
@@ -1516,7 +1673,7 @@ server <- function(input, output, session) {
         paste("Please check these input:", errors, "and try again!")
       ))
     } else {
-      updateTabsetPanel(session, inputId = "Rnaseq_pre", selected = "Analysis")
+      updateTabsetPanel(session, inputId = "Rnaseq_pre", selected = "Preprocessing")
     }
 
     # update input
@@ -1553,6 +1710,20 @@ server <- function(input, output, session) {
     # } else {
     #   showTab(inputId="preprocessing_tabs", target="Description table")
     # }
+
+    hide("help_text_scatter")
+    hide("help_text_dis_fit")
+    hide("help_text_correlation")
+    hide("help_text_PCA")
+    hide("help_text_DE_anal")
+    hide("help_text_heatmap")
+    hide("help_text_Noise")
+    hide("help_text_Entropy")
+    hide("help_text_SVM")
+    hide("help_text_tsne")
+    hide("help_text_rf")
+    hide("help_text_SOM")
+
   })
 
 
@@ -1564,11 +1735,17 @@ server <- function(input, output, session) {
       paste("Microarray_Raw", ".csv", sep = "")
     },
     content = function(file) {
-      df_micro()
+      raw_data <- df_micro()
       
       micro_raw_data <- as.data.frame(raw_data@assayData[["exprs"]][1:2000,])
       micro_raw_data <- tibble::rowid_to_column(micro_raw_data, "Geneid")
       
+      n <- ncol(micro_raw_data)
+      for(i in 2:n)
+      {
+        colnames(micro_raw_data)[i] <- paste0('new_',colnames(micro_raw_data)[i])
+      }
+
       write.csv(micro_raw_data, file, row.names = FALSE)
     }
   )
@@ -1578,7 +1755,7 @@ server <- function(input, output, session) {
       paste("Microarray_Meta", ".csv", sep = "")
     },
     content = function(file) {
-      df_micro()
+      raw_data <- df_micro()
 
       micro_raw_data <- as.data.frame(raw_data@assayData[["exprs"]][1:2000,])
       micro_meta_data <- as.data.frame(raw_data@phenoData@data[["Factor.Value.disease."]])
@@ -1587,6 +1764,13 @@ server <- function(input, output, session) {
       names(micro_meta_data)[1] <- "Id"
       names(micro_meta_data)[2] <- "Types"
       
+      n <- nrow(micro_meta_data)
+      micro_meta_data[,1] <- as.character(micro_meta_data[,1])
+      for(i in 1:n)
+      {
+        micro_meta_data[i,1] <- paste0("new_",micro_meta_data[i,1])
+      }
+
       write.csv(micro_meta_data, file, row.names = FALSE)
     }
   )
@@ -1742,6 +1926,8 @@ server <- function(input, output, session) {
     raw_data <- oligo::read.celfiles(filenames = file.path(micro_data_dir, 
                                                           SDRF$Array.Data.File),
                                     verbose = FALSE, phenoData = SDRF)
+
+    print(raw_data)
 
     return(raw_data)
 
@@ -2241,6 +2427,10 @@ RLE.plot <- reactive({
     }
   )
 
+  output$help_text_scatter <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
+
   ############################
   ######## distfit ###########
   ############################
@@ -2379,6 +2569,10 @@ RLE.plot <- reactive({
     }
   )
 
+  output$help_text_dis_fit <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
+
   ############################
   ####### correlation ########
   ############################
@@ -2478,6 +2672,10 @@ RLE.plot <- reactive({
       write.csv(cor_df(), file, row.names = TRUE)
     }
   )
+
+  output$help_text_correlation <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   ############################
   #######     PCA     ########
@@ -2728,6 +2926,10 @@ RLE.plot <- reactive({
     }
   )
 
+  output$help_text_PCA <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
+
   ############################
   ######## DE analysis #######
   ############################
@@ -2972,6 +3174,10 @@ RLE.plot <- reactive({
     }
   )
 
+  output$help_text_DE_anal <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
+
   # output$download_heatmap <- downloadHandler(
   #   filename = function(){
   #     paste0("Heatmap",".pdf")
@@ -3204,6 +3410,10 @@ RLE.plot <- reactive({
     }
   )
 
+  output$help_text_heatmap <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
+
   ############################
   ########## noise ###########
   ############################
@@ -3396,6 +3606,10 @@ RLE.plot <- reactive({
     }
   )
 
+  output$help_text_Noise <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
+
   ############################
   ######### entropy ##########
   ############################
@@ -3515,6 +3729,9 @@ RLE.plot <- reactive({
     }
   )
 
+  output$help_text_Entropy <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   ###################################
   ########## New-Features ###########
@@ -3611,6 +3828,10 @@ RLE.plot <- reactive({
   output$svm_df_plot <- renderPlot({
     plotSVM_df()
   })
+
+  output$help_text_SVM <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
   
   ###################################
   ###################################
@@ -3677,9 +3898,12 @@ RLE.plot <- reactive({
     
   }
   
-  
   output$tsne2.plot <- renderPlot({
     tsne2plot()
+  })
+
+  output$help_text_tsne <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
   })
   
   ###################################
@@ -3877,6 +4101,10 @@ RLE.plot <- reactive({
   output$rf.matrix <- renderTable({
     rf_matrix()
   },rownames=TRUE)
+
+  output$help_text_rf <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   # output$downloadrfplot <- downloadHandler(
   #   filename = function(){
@@ -4095,6 +4323,10 @@ RLE.plot <- reactive({
     }
   )
 
+  output$help_text_SOM <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
+
   ###################################
   ######## Gene-Set Analysis ########
   ###################################
@@ -4176,7 +4408,7 @@ RLE.plot <- reactive({
   }, escape = FALSE)
 
   df_com_id <- eventReactive(input$submit_complex, {
-      hide("help_text")
+      hide("help_text_complex_en")
       df <- df_complex()
       return(df)
   })
@@ -4190,7 +4422,7 @@ RLE.plot <- reactive({
     }
   )
 
-    output$help_text <- renderUI({
+    output$help_text_complex_en <- renderUI({
     HTML("<h3><b>Some Sample Text Here</b></h3>")
   })
 
@@ -4301,6 +4533,7 @@ RLE.plot <- reactive({
   }, escape = FALSE)
 
   df_func_id <- eventReactive(input$submit_prot_func, {
+      hide("help_text_prot_fn")
       df <- df_prot_func()
       return(df)
   })
@@ -4313,6 +4546,10 @@ RLE.plot <- reactive({
       write.csv(download_prot_func(), file, row.names = FALSE)
     }
   )
+
+  output$help_text_prot_fn <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   ###################################
   ###################################
@@ -4381,6 +4618,7 @@ RLE.plot <- reactive({
   }, escape = FALSE)
 
   df_expr_id <- eventReactive(input$submit_prot_expr, {
+      hide("help_text_prot_exp")
       df <- df_prot_expr()
       return(df)
   })
@@ -4393,6 +4631,10 @@ RLE.plot <- reactive({
       write.csv(download_prot_expr(), file, row.names = FALSE)
     }
   )
+
+  output$help_text_prot_exp <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   ###################################
   ###################################
@@ -4461,6 +4703,7 @@ RLE.plot <- reactive({
   }, escape = FALSE)
 
   df_local_id <- eventReactive(input$submit_prot_local, {
+      hide("help_text_sub_loc")
       df <- df_prot_local()
       return(df)
   })
@@ -4473,6 +4716,10 @@ RLE.plot <- reactive({
       write.csv(download_prot_local(), file, row.names = FALSE)
     }
   )
+
+  output$help_text_sub_loc <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   ###################################
   ###################################
@@ -4543,6 +4790,7 @@ RLE.plot <- reactive({
   }, escape = FALSE)
 
   df_domain_id <- eventReactive(input$submit_prot_domain, {
+      hide("help_text_pro_dom")
       df <- df_prot_domain()
       return(df)
   })
@@ -4555,6 +4803,10 @@ RLE.plot <- reactive({
       write.csv(download_prot_domain(), file, row.names = FALSE)
     }
   )
+
+  output$help_text_pro_dom <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   ###################################
   ###################################
@@ -4598,8 +4850,13 @@ RLE.plot <- reactive({
   df_path_enri_id <- eventReactive(input$submit_path_enri,{
     print("running")
 
+    hide("help_text_path_enri")
     df <- df_path_enri()
     return(df)
+  })
+
+  output$help_text_path_enri <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
   })
 
   plot_path_enri <- function() {
@@ -4909,6 +5166,7 @@ RLE.plot <- reactive({
   plotUniprot <-  eventReactive(input$submit_uniprot, {
 
     Accessions <- df_uniprot()
+    hide("help_text_bio_pr")
     print("Please Wait... Fetching Taxa Object. It may take a while")
     TaxaObj <- GetNamesTaxa(Accessions)
     print("Please Wait... Fetching Gene Ontology Object. It may take a while")
@@ -4916,7 +5174,11 @@ RLE.plot <- reactive({
     print("Done") 
     return(GeneOntologyObj)
   })
-  
+
+  output$help_text_bio_pr <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
+
   plotCE <- function() {
     # get data
     GO_df <- plotUniprot()
@@ -5504,8 +5766,13 @@ RLE.plot <- reactive({
   # })
 
   df_prot_int_id <- eventReactive(input$submit_prot_Int, {
+      hide("help_text_p_inte")
       Accessions <- df_prot_Int()
       return(Accessions)
+  })
+
+  output$help_text_p_inte <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
   })
 
   getInteraction <- function(ProteinAccList) {
@@ -5738,6 +6005,7 @@ RLE.plot <- reactive({
 
   observeEvent(input$genemania_submit, {
 
+    hide("help_text_gene_mania")
     print("running...")
     organism_id <- input$organismID
     gene_names <- df_genemania()
@@ -5759,6 +6027,9 @@ RLE.plot <- reactive({
     a("here", href = gene_mania_link(), inline = TRUE)
   })
   
+  output$help_text_gene_mania <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   ###################################
   ###################################
@@ -5798,6 +6069,7 @@ RLE.plot <- reactive({
   observeEvent(input$submit_prot_seq, {
 
     print("running")
+    hide("help_text_prot_seq")
     
     Protein_id <- df_prot_seq()
     py$Protein_id <- df_prot_seq()
@@ -5816,6 +6088,9 @@ RLE.plot <- reactive({
         h2(count_id()," protein ID submitted. Sequences of ", count_fasta()," proteins were retrieved.")
   })
 
+  output$help_text_prot_seq <- renderUI({
+    HTML("<h3><b>Some Sample Text Here</b></h3>")
+  })
 
   ###################################
   ###################################
