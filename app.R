@@ -301,7 +301,8 @@ styles <- c(
             "generic style"="./www/style/basicStyle.js",
             "red-yellow"="./www/style/red-yellow.js",
             "red-pink" = "./www/style/red-pink.js",
-            "green-blue"="./www/style/green-blue.js")
+            "green-blue"="./www/style/green-blue.js",
+            "green-blue(ppi)"="./www/style/green-blue(ppi).js")
 
 ##########################################################################
 
@@ -333,9 +334,9 @@ ui <- tagList(
   navbarPage(
   id = "navbar",
   theme = shinytheme("flatly"),
-  title = "ABioTrans",
+  title = "",
   tabPanel(
-    "Home",
+    "ABioTrans",
     br(),
     sidebarLayout(
     sidebarPanel(
@@ -1297,7 +1298,7 @@ ui <- tagList(
   tabPanel(
     "Gene ontology",
     sidebarPanel(
-      fileInput("file_uniprot", "Upload the accession files"),
+      fileInput("file_uniprot", "a text file with UniProt accessions"),
       actionButton("submit_uniprot", "Submit"),br(),br(),
       conditionalPanel(
         condition = "input.uniprot_tabs == 'Biological process'",
@@ -1495,7 +1496,7 @@ ui <- tagList(
   tabPanel(
     "Protein Sequences",
     sidebarPanel(
-      fileInput("file_prot_seq", "Upload the accession files"),
+      fileInput("file_prot_seq", "a text file with UniProt accessions"),
       actionButton("submit_prot_seq", "Submit")
     ),
     mainPanel(
@@ -5176,7 +5177,7 @@ RLE.plot <- reactive({
   })
 
   output$help_text_bio_pr <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("<h4>This page retrieves and visualizes the <b>Gene Ontology (GO)</b> terms from <a href ='https://www.uniprot.org/'>UniProt.org</a> for a given set of UniProt accessions.</h4>")
   })
 
   plotCE <- function() {
@@ -6089,7 +6090,7 @@ RLE.plot <- reactive({
   })
 
   output$help_text_prot_seq <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("<h3><b>This page retrieves the full protein sequences from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions.</b></h3>")
   })
 
   ###################################
