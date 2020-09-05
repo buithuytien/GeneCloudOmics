@@ -131,7 +131,7 @@ if (length(find.package(package = "scales", quiet = T)) > 0) {
 
 ###################################################################################
 
-####################### Dependencies For Pathway Enrichnment ###################################
+####################### Dependencies For Pathway Enrichemnt ###################################
 
 if (length(find.package(package = "gprofiler2", quiet = T)) > 0) {
   library(gprofiler2)
@@ -174,7 +174,7 @@ if (length(find.package(package = "qdapTools", quiet = T)) > 0) {
 
 ###################################################################################
 
-####################### Dependencies For Gene Mania ###################################
+####################### Dependencies For Co-expression ###################################
 
 if (length(find.package(package = "shinyjs", quiet = T)) > 0) {
   library(shinyjs)
@@ -1089,136 +1089,12 @@ ui <- tagList(
   ###############################################
   navbarMenu(
     "Gene set Analysis",
-    
-  ###### Complex Enrichement #############
-  #########################################
-  tabPanel(
-    "Complex Enrichement",
-    sidebarPanel(
-      fileInput("file_complex", "Upload the accession files"),
-      actionButton("submit_complex", "Submit"),br(),br(),
-      downloadButton("complex_download", "Download as CSV")
-    ),
-    mainPanel(
-      h3("Complex Enrichement"),
-      uiOutput("help_text_complex_en"),
-      conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(img(src = "load.gif", width = 240, height = 180),
-              h4("Processing ... Please wait"),
-              style = "text-align: center;"
-            )
-          ),
-          conditionalPanel(
-            condition = "!$('html').hasClass('shiny-busy')",
-            DT::dataTableOutput("complex_table")
-          ),
-  )),
 
-  ###### Protein Function #############
+  
+  ########## Pathway Enrichemnt ##############
   #########################################
   tabPanel(
-    "Protein Function",
-    sidebarPanel(
-      fileInput("file_prot_func", "Upload the accession files"),
-      actionButton("submit_prot_func", "Submit"),br(),br(),
-      downloadButton("prot_func_download", "Download as CSV")
-    ),
-    mainPanel(
-      h3("Protein Function"),
-      uiOutput("help_text_prot_fn"),
-      conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(img(src = "load.gif", width = 240, height = 180),
-              h4("Processing ... Please wait"),
-              style = "text-align: center;"
-            )
-          ),
-          conditionalPanel(
-            condition = "!$('html').hasClass('shiny-busy')",
-            DT::dataTableOutput("prot_func_table")
-          ),
-  )),
-
-  ###### Protein Expression #############
-  #########################################
-  tabPanel(
-    "Protein Expression",
-    sidebarPanel(
-      fileInput("file_prot_expr", "Upload the accession files"),
-      actionButton("submit_prot_expr", "Submit"),br(),br(),
-      downloadButton("prot_expr_download", "Download as CSV")
-    ),
-    mainPanel(
-      h3("Protein Expression"),
-      uiOutput("help_text_prot_exp"),
-      conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(img(src = "load.gif", width = 240, height = 180),
-              h4("Processing ... Please wait"),
-              style = "text-align: center;"
-            )
-          ),
-          conditionalPanel(
-            condition = "!$('html').hasClass('shiny-busy')",
-            DT::dataTableOutput("prot_expr_table")
-          ), 
-  )),
-
-  ###### Subcellular Localization #############
-  #########################################
-  tabPanel(
-    "Subcellular Localization",
-    sidebarPanel(
-      fileInput("file_prot_local", "Upload the accession files"),
-      actionButton("submit_prot_local", "Submit"),br(),br(),
-      downloadButton("prot_local_download", "Download as CSV")
-    ),
-    mainPanel(
-      h3("Subcellular Localization"),
-      uiOutput("help_text_sub_loc"),
-      conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(img(src = "load.gif", width = 240, height = 180),
-              h4("Processing ... Please wait"),
-              style = "text-align: center;"
-            )
-          ),
-          conditionalPanel(
-            condition = "!$('html').hasClass('shiny-busy')",
-            DT::dataTableOutput("prot_local_table")
-          ), 
-  )),
-
-  ########## Protein Domains ##############
-  #########################################
-  tabPanel(
-    "Protein Domains",
-    sidebarPanel(
-      fileInput("file_prot_domain", "Upload the accession files"),
-      actionButton("submit_prot_domain", "Submit"),br(),br(),
-      downloadButton("prot_domain_download", "Download as CSV")
-    ),
-    mainPanel(
-      h3("Protein Domains"),
-      uiOutput("help_text_pro_dom"),
-      conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(img(src = "load.gif", width = 240, height = 180),
-              h4("Processing ... Please wait"),
-              style = "text-align: center;"
-            )
-          ),
-          conditionalPanel(
-            condition = "!$('html').hasClass('shiny-busy')",
-            DT::dataTableOutput("prot_domain_table")
-          ), 
-  )),
-
-  ########## Pathway Enrichnment ##############
-  #########################################
-  tabPanel(
-    "Pathway Enrichnment",
+    "Pathways Enrichemnt",
     tags$head(tags$style("#path_enri_visu{height:95vh !important;}")),
     sidebarLayout(
     sidebarPanel(
@@ -1257,7 +1133,7 @@ ui <- tagList(
           width=2
     ),
     mainPanel(
-      h3("Pathway Enrichnment"),
+      h3("Pathways Enrichemnt"),
       tabsetPanel(
           type = "tabs", id = "path_enri_tab",
           tabPanel("Plot",
@@ -1292,13 +1168,13 @@ ui <- tagList(
     )
   )),
 
-
-  ########## UNIPROT #############
+  ########## Gene Ontology #############
   #########################################
   tabPanel(
     "Gene ontology",
     sidebarPanel(
-      fileInput("file_uniprot", "a text file with UniProt accessions"),
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      fileInput("file_uniprot", "Upload UniProt accession CSV file"),
       actionButton("submit_uniprot", "Submit"),br(),br(),
       conditionalPanel(
         condition = "input.uniprot_tabs == 'Biological process'",
@@ -1366,6 +1242,7 @@ ui <- tagList(
   )),
   #########################################
 
+
   ###### Protein Interaction #############
   #########################################
   tabPanel(
@@ -1373,7 +1250,8 @@ ui <- tagList(
     tags$head(tags$style("#cyjShiny{height:95vh !important;}")),
   sidebarLayout(
     sidebarPanel(
-      fileInput("file_prot_Int", "Upload the accession files"),
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      fileInput("file_prot_Int", "Upload UniProt accession CSV file"),
       actionButton("submit_prot_Int", "Submit"),br(),br(),
       selectInput("loadStyleFile", "Select Style: ", choices=styles),
           selectInput("doLayout", "Select Layout:",
@@ -1452,10 +1330,142 @@ ui <- tagList(
   )),
   #########################################
 
-  ###### Genemania #############
+    
+  ###### Complex Enrichement #############
   #########################################
   tabPanel(
-    "Gene Mania",
+    "Complex Enrichement",
+    sidebarPanel(
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      fileInput("file_complex", "Upload UniProt accession CSV file"),
+      actionButton("submit_complex", "Submit"),br(),br(),
+      downloadButton("complex_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Complex Enrichement"),
+      uiOutput("help_text_complex_en"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("complex_table")
+          ),
+  )),
+
+  ###### Protein Function #############
+  #########################################
+  tabPanel(
+    "Protein Function",
+    sidebarPanel(
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      fileInput("file_prot_func", "Upload UniProt accession CSV file"),
+      actionButton("submit_prot_func", "Submit"),br(),br(),
+      downloadButton("prot_func_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Protein Function"),
+      uiOutput("help_text_prot_fn"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_func_table")
+          ),
+  )),
+
+  ###### Subcellular Localization #############
+  #########################################
+  tabPanel(
+    "Subcellular Localization",
+    sidebarPanel(
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      fileInput("file_prot_local", "Upload UniProt accession CSV file"),
+      actionButton("submit_prot_local", "Submit"),br(),br(),
+      downloadButton("prot_local_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Subcellular Localization"),
+      uiOutput("help_text_sub_loc"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_local_table")
+          ), 
+  )),
+
+  ########## Protein Domains ##############
+  #########################################
+  tabPanel(
+    "Protein Domains",
+    sidebarPanel(
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      fileInput("file_prot_domain", "Upload UniProt accession CSV file"),
+      actionButton("submit_prot_domain", "Submit"),br(),br(),
+      downloadButton("prot_domain_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Protein Domains"),
+      uiOutput("help_text_pro_dom"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_domain_table")
+          ), 
+  )),
+
+  ###### Tissue Expression #############
+  #########################################
+  tabPanel(
+    "Tissue Expression",
+    sidebarPanel(
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      fileInput("file_prot_expr", "Upload UniProt accession CSV file"),
+      actionButton("submit_prot_expr", "Submit"),br(),br(),
+      downloadButton("prot_expr_download", "Download as CSV")
+    ),
+    mainPanel(
+      h3("Tissue Expression"),
+      uiOutput("help_text_prot_exp"),
+      conditionalPanel(
+            condition = "$('html').hasClass('shiny-busy')",
+            div(img(src = "load.gif", width = 240, height = 180),
+              h4("Processing ... Please wait"),
+              style = "text-align: center;"
+            )
+          ),
+          conditionalPanel(
+            condition = "!$('html').hasClass('shiny-busy')",
+            DT::dataTableOutput("prot_expr_table")
+          ), 
+  )),
+
+
+  ########## Co-expression #############
+  #########################################
+  tabPanel(
+    "Co-expression",
     sidebarPanel(
     selectInput("organismID", "Choose organism:", 
                   choices= list(
@@ -1469,7 +1479,8 @@ ui <- tagList(
                     "Rattus_norvegicus",
                     "Saccharomyces_cerevisiae"
                   )),
-      fileInput("file_gene", "Upload the Gene Names"),
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_names.csv")),
+      fileInput("file_gene", "Upload genes CSV file"),
       actionButton("genemania_submit", "Submit")
     ),
     mainPanel(
@@ -2429,7 +2440,18 @@ RLE.plot <- reactive({
   )
 
   output$help_text_scatter <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Scatter plot compares global gene expression
+          between 2 conditions.<br>Color density is calculated based on 2D Gaussian kernel density.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ############################
@@ -2675,7 +2697,45 @@ RLE.plot <- reactive({
   )
 
   output$help_text_correlation <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+      <ol>
+        <li>
+        <p>
+          <b>
+          <h4>Pearson correlation</h4><br>
+          The correlation coefficient r between two vectors (e.g. transcriptome in two different samples), 
+          containing n observations (e.g. gene expression values), is defined by (for large n):<br>
+          𝑟(𝑋,𝑌)=∑𝑛𝑖=1(𝑥𝑖−𝜇𝑋)(𝑦𝑖−𝜇𝑌)/𝜎𝑋𝜎𝑌<br>
+          where xi and yi are the ith observation in the vectors X and Y, respectively, μX and μY, 
+          the average values of each vector, and σx and σy, the corresponding standard deviations. 
+          Pearson correlation measures linear relationship between two vectors, where r = 1 if the two vectors are identical, 
+          and r = 0 if there are no linear relationships between the vectors.
+          </b>
+        </p>
+        </li>
+        <br>
+        <li>
+        <p>
+          <b>
+          <h4>Spearman correlation</h4><br>
+          it is a non-parametric test that is used to measure the degree of association 
+          between two vectors  (e.g. transcriptome in two different samples).  The Spearman rank correlation 
+          test does not carry any assumptions about the distribution of the data and is the appropriate correlation 
+          analysis when the variables are measured on a scale that is at least ordinal.
+          The following formula is used to calculate the Spearman rank correlation:<br>
+          <img src='https://i.ibb.co/rkjbg1d/Spearman-correlation.png' alt='Spearman-correlation' border='0'><br>
+          ρ = Spearman rank correlation<br>
+          di = the difference between the ranks of corresponding variables (or gene)<br>
+          n = number of observations
+          </b>
+        </p>
+        </li>
+        </ol>
+      </center>
+    ")
   })
 
   ############################
@@ -2928,7 +2988,48 @@ RLE.plot <- reactive({
   )
 
   output$help_text_PCA <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Principal Components Analysis (PCA) is an multivariate statistical technique for simplifying high-dimentional 
+          data sets (Basilevsky 1994). Given m observations on n variables, the goal of PCA is to reduce the dimensionality 
+          of the data matrix by finding r new variables, where r is less than n. Termed principal components, these r new 
+          variables together account for as much of the variance in the original n variables as possible while remaining 
+          mutually uncorrelated and orthogonal. Each principal component is a linear combination of the original variables, 
+          and so it is often possible to ascribe meaning to what the components represent.
+          A PCA analysis of transcriptomic data consider the genes as variables, creating a set of “principal gene components” that indicate the features of genes that best explain the experimental responses they produce.
+          </b>
+        </p>
+        <p>
+          <b>
+          A PCA analysis of transcriptomic data consider the genes as variables, creating a set of 
+          “principal gene components” that indicate the features of genes that best explain the experimental responses they produce.
+          </b>
+        </p>
+        <p>
+          <b>
+          To compute the principal components, the n eigenvalues and their corresponding eigenvectors are calculated 
+          from the n×n covariance matrix of conditions. Each eigenvector defines a principal component. A component can be 
+          viewed as a weighted sum of the conditions, where the coefficients of the eigenvectors are the weights. 
+          The projection of gene i along the axis defined by the jth principal component is:<br>
+          <img src='https://i.ibb.co/n6M8n79/Screenshot-from-2020-09-05-15-33-31.png' alt='Screenshot-from-2020-09-05-15-33-31' border='0'><br>
+          Where vtj is the tth coefficient for the jth principal component; ait is the expression measurement for gene i under the tth condition. 
+          A′ is the data in terms of principal components. Since V is an orthonormal matrix, A′ is a rotation of the data from the original space of 
+          observations to a new space with principal component axes.
+          </b>
+        </p>
+        <p>
+          <b>
+          The variance accounted for by each of the components is its associated eigenvalue; 
+          it is the variance of a component over all genes. Consequently, the eigenvectors with large eigenvalues 
+          are the ones that contain most of the information; eigenvectors with small eigenvalues are uninformative.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ############################
@@ -3176,7 +3277,37 @@ RLE.plot <- reactive({
   )
 
   output$help_text_DE_anal <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          DE analysis identifies the genes that are statistically different in expression levels between the 2 selected conditions. Two important threshold are:
+          </b>
+        </p>
+        <p>
+          <b>
+          A PCA analysis of transcriptomic data consider the genes as variables, creating a set of 
+          “principal gene components” that indicate the features of genes that best explain the experimental responses they produce.
+          </b>
+        </p>
+        <p>
+          <b>
+            1. The lower bound of expression fold change  between the 2 selected conditions<br>
+            2. The upper bound of hypothesis test p-value
+          </b>
+        </p>
+        <p>
+          <b>
+            AbioTrans implements 3 popular methods to identify DE genes:<br>
+              1. <a href='https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8'>DESeq2</a><br>
+              2. <a href='https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2796818/'>EdgeR</a><br>
+              3. <a href='https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4666377/'>NOISeq</a>
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   # output$download_heatmap <- downloadHandler(
@@ -3412,7 +3543,19 @@ RLE.plot <- reactive({
   )
 
   output$help_text_heatmap <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Hierarchical clustering is used to find the groups of co-expressed genes. The clustering is performed on normalized expressions of differentially expressed genes using Ward clustering method. Normalized expression of the jth gene at time ti is defined as<br>
+          <img src='https://i.ibb.co/tJgCMVD/Screenshot-from-2020-09-05-16-37-39.png' alt='Screenshot-from-2020-09-05-16-37-39' border='0'><br>
+          where x_j(t_i) is the expression of the jth gene at time ti, x_j(bar) is the mean expression across all time points, and 𝜎j is the standard deviation.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ############################
@@ -3608,7 +3751,25 @@ RLE.plot <- reactive({
   )
 
   output$help_text_Noise <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          To quantify between gene expressions scatter of all replicates in one experimental condition, we 
+          computed transcriptome-wide average noise for each cell type, defined as<br>
+          <img src='https://i.ibb.co/kcxrCzv/Screenshot-from-2020-09-05-16-14-27.png' alt='Screenshot-from-2020-09-05-16-14-27' border='0'><br>
+          where n is the number of genes and n_i^2 is the pairwise noise of the ith
+          gene (variability between any two replicates), defined as<br>
+          <img src='https://i.ibb.co/dp21hsK/Screenshot-from-2020-09-05-16-14-57.png' alt='Screenshot-from-2020-09-05-16-14-57' border='0'><br>
+          where m is the number of replicates in each condition and n_ijk^2 is the expression noise of the ith gene, defined by the variance 
+          divided by the squared mean expression in the pair of replicates (j,k).<br>
+          Citation: <a href='https://www.nature.com/articles/srep07137'>https://www.nature.com/articles/srep07137</a> (Kumar’s embryonic development paper)
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ############################
@@ -3731,7 +3892,20 @@ RLE.plot <- reactive({
   )
 
   output$help_text_Entropy <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Shannon entropy (Shannon, 1948) measures the disorder of a high-dimensional
+          system, where higher values indicate increasing disorder.  Entropy of each transcriptome, X, is defined as<br>
+          <img src='https://i.ibb.co/5W0KwMP/Screenshot-from-2020-09-05-16-31-03.png' alt='Screenshot-from-2020-09-05-16-31-03' border='0'><br>
+          where p(xi) is the probability of gene expression value x=xi.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ###################################
@@ -4104,7 +4278,28 @@ RLE.plot <- reactive({
   },rownames=TRUE)
 
   output$help_text_rf <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Clustering belongs to unsupervised learning, in which each sample is clustered 
+          into different classes, based on their similarity (usually based on Euclidean distance).
+          Random forest algorithm is used to generate a proximity matrix - a rough estimate of the 
+          distance between samples based on the proportion of times the samples end up in the same 
+          leaf node of the decision tree. The proximity matrix is converted to a dist matrix which 
+          is then input to the hierarchical clustering algorithm.
+          </b>
+        </p>
+        <p>
+          <b>
+          Implementation adapted from - <a href ='https://nishanthu.github.io/articles/ClusteringUsingRandomForest.html'>
+          https://nishanthu.github.io/articles/ClusteringUsingRandomForest.html</a>
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   # output$downloadrfplot <- downloadHandler(
@@ -4325,7 +4520,38 @@ RLE.plot <- reactive({
   )
 
   output$help_text_SOM <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          A self-organizing map (SOM) produces a two-dimensional, discretized representation 
+          of the high-dimensional gene expression matrix, and is therefore a dimensionality 
+          reduction technique. Self-organizing maps apply uses a neighborhood function to 
+          preserve the topological properties of the input gene expression matrix.
+          </b>
+        </p>
+        <p>
+          <b>
+          Each data point (1 sample) in the input gene expression matrix recognizes 
+          themselves by competeting for representation. SOM mapping steps starts 
+          from initializing the weight vectors.From there a sample vector is 
+          selected randomly and the map of weight vectors is searched to find 
+          which weight best represents that sample. Each weight vector has neighboring 
+          weights that are close to it. The weight that is chosen is rewarded by being able 
+          to become more like that randomly selected sample vector. The neighbors of that 
+          weight are also rewarded by being able to become more like the chosen sample vector. 
+          This allows the map to grow and form different shapes. Most generally, they form square/rectangular/hexagonal/L shapes in 2D feature space.
+          </b>
+        </p>
+        <p>
+          <b>
+          Citation: <a href ='https://doi.org/10.1016/S0925-2312(98)00037-X'>https://doi.org/10.1016/S0925-2312(98)00037-X</a>
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ###################################
@@ -4424,7 +4650,18 @@ RLE.plot <- reactive({
   )
 
     output$help_text_complex_en <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page performs a Complex enrichment through the <a href ='http://mips.helmholtz-muenchen.de/corum/'>CORUM database</a> 
+          of a given set of UniProt accessions and links the results to <a href ='http://UniProt.org'>UniProt.org</a>.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   # observeEvent(input$submit_complex, {
@@ -4549,7 +4786,18 @@ RLE.plot <- reactive({
   )
 
   output$help_text_prot_fn <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page retrieves the Protein function information 
+          from <a href ='http://UniProt.org'>UniProt.org</a> of a given set of UniProt accessions.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ###################################
@@ -4559,7 +4807,7 @@ RLE.plot <- reactive({
 
   ###################################
   ###################################
-  ####### Protein Expression ########
+  ####### Tissue Expression ########
   ###################################
   ###################################
   
@@ -4634,7 +4882,18 @@ RLE.plot <- reactive({
   )
 
   output$help_text_prot_exp <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page retrieves the Tissue Expression information 
+          from <a href ='http://UniProt.org'>UniProt.org</a> of a given set of UniProt accessions.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ###################################
@@ -4719,7 +4978,18 @@ RLE.plot <- reactive({
   )
 
   output$help_text_sub_loc <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page retrieves the Subcellular LocalizationSubcellular Localization information 
+          from <a href ='http://UniProt.org'>UniProt.org</a> of a given set of UniProt accessions.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ###################################
@@ -4806,7 +5076,18 @@ RLE.plot <- reactive({
   )
 
   output$help_text_pro_dom <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page retrieves the Protein Domains information 
+          from <a href ='http://UniProt.org'>UniProt.org</a> of a given set of UniProt accessions.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ###################################
@@ -4817,7 +5098,7 @@ RLE.plot <- reactive({
 
   ###################################
   ###################################
-  ###### Pathway Enrichnment ########
+  ###### Pathways Enrichemnt ########
   ###################################
   ###################################
   
@@ -4857,7 +5138,18 @@ RLE.plot <- reactive({
   })
 
   output$help_text_path_enri <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page performs Pathways Enrichment from for a given set of genes using
+          <a href ='https://biit.cs.ut.ee/gprofiler/gost'>g:Profiler</a>.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   plot_path_enri <- function() {
@@ -5119,14 +5411,6 @@ RLE.plot <- reactive({
                     values=overlap_wt())
        })
 
-  # observe({
-  #   overlap_cnt <- pathway_overlap()
-  #   if(overlap_cnt != 0)
-  #   {
-  #     updateSelectInput(session, "overlap_min", choices = unique(sort(overlap_cnt[,1])), selected = unique(sort(overlap_cnt[,1]))[1])
-  #   }
-  # })
-  
 
   ###################################
   ###################################
@@ -5177,7 +5461,18 @@ RLE.plot <- reactive({
   })
 
   output$help_text_bio_pr <- renderUI({
-    HTML("<h4>This page retrieves and visualizes the <b>Gene Ontology (GO)</b> terms from <a href ='https://www.uniprot.org/'>UniProt.org</a> for a given set of UniProt accessions.</h4>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page retrieves the Gene Ontology (GO) terms 
+          from <a href ='http://UniProt.org'>UniProt.org</a> of a given set of UniProt accessions.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   plotCE <- function() {
@@ -5773,7 +6068,18 @@ RLE.plot <- reactive({
   })
 
   output$help_text_p_inte <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page retrieves the Protein-Protein Interactions 
+          from <a href ='http://UniProt.org'>UniProt.org</a> of a given set of UniProt accessions.
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   getInteraction <- function(ProteinAccList) {
@@ -6029,7 +6335,18 @@ RLE.plot <- reactive({
   })
   
   output$help_text_gene_mania <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page submits a given gene list to 
+          <a href ='http://genemania.org/'>GeneMania.org</a> to retrieve the Co-expression 
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ###################################
