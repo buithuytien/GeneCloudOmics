@@ -1098,7 +1098,8 @@ ui <- tagList(
     tags$head(tags$style("#path_enri_visu{height:95vh !important;}")),
     sidebarLayout(
     sidebarPanel(
-      fileInput("file_path_enri", "Upload the accession files"),
+      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gPro_gene_names.csv")),
+      fileInput("file_path_enri", "Upload genes CSV file"),
       actionButton("submit_path_enri", "Submit"),br(),br(),
       selectInput("loadStyleFile_path", "Select Style: ", choices=styles),
       # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
