@@ -2720,7 +2720,7 @@ RLE.plot <- reactive({
           The correlation coefficient r between two vectors (e.g. transcriptome in two different samples), 
           containing n observations (e.g. gene expression values), is defined by (for large n):<br>
           <img src='https://www.statisticssolutions.com/wp-content/uploads/2019/09/ehtsht.png' alt='Pearson-correlation' border='0'><br>
-          where x<sub>i<\sub> and y<sub>i<\sub> are the ith observation in the vectors X and Y, respectively.
+          where x<sub>i</sub> and y<sub>i</sub> are the ith observation in the vectors X and Y, respectively.
           </b>
         </p>
         </li>
