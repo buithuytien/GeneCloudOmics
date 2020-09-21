@@ -2594,15 +2594,21 @@ RLE.plot <- reactive({
   )
 
   output$help_text_dis_fit <- renderUI({
-    HTML("<h3>
-           <b>
-             Fitting the selected probability distribution(s) to transcriptome-wide data of the selected sample.<br>
-             Cumulative distribution function will be showned, with black lines being the empirical (transcriptomic) data, 
-             and colored lines being the probability distribution(s) with best fitted parameters. <br>
-             The AIC (Akaike information criterion) table provides a comparison in goodness-of-fit to transcriptomic data
-             among selected probability distribution(s).
-           </b>
-         </h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Fitting the selected probability distribution(s) to transcriptome-wide data of the selected sample.<br>
+           Cumulative distribution function will be showned, with black lines being the empirical (transcriptomic) data, 
+           and colored lines being the probability distribution(s) with best fitted parameters. <br>
+           The AIC (Akaike information criterion) table provides a comparison in goodness-of-fit to transcriptomic data
+           among selected probability distribution(s).
+          </b>
+        </p>
+      </center>
+    ")
   })
 
   ############################
