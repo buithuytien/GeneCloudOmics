@@ -131,7 +131,7 @@ if (length(find.package(package = "scales", quiet = T)) > 0) {
 
 ###################################################################################
 
-####################### Dependencies For Pathway Enrichemnt ###################################
+####################### Dependencies For Pathway Enrichment ###################################
 
 if (length(find.package(package = "gprofiler2", quiet = T)) > 0) {
   library(gprofiler2)
@@ -1091,10 +1091,10 @@ ui <- tagList(
     "Gene set Analysis",
 
   
-  ########## Pathway Enrichemnt ##############
+  ########## Pathway Enrichment ##############
   #########################################
   tabPanel(
-    "Pathways Enrichemnt",
+    "Pathways Enrichment",
     tags$head(tags$style("#path_enri_visu{height:95vh !important;}")),
     sidebarLayout(
     sidebarPanel(
@@ -1134,7 +1134,7 @@ ui <- tagList(
           width=2
     ),
     mainPanel(
-      h3("Pathways Enrichemnt"),
+      h3("Pathways Enrichment"),
       tabsetPanel(
           type = "tabs", id = "path_enri_tab",
           tabPanel("Plot",
@@ -2594,7 +2594,15 @@ RLE.plot <- reactive({
   )
 
   output$help_text_dis_fit <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("<h3>
+           <b>
+             Fitting the selected probability distribution(s) to transcriptome-wide data of the selected sample.<br>
+             Cumulative distribution function will be showned, with black lines being the empirical (transcriptomic) data, 
+             and colored lines being the probability distribution(s) with best fitted parameters. <br>
+             The AIC (Akaike information criterion) table provides a comparison in goodness-of-fit to transcriptomic data
+             among selected probability distribution(s).
+           </b>
+         </h3>")
   })
 
   ############################
@@ -2707,13 +2715,12 @@ RLE.plot <- reactive({
         <p>
           <b>
           <h4>Pearson correlation</h4><br>
+          Pearson correlation measures linear relationship between two vectors, where r = 1 if the two vectors are identical, 
+          and r = 0 if there are no linear relationships between the vectors.<br>
           The correlation coefficient r between two vectors (e.g. transcriptome in two different samples), 
           containing n observations (e.g. gene expression values), is defined by (for large n):<br>
-          𝑟(𝑋,𝑌)=∑𝑛𝑖=1(𝑥𝑖−𝜇𝑋)(𝑦𝑖−𝜇𝑌)/𝜎𝑋𝜎𝑌<br>
-          where xi and yi are the ith observation in the vectors X and Y, respectively, μX and μY, 
-          the average values of each vector, and σx and σy, the corresponding standard deviations. 
-          Pearson correlation measures linear relationship between two vectors, where r = 1 if the two vectors are identical, 
-          and r = 0 if there are no linear relationships between the vectors.
+          <img src='https://www.statisticssolutions.com/wp-content/uploads/2019/09/ehtsht.png' alt='Pearson-correlation' border='0'><br>
+          where x<sub>i<\sub> and y<sub>i<\sub> are the ith observation in the vectors X and Y, respectively.
           </b>
         </p>
         </li>
@@ -2722,14 +2729,14 @@ RLE.plot <- reactive({
         <p>
           <b>
           <h4>Spearman correlation</h4><br>
-          it is a non-parametric test that is used to measure the degree of association 
+          Spearman correlation is a non-parametric test that measrues the degree of association 
           between two vectors  (e.g. transcriptome in two different samples).  The Spearman rank correlation 
           test does not carry any assumptions about the distribution of the data and is the appropriate correlation 
           analysis when the variables are measured on a scale that is at least ordinal.
           The following formula is used to calculate the Spearman rank correlation:<br>
           <img src='https://i.ibb.co/rkjbg1d/Spearman-correlation.png' alt='Spearman-correlation' border='0'><br>
           ρ = Spearman rank correlation<br>
-          di = the difference between the ranks of corresponding variables (or gene)<br>
+          r<sub>x,i</sub>, r<sub>y,i</sub> = ranks of corresponding variables (or gene)<br>
           n = number of observations
           </b>
         </p>
@@ -3015,9 +3022,10 @@ RLE.plot <- reactive({
           To compute the principal components, the n eigenvalues and their corresponding eigenvectors are calculated 
           from the n×n covariance matrix of conditions. Each eigenvector defines a principal component. A component can be 
           viewed as a weighted sum of the conditions, where the coefficients of the eigenvectors are the weights. 
-          The projection of gene i along the axis defined by the jth principal component is:<br>
+          The projection of gene i along the axis defined by the i<sup>th</sup> principal component is:<br>
           <img src='https://i.ibb.co/n6M8n79/Screenshot-from-2020-09-05-15-33-31.png' alt='Screenshot-from-2020-09-05-15-33-31' border='0'><br>
-          Where vtj is the tth coefficient for the jth principal component; ait is the expression measurement for gene i under the tth condition. 
+          Where <var>v<sub>tj</sub></var> is the t<sup>th</sup> coefficient for the i<sup>th</sup> principal component; <var>a<sub>it</sub></var> is the 
+          expression measurement for gene i under the t<sup>th</sup> condition. 
           A′ is the data in terms of principal components. Since V is an orthonormal matrix, A′ is a rotation of the data from the original space of 
           observations to a new space with principal component axes.
           </b>
@@ -3289,12 +3297,6 @@ RLE.plot <- reactive({
         </p>
         <p>
           <b>
-          A PCA analysis of transcriptomic data consider the genes as variables, creating a set of 
-          “principal gene components” that indicate the features of genes that best explain the experimental responses they produce.
-          </b>
-        </p>
-        <p>
-          <b>
             1. The lower bound of expression fold change  between the 2 selected conditions<br>
             2. The upper bound of hypothesis test p-value
           </b>
@@ -3550,9 +3552,12 @@ RLE.plot <- reactive({
       <center>
         <p>
           <b>
-          Hierarchical clustering is used to find the groups of co-expressed genes. The clustering is performed on normalized expressions of differentially expressed genes using Ward clustering method. Normalized expression of the jth gene at time ti is defined as<br>
+          Hierarchical clustering is used to find the groups of co-expressed genes. 
+          The clustering is performed on normalized expressions of differentially expressed genes using Ward clustering method. 
+          Normalized expression of the jth gene at time ti is defined as<br>
           <img src='https://i.ibb.co/tJgCMVD/Screenshot-from-2020-09-05-16-37-39.png' alt='Screenshot-from-2020-09-05-16-37-39' border='0'><br>
-          where x_j(t_i) is the expression of the jth gene at time ti, x_j(bar) is the mean expression across all time points, and 𝜎j is the standard deviation.
+          where <var>x<sub>j</sub>(t<sub>i</sub>)</var> is the expression of the j<sup>th</sup> gene at time t<sub>i</sub>, 
+          <var>x<sub>j</sub>&#772</var> is the mean expression across all time points, and <var>&#963<sub>j</sub></var> is the standard deviation.
           </b>
         </p>
       </center>
@@ -3761,11 +3766,11 @@ RLE.plot <- reactive({
           To quantify between gene expressions scatter of all replicates in one experimental condition, we 
           computed transcriptome-wide average noise for each cell type, defined as<br>
           <img src='https://i.ibb.co/kcxrCzv/Screenshot-from-2020-09-05-16-14-27.png' alt='Screenshot-from-2020-09-05-16-14-27' border='0'><br>
-          where n is the number of genes and n_i^2 is the pairwise noise of the ith
+          where <var>n</var> is the number of genes and <var>n<sub>i</sub><sup>2</sup></var> is the pairwise noise of the i<sup>th</sup>
           gene (variability between any two replicates), defined as<br>
           <img src='https://i.ibb.co/dp21hsK/Screenshot-from-2020-09-05-16-14-57.png' alt='Screenshot-from-2020-09-05-16-14-57' border='0'><br>
-          where m is the number of replicates in each condition and n_ijk^2 is the expression noise of the ith gene, defined by the variance 
-          divided by the squared mean expression in the pair of replicates (j,k).<br>
+          where <var>m</var> is the number of replicates in each condition and <var>n<sub>ijk</sub><sup>2</sup></var> is the expression noise of the i<sup>th</sup> gene, 
+          defined by the variance divided by the squared mean expression in the pair of replicates (j,k).<br>
           Citation: <a href='https://www.nature.com/articles/srep07137'>https://www.nature.com/articles/srep07137</a> (Kumar’s embryonic development paper)
           </b>
         </p>
@@ -4006,7 +4011,7 @@ RLE.plot <- reactive({
   })
 
   output$help_text_SVM <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("<h3><b>To be implemented</b></h3>")
   })
   
   ###################################
@@ -4079,7 +4084,7 @@ RLE.plot <- reactive({
   })
 
   output$help_text_tsne <- renderUI({
-    HTML("<h3><b>Some Sample Text Here</b></h3>")
+    HTML("<h3><b>To be implemented</b></h3>")
   })
   
   ###################################
@@ -5099,7 +5104,7 @@ RLE.plot <- reactive({
 
   ###################################
   ###################################
-  ###### Pathways Enrichemnt ########
+  ###### Pathways Enrichment ########
   ###################################
   ###################################
   
