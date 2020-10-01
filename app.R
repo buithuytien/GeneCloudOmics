@@ -1088,7 +1088,7 @@ ui <- tagList(
   ###############################################
   ###############################################
   navbarMenu(
-    "Gene set Analysis",
+    "Gene Set Analysis",
 
   
   ########## Pathway Enrichment ##############
@@ -1332,10 +1332,10 @@ ui <- tagList(
   #########################################
 
     
-  ###### Complex Enrichement #############
+  ###### Complex Enrichment #############
   #########################################
   tabPanel(
-    "Complex Enrichement",
+    "Complex Enrichment",
     sidebarPanel(
       p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
       fileInput("file_complex", "Upload UniProt accession CSV file"),
@@ -1343,7 +1343,7 @@ ui <- tagList(
       downloadButton("complex_download", "Download as CSV")
     ),
     mainPanel(
-      h3("Complex Enrichement"),
+      h3("Complex Enrichment"),
       uiOutput("help_text_complex_en"),
       conditionalPanel(
             condition = "$('html').hasClass('shiny-busy')",
@@ -4575,7 +4575,7 @@ RLE.plot <- reactive({
 
   ###################################
   ###################################
-  ###### Complex Enrichement ########
+  ###### Complex Enrichment ########
   ###################################
   ###################################
   
