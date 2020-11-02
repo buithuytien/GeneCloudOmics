@@ -21,6 +21,15 @@ if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
   library(cyjShiny)
 }
 
+if (length(find.package(package = "shinycssloaders", quiet = T)) > 0) {
+  library(shinycssloaders)
+} else {
+  print("Package shinycssloaders not installed")
+  install.packages("shinycssloaders")
+  print("Package shinycssloaders installed")
+  library(shinycssloaders)
+}
+
 if (length(find.package(package = "shinythemes", quiet = T)) > 0) {
   library(shinythemes)
 } else {
@@ -90,6 +99,7 @@ if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
   library(RAFSIL)
 }
 
+
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
 } else {
@@ -109,6 +119,13 @@ if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
 } else {
   install.packages("tidyverse")
   library(tidyverse)
+}
+
+if (length(find.package(package = "ggpubr", quiet = T)) > 0) {
+  library(ggpubr)
+} else {
+  install.packages("ggpubr")
+  library(ggpubr)
 }
 
 ###################################################################################
@@ -170,6 +187,13 @@ if (length(find.package(package = "qdapTools", quiet = T)) > 0) {
 } else {
   install.packages("qdapTools")
   library(qdapTools)
+}
+
+if (length(find.package(package = "alakazam", quiet = T)) > 0) {
+  library(alakazam)
+} else {
+  install.packages("alakazam")
+  library(alakazam)
 }
 
 ###################################################################################
@@ -308,7 +332,8 @@ styles <- c(
 
 #
 # ## sourcing util files
-source(paste0("./www/utils.R"))
+source("./www/utils.R")
+source("./www/PhyscochemicalSep.R")
 # source("ui.R")    
 #
 loadPkg()
