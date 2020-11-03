@@ -1,3 +1,51 @@
+GetSequences <- function (ProteinAccList, directorypath = NULL) 
+{
+  if (!has_internet()) {
+    message("Please connect to the internet as the package requires internect connection.")
+    return()
+  }
+  columns <- c("fragment,encodedon,comment(ALTERNATIVE PRODUCTS),comment(ERRONEOUS GENE MODEL PREDICTION),comment(ERRONEOUS INITIATION),comment(ERRONEOUS TERMINATION),comment(ERRONEOUS TRANSLATION),comment(FRAMESHIFT),comment(MASS SPECTROMETRY),comment(POLYMORPHISM),comment(RNA EDITING),comment(SEQUENCE CAUTION),length,mass,sequence,feature(ALTERNATIVE SEQUENCE),feature(NATURAL VARIANT),feature(NON ADJACENT RESIDUES),feature(NON STANDARD RESIDUE),feature(NON TERMINAL RESIDUE),feature(SEQUENCE CONFLICT),feature(SEQUENCE UNCERTAINTY),version(sequence)")
+  baseUrl <- "http://www.uniprot.org/uniprot/"
+  ProteinInfoParsed_total = data.frame()
+  for (ProteinAcc in ProteinAccList) {
+    Request <- tryCatch({
+      GET(paste0(baseUrl, ProteinAcc, ".xml"))
+    }, error = function(cond) {
+      message("Internet connection problem occurs and the function will return the original error")
+      message(cond)
+    })
+    ProteinName_url <- paste0("?query=accession:", ProteinAcc, 
+                              "&format=tab&columns=", columns)
+    RequestUrl <- paste0(baseUrl, ProteinName_url)
+    RequestUrl <- URLencode(RequestUrl)
+    if (length(Request) == 0) {
+      message("Internet connection problem occurs")
+      return()
+    }
+    if (Request$status_code == 200) {
+      ProteinDataTable <- tryCatch(read.csv(RequestUrl, 
+                                            header = TRUE, sep = "\t"), error = function(e) NULL)
+      if (!is.null(ProteinDataTable)) {
+        ProteinDataTable <- ProteinDataTable[1, ]
+        ProteinInfoParsed <- as.data.frame(ProteinDataTable, 
+                                           row.names = ProteinAcc)
+        ProteinInfoParsed_total <- rbind(ProteinInfoParsed_total, 
+                                         ProteinInfoParsed)
+      }
+    }
+    else {
+      HandleBadRequests(Request$status_code)
+    }
+  }
+  if (!is.null(directorypath)) {
+    write.csv(ProteinInfoParsed_total, paste0(directorypath, 
+                                              "/", "Sequences Information.csv"))
+  }
+  return(ProteinInfoParsed_total)
+}
+
+
+
 #Get Sequence information from Uniprot
 GETSeqFastaUniprot <- function(Accessions, FileName)
 {
@@ -39,11 +87,11 @@ PlotCharge <- function(SeqDataObjPath)
   #Get charge Sign ratios
   Chargecount <- table(sign(result$Sequence_aa_charge))
   if (length(Chargecount) == 1){
-    Chargecount <<- as.table(cbind(Chargecount , 0));
+    Chargecount <- as.table(cbind(Chargecount , 0));
   }
   Chargeratio <- table(sign(result$Sequence_aa_charge))/dim(result)[1]*100
   if (length(Chargeratio) == 1){
-    Chargeratio <<- as.table(cbind(Chargeratio , 0));
+    Chargeratio <- as.table(cbind(Chargeratio , 0));
   }
   #Construct Charge dataframe
   Chargedf = data.frame(x = c("Negative" , "Positive") , y = Chargeratio , z = Chargecount)
@@ -110,4 +158,27 @@ PlotAcidity <- function(SeqDataObjPath)
     guides(fill=guide_legend(title="Groups"))+ xlab("Groups") + ylab("Hydrophobicity")+
     theme_bw() + ggtitle("Hydrophobicity") + theme(plot.title = element_text(hjust = 0.5))
   plot(p)
+}
+
+ConstructPhylogeny <- function(ProteinDataObject)
+{
+  #Get sequences
+  Seqlist <- as.character(ProteinDataObject$Sequence)
+  
+  #Apply multiple sequence alignment
+  MSAresult <- msa(Seqlist , type = "protein")
+  #Convert algniment results to tree
+  MSAtree <- msaConvert(MSAresult, type="seqinr::alignment")
+  # generate a distance matrix using seqinr package
+  MSAdistance <- dist.alignment(MSAtree, "identity")
+  #neighbor-joining tree estimation
+  mTree <- nj(MSAdistance)
+  mTree$tip.label <- as.character(rownames(ProteinDataObject))
+  
+  # pile up the functions to make a new tree
+  NTree <- nj(dist.alignment(MSAtree, "identity"))
+  NTree$tip.label <- mTree$tip.label
+  #Plot new tree
+  plot(NTree, "f", FALSE, cex = 0.7 , main="Phylogenetic Tree of proteins")
+  #RegularTree <- plot(mTree)
 }
