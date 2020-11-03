@@ -2,19 +2,16 @@
 # Sys.setenv("plotly_api_key"="your_api_key")
 ## test repo
 
-wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
-print(wd == getwd())
-print(wd)
-print(getwd())
-if (!wd == getwd()) {
-  setwd(wd)
-}
-
-######
+# wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
+# print(wd == getwd())
+# print(wd)
+# print(getwd())
+# if (!wd == getwd()) {
+#   setwd(wd)
+# }
 
 print("start loading")
 start.load <- Sys.time() ### time
-
 
 if (length(find.package(package = "shiny", quiet = T)) > 0) {
   library(shiny)
@@ -47,7 +44,6 @@ if (length(find.package(package = "rstudioapi", quiet = T)) > 0) {
   install.packages("rstudioapi")
   library(rstudioapi)
 }
-
 
 #################################
 if (length(find.package(package = "RColorBrewer", quiet = T)) > 0) {
@@ -85,6 +81,8 @@ if (length(find.package(package = "cluster", quiet = T)) > 0) {
   library(cluster)
 }
 
+
+## for t-sne
 if (length(find.package(package = "reticulate", quiet = T)) > 0) {
   library(reticulate)
 } else {
@@ -92,14 +90,21 @@ if (length(find.package(package = "reticulate", quiet = T)) > 0) {
   library(reticulate)
 }
 
+if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
+  library(Rtsne)
+} else {
+  install.packages("Rtsne")
+  library(Rtsne)
+}
+
 ####################### Dependencies For RAFSIL ###################################
 
-# if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
-#   library(RAFSIL)
-# } else {
-#   install.packages("RAFSIL")
-#   library(RAFSIL)
-# }
+if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+  library(RAFSIL)
+} else {
+  install.packages("RAFSIL")
+  library(RAFSIL)
+}
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
@@ -120,6 +125,13 @@ if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
 } else {
   install.packages("tidyverse")
   library(tidyverse)
+}
+
+if (length(find.package(package = "ggpubr", quiet = T)) > 0) {
+  library(ggpubr)
+} else {
+  install.packages("ggpubr")
+  library(ggpubr)
 }
 
 ###################################################################################
@@ -183,6 +195,34 @@ if (length(find.package(package = "qdapTools", quiet = T)) > 0) {
   library(qdapTools)
 }
 
+if (length(find.package(package = "alakazam", quiet = T)) > 0) {
+  library(alakazam)
+} else {
+  install.packages("alakazam")
+  library(alakazam)
+}
+
+if (length(find.package(package = "msa", quiet = T)) > 0) {
+  library(msa)
+} else {
+  BiocManager::install("msa", update = FALSE)
+  library(msa)
+}
+
+if (length(find.package(package = "ape", quiet = T)) > 0) {
+  library(ape)
+} else {
+  install.packages("ape")
+  library(ape)
+}
+
+if (length(find.package(package = "seqinr", quiet = T)) > 0) {
+  library(seqinr)
+} else {
+  install.packages("seqinr")
+  library(seqinr)
+}
+
 ###################################################################################
 
 ####################### Dependencies For Co-expression ###################################
@@ -212,12 +252,12 @@ if (length(find.package(package = "remotes", quiet = T)) > 0) {
   library(remotes)
 }
 
-# if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
-#   suppressPackageStartupMessages({library("maEndToEnd")})
-# } else {
-#   remotes::install_github("b-klaus/maEndToEnd", ref="master")
-#   suppressPackageStartupMessages({library("maEndToEnd")})
-# }
+if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
+  suppressPackageStartupMessages({library("maEndToEnd")})
+} else {
+  remotes::install_github("b-klaus/maEndToEnd", ref="master")
+  suppressPackageStartupMessages({library("maEndToEnd")})
+}
 
 if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
     library(moments)
@@ -292,20 +332,6 @@ if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
   }
 
 ###################################################################################
-
-
-#################################
-
-
-
-# wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
-# print(wd == getwd())
-# print(wd)
-# print(getwd())
-# if (!wd == getwd()) {
-#   setwd(wd)
-# }
-
 ########################### Style files for Cytoscape.js ################
 
 styles <- c(
@@ -319,8 +345,9 @@ styles <- c(
 
 #
 # ## sourcing util files
-source(paste0("./www/utils.R"))
-# source("ui.R")    
+source("./www/utils.R")
+source("./www/PhyscochemicalSep.R")
+   
 #
 loadPkg()
 
@@ -347,7 +374,7 @@ ui <- tagList(
   theme = shinytheme("flatly"),
   title = "",
   tabPanel(
-    "ABioTrans",
+    "ABioTrans Plus",
     br(),
     sidebarLayout(
     sidebarPanel(
@@ -389,23 +416,43 @@ ui <- tagList(
       ),
       conditionalPanel(
         condition = "input.file_type=='raw'", # raw
-        p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE
+        withTags({
+          div(class="header", checked=NA,
+              p("Example ", a(href="https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png", "here"))
+          )
+        }),
         fileInput("file1", "Choose Raw Counts"),
-        # radioButtons('norm_method',"Normalisation method",
-        #              c('RPKM','FPKM','TPM')),
-        p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+        
+        withTags({
+          div(class="header", checked=NA,
+              p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+          )
+        }),
         fileInput("length1", "Choose Gene Length"), # gene id + length
-        p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
+        
+        withTags({
+          div(class="header", checked=NA,
+              p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
+          )
+        }),
         fileInput("spikes1", "Choose Negative Control Genes")
-        # helpText("* Format requirement: CSV file. The first column contains gene names; the read counts of each genotype (conditions: wildtype, mutants, replicates, etc.) are in the following columns.Each genotype column should have a column name. ")
       ),
       conditionalPanel(
         condition = "input.file_type=='norm'", # normalized
-        p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
+        withTags({
+          div(class = "header",
+              p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
+          )
+        }),
         fileInput("file2", "Choose Normalized Expression")
         # helpText("* Format requirement: CSV file. Gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database.")
       ),
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+      
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+        )
+      }),
       fileInput("metafile1", "Choose Meta Data File"),
       actionButton("submit_input", "Submit")
     ),
@@ -516,22 +563,27 @@ ui <- tagList(
     "Microarray Data",
     value = "active_tab_micro",
     sidebarPanel(
-        p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
-        fileInput("file_micro", "Choose Microarray Data"),
-         downloadButton("downloadMicroRaw", "Download Raw Data as CSV"),
-         br(), br(),
-          downloadButton("downloadMicroMeta", "Download Meta Data as CSV")
-      ),
-      mainPanel(
-      h3("Preprocessing Microarray Data"),
-      conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(img(src = "load.gif", width = 240, height = 180),
-              h4("Processing ... Please wait"),
-              style = "text-align: center;"
-            )
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
+        )
+      }),
+      fileInput("file_micro", "Choose Microarray Data"),
+      downloadButton("downloadMicroRaw", "Download Raw Data as CSV"),
+      br(), br(),
+      downloadButton("downloadMicroMeta", "Download Meta Data as CSV")
+    ),
+    
+    mainPanel(
+    h3("Preprocessing Microarray Data"),
+    conditionalPanel(
+          condition = "$('html').hasClass('shiny-busy')",
+          div(img(src = "load.gif", width = 240, height = 180),
+            h4("Processing ... Please wait"),
+            style = "text-align: center;"
           )
-    )
+        )
+  )
   )
   ),
   navbarMenu('Transcriptome Analysis',
@@ -981,25 +1033,27 @@ ui <- tagList(
     
   #####################################################################
 
-  tabPanel('t-SNE',
-             sidebarPanel(
-               splitLayout(
-                 numericInput("perplexity_value","Perplexity value", min=1, value=30),
-                 numericInput("no_of_pca","No. of PCs", min=1, value=2),
-                 numericInput("no_of_clusters","No. of clusters", min=2, value=2)
-               ),
-               radioButtons('tsne2_trans',"Transformation:",
-                            c('None', 'log10')),
-               actionButton("submit_tsne2","Submit")),
-             mainPanel(
-               h3('t-SNE Plot'),
-               uiOutput("help_text_tsne"),
-               plotOutput('tsne2.plot')
-             )),
-    tabPanel(
-      "Random Forest",
-      sidebarPanel(
-        radioButtons(
+  tabPanel(
+    't-SNE',
+    sidebarPanel(
+      splitLayout(
+        numericInput("perplexity_value","Perplexity value", min=1, value=2),
+        numericInput("no_of_pca","No. of PCs", min=1, value=30)
+        # numericInput("no_of_clusters","No. of clusters", min=2, value=2)
+      ),
+      radioButtons('tsne2_trans',"Transformation:",
+                   c('None', 'log10')),
+      actionButton("submit_tsne2","Submit")),
+    mainPanel(
+      h3('t-SNE Plot'),
+      uiOutput("help_text_tsne"),
+      plotlyOutput('tsne2.plot')
+    )),
+  
+  tabPanel(
+    "Random Forest",
+    sidebarPanel(
+      radioButtons(
         "analysis_type", "Choose Analysis Type",
         c("RF clustering" = "rf", "RAFSIL" = "rafsil")
       ),
@@ -1019,26 +1073,26 @@ ui <- tagList(
         condition = "input.analysis_type=='rafsil'",  #rafsil
         actionButton("submit_rafsil", "Submit")
       )
-        # conditionalPanel(
-        #          condition = "input.rf_tabs == 'RF plot'",
-        #          downloadButton("downloadrfplot", "Download as PDF")
-        #        ),
-        #        conditionalPanel(
-        #          condition = "input.rf_tabs == 'RF matrix'",
-        #          downloadButton("downloadrfmatrix", "Download as PDF")
-        #        )
-      ),
-      mainPanel(
-        h3("Clustering With Random Forest"),
-        tabsetPanel(type = "tabs",id="rf_tabs",
-                           tabPanel("RF plot", 
+      # conditionalPanel(
+      #          condition = "input.rf_tabs == 'RF plot'",
+      #          downloadButton("downloadrfplot", "Download as PDF")
+      #        ),
+      #        conditionalPanel(
+      #          condition = "input.rf_tabs == 'RF matrix'",
+      #          downloadButton("downloadrfmatrix", "Download as PDF")
+      #        )
+    ),
+    mainPanel(
+      h3("Clustering With Random Forest"),
+      tabsetPanel(type = "tabs",id="rf_tabs",
+                  tabPanel("RF plot", 
                            uiOutput("help_text_rf"),
                            plotlyOutput("rf.plot")),
-                           tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
-                           tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
-               )
+                  tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
+                  tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
       )
-    ),
+    )
+  ),
 
     tabPanel(
       "SOM",
@@ -1109,7 +1163,11 @@ ui <- tagList(
     tags$head(tags$style("#path_enri_visu{height:95vh !important;}")),
     sidebarLayout(
     sidebarPanel(
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gPro_gene_names.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gPro_gene_names.csv")),
+        )
+      }),
       fileInput("file_path_enri", "Upload genes CSV file"),
       actionButton("submit_path_enri", "Submit"),br(),br(),
       selectInput("loadStyleFile_path", "Select Style: ", choices=styles),
@@ -1185,7 +1243,11 @@ ui <- tagList(
   tabPanel(
     "Gene ontology",
     sidebarPanel(
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+        )
+      }),
       fileInput("file_uniprot", "Upload UniProt accession CSV file"),
       actionButton("submit_uniprot", "Submit"),br(),br(),
       conditionalPanel(
@@ -1262,7 +1324,11 @@ ui <- tagList(
     tags$head(tags$style("#cyjShiny{height:95vh !important;}")),
   sidebarLayout(
     sidebarPanel(
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+        )
+      }),
       fileInput("file_prot_Int", "Upload UniProt accession CSV file"),
       actionButton("submit_prot_Int", "Submit"),br(),br(),
       selectInput("loadStyleFile", "Select Style: ", choices=styles),
@@ -1348,7 +1414,11 @@ ui <- tagList(
   tabPanel(
     "Complex Enrichment",
     sidebarPanel(
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+        )
+      }),
       fileInput("file_complex", "Upload UniProt accession CSV file"),
       actionButton("submit_complex", "Submit"),br(),br(),
       downloadButton("complex_download", "Download as CSV")
@@ -1374,7 +1444,11 @@ ui <- tagList(
   tabPanel(
     "Protein Function",
     sidebarPanel(
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+        )
+      }),
       fileInput("file_prot_func", "Upload UniProt accession CSV file"),
       actionButton("submit_prot_func", "Submit"),br(),br(),
       downloadButton("prot_func_download", "Download as CSV")
@@ -1400,7 +1474,11 @@ ui <- tagList(
   tabPanel(
     "Subcellular Localization",
     sidebarPanel(
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+        )
+      }),
       fileInput("file_prot_local", "Upload UniProt accession CSV file"),
       actionButton("submit_prot_local", "Submit"),br(),br(),
       downloadButton("prot_local_download", "Download as CSV")
@@ -1426,7 +1504,11 @@ ui <- tagList(
   tabPanel(
     "Protein Domains",
     sidebarPanel(
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+        )
+      }),
       fileInput("file_prot_domain", "Upload UniProt accession CSV file"),
       actionButton("submit_prot_domain", "Submit"),br(),br(),
       downloadButton("prot_domain_download", "Download as CSV")
@@ -1452,7 +1534,11 @@ ui <- tagList(
   tabPanel(
     "Tissue Expression",
     sidebarPanel(
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+        )
+      }),
       fileInput("file_prot_expr", "Upload UniProt accession CSV file"),
       actionButton("submit_prot_expr", "Submit"),br(),br(),
       downloadButton("prot_expr_download", "Download as CSV")
@@ -1491,7 +1577,11 @@ ui <- tagList(
                     "Rattus_norvegicus",
                     "Saccharomyces_cerevisiae"
                   )),
-      p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_names.csv")),
+      withTags({
+        div(class = "header",
+            p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_names.csv")),
+        )
+      }),
       fileInput("file_gene", "Upload genes CSV file"),
       actionButton("genemania_submit", "Submit")
     ),
@@ -1520,22 +1610,89 @@ ui <- tagList(
     "Protein Sequences",
     sidebarPanel(
       fileInput("file_prot_seq", "a text file with UniProt accessions"),
-      actionButton("submit_prot_seq", "Submit")
+      downloadButton('downloadData', 'Download Sequence FASTA'),
+      
     ),
     mainPanel(
       h3("Protein Sequences"),
-      uiOutput("help_text_prot_seq"),
-      conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(img(src = "load.gif", width = 240, height = 180),
-              h4("Processing ... Please wait"),
-              style = "text-align: center;"
-            )
-          ),
-          conditionalPanel(
-            condition = "!$('html').hasClass('shiny-busy')",
-            htmlOutput("fasta_text")
-          )
+      tabsetPanel(type = "tabs",
+                  tabPanel(
+                    "Sequence Information",
+                    uiOutput("help_text_prot_seq")
+                  ),
+                  tabPanel(
+                    "Sequence charge", 
+                    conditionalPanel(
+                      condition = "$('html').hasClass('shiny-busy')",
+                      div(img(src = "load.gif", width = 240, height = 180),
+                          h4("Processing ... Please wait"),
+                          style = "text-align: center;"
+                      )
+                    ),
+                    conditionalPanel(
+                      condition = "!$('html').hasClass('shiny-busy')",
+                      plotOutput("ChargePlot") #  , width="750px",height="750px"
+                    ),
+                  ),
+                  tabPanel(
+                    "Sequence Acidity", 
+                    conditionalPanel(
+                      condition = "$('html').hasClass('shiny-busy')",
+                      div(img(src = "load.gif", width = 240, height = 180),
+                          h4("Processing ... Please wait"),
+                          style = "text-align: center;"
+                      )
+                    ),
+                    conditionalPanel(
+                      condition = "!$('html').hasClass('shiny-busy')",
+                      plotOutput("AcidityPlot") #  , width="750px",height="750px"
+                    ),
+                  ),
+                  tabPanel(
+                    "Sequence Gravy index",
+                    conditionalPanel(
+                      condition = "$('html').hasClass('shiny-busy')",
+                      div(img(src = "load.gif", width = 240, height = 180),
+                          h4("Processing ... Please wait"),
+                          style = "text-align: center;"
+                      )
+                    ),
+                    conditionalPanel(
+                      condition = "!$('html').hasClass('shiny-busy')",
+                      plotOutput("GravyPlot") #  , width="750px",height="750px"
+                    ),
+                  ),
+                  tabPanel(
+                    "All physicochemical properties", 
+                    conditionalPanel(
+                      condition = "$('html').hasClass('shiny-busy')",
+                      div(img(src = "load.gif", width = 240, height = 180),
+                          h4("Processing ... Please wait"),
+                          style = "text-align: center;"
+                      )
+                    ),
+                    conditionalPanel(
+                      condition = "!$('html').hasClass('shiny-busy')",
+                      plotOutput("SequencePlot" , width="900px",height="750px")
+                    ),
+                  ),
+                  tabPanel(
+                    "Multiple Sequence alignment tree", 
+                    conditionalPanel(
+                      condition = "$('html').hasClass('shiny-busy')",
+                      div(img(src = "load.gif", width = 240, height = 180),
+                          h4("Processing ... Please wait"),
+                          style = "text-align: center;"
+                      )
+                    ),
+                    conditionalPanel(
+                      condition = "!$('html').hasClass('shiny-busy')",
+                      plotOutput("Phylogenetic") # , width="900px",height="750px"
+                    ),
+                  )
+                  
+      ),
+
   ))
   #########################################
 
@@ -4050,7 +4207,7 @@ RLE.plot <- reactive({
     type <- input$file_type
     perplexity_value <- input$perplexity_value
     no_of_pca <- input$no_of_pca
-    no_of_clusters <- input$no_of_clusters
+    # no_of_clusters <- input$no_of_clusters
     
     
     if(type=='norm'){
@@ -4067,7 +4224,7 @@ RLE.plot <- reactive({
     tsne2.end <- Sys.time()
     print("t-SNE plot time")
     print(tsne2.end - tsne2.start)
-    return (list(tsne2.data, perplexity_value, no_of_pca, no_of_clusters))
+    return (list(tsne2.data, perplexity_value, no_of_pca)) #, no_of_clusters
   })
   
   
@@ -4077,31 +4234,52 @@ RLE.plot <- reactive({
     tsne2.data <- li[[1]]
     perplexity_value <- li[[2]]
     no_of_pca <- li[[3]]
-    no_of_clusters <- li[[4]] 
+    # no_of_clusters <- li[[4]] 
     
-    # convert R to Python dataframe
-    py_run_file("df_converter.py")
-    temp <- py$r2py_DataFrame(tsne2.data)
-    py$df_expr <- temp[[1]]
-    py$temp_indexnames <- temp[[2]]
+    # get tsne value
+    tsne_val <- Rtsne(t(tsne2.data), 
+                      dims = 2,
+                      initial_dims = no_of_pca,
+                      perplexity = perplexity_value,
+                      theta = 0.0)
     
-    # additional parameters to pass to python script
-    py$dataName = 'tsne_data_output'
-    py$perplexity = perplexity_value
-    py$n_components_pca = no_of_pca
-    py$n_clusters = no_of_clusters
+    # create the data frame for plotting
+    tsne_df <- data.frame(
+      TSNE1 = tsne_val$Y[, 1],
+      TSNE2 = tsne_val$Y[, 2],
+      Sample = colnames(tsne2.data)
+    )
     
-    # run DCS python script
-    py_run_file("DCS_demo_interactive.py")
-    
+    # plotting    
+    p <- plot_ly(data = tsne_df, x = ~TSNE1, y = ~TSNE2, text = ~Sample )
+
   }
   
-  output$tsne2.plot <- renderPlot({
+  output$tsne2.plot <- renderPlotly({
     tsne2plot()
   })
 
   output$help_text_tsne <- renderUI({
-    HTML("<h3><b>To be implemented</b></h3>")
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          t-SNE (t-distributed stochastic neighbor embedding) (Hinton, 2008) uses the local relationships between points 
+          to create a low-dimensional mapping. This allows it to capture non-linear structure. </b>
+          t-SNE creates a probability distribution using the Gaussian distribution that defines 
+          the relationships between the points in high-dimensional space. t-SNE uses the Student 
+          t-distribution to recreate the probability distribution in low-dimensional space. This 
+          prevents the crowding problem, where points tend to get crowded in low-dimensional 
+          space due to the curse of dimensionality. </b>
+          t-SNE optimizes the embeddings directly using gradient descent. The cost function is 
+          non-convex, thus there is the risk of getting stuck in local minima. t-SNE uses multiple 
+          tricks to try to avoid this problem.
+          </b>
+        </p>
+      </center>
+    ")
   })
   
   ###################################
@@ -6383,7 +6561,7 @@ RLE.plot <- reactive({
   ######  Protein Sequences  ########
   ###################################
   ###################################
-  
+  Proteins <- NULL
   df_prot_seq <- reactive({
     print("running")
     if (is.null(input$file_prot_seq)) {
@@ -6402,36 +6580,119 @@ RLE.plot <- reactive({
     protein_Id <- read.csv(input$file_prot_seq$datapath)
     protein_Id <- na.omit(protein_Id)
     protein_Id <- protein_Id[!duplicated(protein_Id[, 1]), ]
-
+    Proteins <<- protein_Id
+    
     return(protein_Id)
 
   })
-
+  GetAccs <- function()
+  {
+    protein_Id <- read.csv(input$file_prot_seq$datapath)
+    protein_Id <- unique(as.character(protein_Id[,1]))
+    Proteins <<- protein_Id
+  }
+  Seqdata <- NULL
   observeEvent(input$submit_prot_seq, {
 
     print("running")
     hide("help_text_prot_seq")
     
-    Protein_id <- df_prot_seq()
-    py$Protein_id <- df_prot_seq()
-    py_run_file("getFASTA.py")
-    count_fasta(py$count)
-    count_id(py$size)
+    if (tools::file_ext(input$file_prot_seq$datapath) == "csv") 
+      Protein_id <-  read.csv(input$file_prot_seq$datapath , header = F)
+    else if (tools::file_ext(input$file_prot_seq$datapath) == "txt")
+      Protein_id <- read.csv(input$file_prot_seq$datapath , sep = "\t" , header = F)
+    Protein_id
 
-    showModal(modalDialog(
-        title = "Alert!!!",
-        "The fasta file is saved as download.fasta"
-      ))
-
+    Proteins <<- unique(as.character(Protein_id[,1]))
+    count_id <- length(Proteins) - 1
+    Seqdata <<- GetSequences(Proteins)
+    count_fasta <- dim(Seqdata)[1]
   })
 
-  output$fasta_text <- renderUI({
-        h2(count_id()," protein ID submitted. Sequences of ", count_fasta()," proteins were retrieved.")
-  })
 
   output$help_text_prot_seq <- renderUI({
     HTML("<h3><b>This page retrieves the full protein sequences from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions.</b></h3>")
   })
+  
+  output$SequencePlot <- renderPlot(
+    {
+      if(is.null(Seqdata))
+      {
+        Proteins <- GetAccs()
+        Seqdata <<- GetSequences(Proteins)
+      }
+      PlotPhysicochemical(Seqdata)
+    }
+  )
+  output$GravyPlot <- renderPlot(
+    {
+      if(is.null(Seqdata))
+      {
+        Proteins <- GetAccs()
+        Seqdata <<- GetSequences(Proteins)
+      }
+      PlotGravy(Seqdata)
+    }
+  )
+  output$ChargePlot <- renderPlot(
+    {
+      if(is.null(Seqdata))
+      {
+        Proteins <- GetAccs()
+        Seqdata <<- GetSequences(Proteins)
+      }
+      PlotCharge(Seqdata)
+    }
+  )
+  output$AcidityPlot <- renderPlot(
+    {
+      if(is.null(Seqdata))
+      {
+        Proteins <- GetAccs()
+        Seqdata <<- GetSequences(Proteins)
+      }
+      PlotAcidity(Seqdata)
+    }
+  )
+  output$Phylogenetic <- renderPlot(
+    {
+      if(is.null(Seqdata))
+      {
+        Proteins <- GetAccs()
+        Seqdata <<- GetSequences(Proteins)
+      }
+      ConstructPhylogeny(Seqdata)
+    }
+  )
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste0("Sequences", ".FASTA")
+    },    
+    content = function(file) {
+      
+      Accessions <- GetAccs()
+      for (Acc in Accessions)
+      {
+        Request <- tryCatch(
+          {
+            GET(paste0("https://www.uniprot.org/uniprot/" , Acc , ".Fasta") , timeout(10))
+          },error = function(cond)
+          {
+            message("Internet connection problem occurs and the function will return the original error")
+            message(cond)
+          }
+        )
+        if (Request$status_code == 200)
+        {
+          OutNumber <<- OutNumber + 1
+          Fastadata <- read.csv(paste0("https://www.uniprot.org/uniprot/" , Acc , ".Fasta") , header = F , sep = "\t")
+          Sequences <- paste0(as.character(unlist(Fastadata)) , collapse = "\n")
+          write.table(x = Sequences , file = paste0(FileName ,".fasta") , quote = F , row.names = F , col.names = F, append = T)
+        }
+        
+      }
+      }
+  )
 
   ###################################
   ###################################
@@ -6443,3 +6704,4 @@ RLE.plot <- reactive({
 }
 
 app <- shinyApp(ui = ui, server = server)
+app
