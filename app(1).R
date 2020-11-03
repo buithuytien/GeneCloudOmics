@@ -2,13 +2,13 @@
 # Sys.setenv("plotly_api_key"="your_api_key")
 ## test repo
 
-wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
-print(wd == getwd())
-print(wd)
-print(getwd())
-if (!wd == getwd()) {
-  setwd(wd)
-}
+# wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
+# print(wd == getwd())
+# print(wd)
+# print(getwd())
+# if (!wd == getwd()) {
+#   setwd(wd)
+# }
 
 print("start loading")
 start.load <- Sys.time() ### time
@@ -43,15 +43,6 @@ if (length(find.package(package = "rstudioapi", quiet = T)) > 0) {
 } else {
   install.packages("rstudioapi")
   library(rstudioapi)
-}
-
-if (length(find.package(package = "shinycssloaders", quiet = T)) > 0) {
-  library(shinycssloaders)
-} else {
-  print("Package shinycssloaders not installed")
-  install.packages("shinycssloaders")
-  print("Package shinycssloaders installed")
-  library(shinycssloaders)
 }
 
 #################################
@@ -99,12 +90,12 @@ if (length(find.package(package = "reticulate", quiet = T)) > 0) {
 
 ####################### Dependencies For RAFSIL ###################################
 
-# if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
-#   library(RAFSIL)
-# } else {
-#   install.packages("RAFSIL")
-#   library(RAFSIL)
-# }
+if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+  library(RAFSIL)
+} else {
+  install.packages("RAFSIL")
+  library(RAFSIL)
+}
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
@@ -252,12 +243,12 @@ if (length(find.package(package = "remotes", quiet = T)) > 0) {
   library(remotes)
 }
 
-# if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
-#   suppressPackageStartupMessages({library("maEndToEnd")})
-# } else {
-#   remotes::install_github("b-klaus/maEndToEnd", ref="master")
-#   suppressPackageStartupMessages({library("maEndToEnd")})
-# }
+if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
+  suppressPackageStartupMessages({library("maEndToEnd")})
+} else {
+  remotes::install_github("b-klaus/maEndToEnd", ref="master")
+  suppressPackageStartupMessages({library("maEndToEnd")})
+}
 
 if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
     library(moments)
