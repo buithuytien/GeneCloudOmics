@@ -125,6 +125,17 @@ if (length(find.package(package = "scales", quiet = T)) > 0) {
 
 ###################################################################################
 
+####################### Dependencies For Pathway Enrichnment ###################################
+
+if (length(find.package(package = "gprofiler2", quiet = T)) > 0) {
+  library(gprofiler2)
+} else {
+  install.packages("gprofiler2")
+  library(gprofiler2)
+}
+
+###################################################################################
+
 ####################### Dependencies For Protein Interactions ###################################
 
 if (length(find.package(package = "httr", quiet = T)) > 0) {
@@ -141,12 +152,12 @@ if (length(find.package(package = "curl", quiet = T)) > 0) {
   library(curl)
 }
 
-if (length(find.package(package = "RCyjs", quiet = T)) > 0) {
-  library(RCyjs)
-} else {
-  install.packages("RCyjs")
-  library(RCyjs)
-}
+# if (length(find.package(package = "RCyjs", quiet = T)) > 0) {
+#   library(RCyjs)
+# } else {
+#   install.packages("RCyjs")
+#   library(RCyjs)
+# }
 
 if (length(find.package(package = "cyjShiny", quiet = T)) > 0) {
   library(cyjShiny)
@@ -1218,7 +1229,60 @@ ui <- tagList(
       DT::dataTableOutput("prot_domain_table")
   )),
 
-
+  ########## Pathway Enrichnment ##############
+  #########################################
+  tabPanel(
+    "Pathway Enrichnment",
+    tags$head(tags$style("#path_enri_visu{height:95vh !important;}")),
+    sidebarLayout(
+    sidebarPanel(
+      fileInput("file_path_enri", "Upload the accession files"),
+      actionButton("submit_path_enri", "Submit"),br(),br(),
+      selectInput("loadStyleFile_path", "Select Style: ", choices=styles),
+      # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
+      sliderInput("overlap_min", "Minimum Overlap",
+                  min = 0, max = 100,
+                  value = 50),
+          sliderInput("overlap_node_min", "Minimum Node Overlap",
+                  min = 0, max = 100,
+                  value = 50),
+          selectInput("showCondition", "Select Condition:", choices=c("A","B","C")),
+          selectInput("edge_wt", "Select wt:", choices=c("A","B","C")),
+          selectInput("doLayout_path", "Select Layout:",
+                      choices=c("",
+                                "cose",
+                                "cola",
+                                "circle",
+                                "concentric",
+                                "breadthfirst",
+                                "grid",
+                                "random",
+                                "dagre",
+                                "cose-bilkent")),
+          actionButton("sfn_path", "Select First Neighbor"),
+          br(),br(),
+          actionButton("fit_path", "Fit Graph"),br(),br(),
+          actionButton("fitSelected_path", "Fit Selected"),br(),br(),
+          actionButton("clearSelection_path", "Clear Selection"), br(),br(),
+          actionButton("removeGraphButton_path", "Remove Graph"), br(),br(),
+          actionButton("addRandomGraphFromDataFramesButton_path", "Add Random Graph"),br(),br(),
+          actionButton("getSelectedNodes_path", "Get Selected Nodes"), br(),br(),
+          htmlOutput("selectedNodesDisplay_path"),
+          width=2
+    ),
+    mainPanel(
+      h3("Pathway Enrichnment"),
+      tabsetPanel(
+          type = "tabs", id = "path_enri_tab",
+          tabPanel("Plot",
+          plotlyOutput("path_enri.plot")
+          ),
+          tabPanel("Visualization",
+          cyjShinyOutput('path_enri_visu', height=350)
+          )
+      )
+    )
+  )),
 
 
     ###### UNIPROT #############
@@ -4845,6 +4909,320 @@ RLE.plot <- reactive({
       write.csv(download_prot_domain(), file, row.names = FALSE)
     }
   )
+
+  ###################################
+  ###################################
+  ###################################
+  ###################################
+
+
+  ###################################
+  ###################################
+  ###### Pathway Enrichnment ########
+  ###################################
+  ###################################
+  
+
+  pathway_enri_df <- reactiveVal(0)
+  pathway_enri_nodes <- reactiveVal(0)
+
+  df_path_enri <- reactive({
+    print("running...")
+    if (is.null(input$file_path_enri)) {
+      return(NULL)
+    }
+    parts <- strsplit(input$file_path_enri$datapath, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    if (type != "csv") {
+      showModal(modalDialog(
+        title = "Error",
+        "Please input a csv file!"
+      ))
+      return(NULL)
+    }
+
+    Accessions <- read.csv(input$file_path_enri$datapath)
+    Accessions <- na.omit(Accessions)
+    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+
+    return(Accessions)
+
+  })
+
+  df_path_enri_id <- eventReactive(input$submit_path_enri,{
+    print("running")
+
+    df <- df_path_enri()
+    return(df)
+  })
+
+  plot_path_enri <- function() {
+
+    gene_name <- as.data.frame(df_path_enri_id())
+    gene_name[,1] <- as.character(gene_name[,1])
+    
+    path_list <- gost(gene_name[,1],exclude_iea = TRUE,evcodes = TRUE ,sources = "GO:BP")
+    path_df <- path_list[[1]]
+    pathway_enri_df(path_df)
+    prot_num <- data.frame()
+    for(i in 1:nrow(path_df))
+    {
+      prot_num <- rbind(prot_num,nrow(as.data.frame(strsplit(path_df[i,"intersection"],","))))
+    }
+
+    path_enrich_df <- data.frame(
+      "term_name" = path_df[,"term_name"],
+      "intersection" = prot_num[,1]
+    )
+
+    pathway_enri_nodes(path_enrich_df)
+
+    path_enrich_df <- path_enrich_df[order(path_enrich_df$intersection),]
+
+
+    bar_plot <- ggplot(data=path_enrich_df, aes(x=reorder(path_enrich_df$term_name , path_enrich_df$intersection), y=path_enrich_df$intersection)) +
+      geom_bar(stat="identity", fill="steelblue" , alpha = 0.7) + xlab("Molecular function") + ylab("Number of Genes") +
+      geom_text(aes(label = path_enrich_df$intersection), vjust = -0.03) + theme(axis.text.x = element_text(angle = 90 , hjust = 1 , vjust = 0.2))+
+      theme_minimal() +coord_flip() + theme_bw()+theme(text = element_text(size=12, face="bold", colour="black"),axis.text.x = element_text(vjust=2))
+
+     
+    return(bar_plot)
+  }
+
+  output$path_enri.plot <- renderPlotly({
+    ggplotly(plot_path_enri(), tooltip = c("text"))
+  })
+
+  #visualization
+
+  observeEvent(input$fit_path, ignoreInit=TRUE, {
+       fit(session, 80)
+       })
+
+  
+  observeEvent(input$showCondition, ignoreInit=TRUE, {
+       condition.name <- isolate(input$showCondition)
+       values <- as.numeric(pathway_enri_nodes()[,2])
+       node.names <- pathway_enri_nodes()[,1]
+       print(values)
+       setNodeAttributes(session, attributeName="lfc", nodes=node.names, values)
+       })
+
+
+  observeEvent(input$loadStyleFile_path,  ignoreInit=TRUE, {
+       if(input$loadStyleFile_path != ""){
+          tryCatch({
+             loadStyleFile(input$loadStyleFile_path)
+             }, error=function(e) {
+                msg <- sprintf("ERROR in stylesheet file '%s': %s", input$loadStyleFile_path, e$message)
+                showNotification(msg, duration=NULL, type="error")
+                })
+           later(function() {updateSelectInput(session, "loadStyleFile", selected=character(0))}, 0.5)
+          }
+       })
+
+
+  observeEvent(input$doLayout_path,  ignoreInit=TRUE,{
+       if(input$doLayout_path != ""){
+          strategy <- input$doLayout_path
+          doLayout(session, strategy)
+          later(function() {updateSelectInput(session, "doLayout", selected=character(0))}, 1)
+          }
+       })
+
+
+  observeEvent(input$sfn_path,  ignoreInit=TRUE,{
+       selectFirstNeighbors(session)
+       })
+
+
+  observeEvent(input$fitSelected_path,  ignoreInit=TRUE,{
+       fitSelected(session, 100)
+       })
+
+
+  observeEvent(input$getSelectedNodes_path, ignoreInit=TRUE, {
+       output$selectedNodesDisplay_path <- renderText({" "})
+       getSelectedNodes(session)
+       })
+
+
+  observeEvent(input$clearSelection_path,  ignoreInit=TRUE, {
+       clearSelection(session)
+       })  
+
+
+  observeEvent(input$removeGraphButton_path, ignoreInit=TRUE, {
+        removeGraph(session)
+        })
+
+
+  observeEvent(input$addRandomGraphFromDataFramesButton_path, ignoreInit=TRUE, {
+    source.nodes <-  LETTERS[sample(1:5, 5)]
+    target.nodes <-  LETTERS[sample(1:5, 5)]
+    tbl.edges <- data.frame(source=source.nodes,
+                            target=target.nodes,
+                            interaction=rep("generic", length(source.nodes)),
+                            stringsAsFactors=FALSE)
+    all.nodes <- sort(unique(c(source.nodes, target.nodes, "orphan")))
+    tbl.nodes <- data.frame(id=all.nodes,
+                            type=rep("unspecified", length(all.nodes)),
+                            stringsAsFactors=FALSE)
+    addGraphFromDataFrame(session, tbl.edges, tbl.nodes)
+  })
+
+
+  # observeEvent(input$selectedNodes, {
+  #       newNodes <- input$selectedNodes;
+  #       output$selectedNodesDisplay <- renderText({
+  #          paste(newNodes)
+  #          })
+  #       })
+
+  pathway_overlap <- reactiveVal(0)
+
+  new_source_var <- reactiveVal(0)
+  new_target_var <- reactiveVal(0)
+  overlap_wt <- reactiveVal(0)
+
+  output$path_enri_visu <- renderCyjShiny({
+
+    print("visualization")
+    gene_id <- as.data.frame(df_path_enri_id())
+    path_df <- pathway_enri_df()
+    print("testing running")
+
+    mat_id <- matrix(0,nrow = nrow(path_df),ncol = nrow(gene_id))
+    col_names <- t(gene_id)
+    colnames(mat_id) <- col_names
+    rownames(mat_id) <- path_df$term_name
+
+
+    for(j in 1:nrow(path_df))
+    {
+      for(i in strsplit(path_df[j,"intersection"],",")[[1]])
+      {
+        mat_id[j,i] <- 1
+      }
+    }
+
+    mat_id_raw <- mat_id
+    mat_id <- matrix(data = 0, nrow = 0, ncol = nrow(gene_id))
+    mat_row_names <- character()
+
+    for(i in 1:nrow(pathway_enri_nodes()))
+    {
+      if(as.numeric(pathway_enri_nodes()[i,2])>=input$overlap_node_min)
+      {
+        mat_id <- rbind(mat_id, mat_id_raw[i,])
+        mat_row_names <- c(mat_row_names,as.character(rownames(mat_id_raw)[i]))
+      }
+    }
+
+    print(mat_row_names)
+    rownames(mat_id) <- mat_row_names
+    print(mat_id)
+
+    edge_source <- character()
+    edge_target <- character()
+
+    for(idx in 1:ncol(mat_id))
+    {
+      if(max(mat_id[,idx]) == 0) next()
+      for (i in 1:nrow(mat_id)) {
+        if(mat_id[i,idx])
+        {
+          for(j in i:nrow(mat_id))
+          {
+            if(mat_id[j,idx] && j!=i)
+            {
+              edge_source <- c(edge_source,as.character(rownames(mat_id)[i]))
+              edge_target <- c(edge_target,as.character(rownames(mat_id)[j]))
+            }
+          }
+        }
+      }
+    }
+
+    overlap_cnt <- matrix(0,nrow = (nrow(mat_id)*(nrow(mat_id)-1))/2,ncol = 3)
+    overlap_name <- character()
+    pair_1 <- character()
+    pair_2 <- character()
+    for(i in 1:nrow(mat_id))
+    {
+      if(i == nrow(mat_id)) next()
+      start <- i+1
+      for(j in start:nrow(mat_id))
+      {
+        overlap_name <- c(overlap_name,paste0(rownames(mat_id)[i]," & ",rownames(mat_id)[j]))
+        pair_1 <- c(pair_1,rownames(mat_id)[i])
+        pair_2 <- c(pair_2,rownames(mat_id)[j])
+      }
+    }
+    rownames(overlap_cnt) <- overlap_name
+    overlap_cnt <- as.data.frame(overlap_cnt)
+    overlap_cnt[,2] <- as.character(pair_1)
+    overlap_cnt[,3] <- as.character(pair_2)
+    overlap_cnt[,1] <- as.numeric(overlap_cnt[,1])
+    for(i in 1:length(edge_source))
+    {
+      overlap_cnt[paste0(edge_source[i]," & ",edge_target[i]),1] <- overlap_cnt[paste0(edge_source[i]," & ",edge_target[i]),1] + 1
+    }
+
+    pathway_overlap(overlap_cnt)
+    # updateSelectInput(session, "overlap_min", choices = unique(sort(overlap_cnt[,1])), selected = unique(sort(overlap_cnt[,1]))[1]) 
+
+    overlap_val <- input$overlap_min
+    new_source <- character()
+    new_target <- character()
+    num_value <- numeric()
+
+    for(i in 1:nrow(overlap_cnt))
+    {
+      if(overlap_cnt[i,1] >= as.numeric(overlap_val))
+      {
+        new_source <- c(new_source,overlap_cnt[i,2])
+        new_target <- c(new_target,overlap_cnt[i,3])
+        num_value <- c(num_value,overlap_cnt[i,1])
+      }
+    }
+
+    new_source_var(new_source)
+    new_target_var(new_target)
+    overlap_wt(num_value)
+
+    path_enri.nodes <- data.frame(id=as.character(rownames(mat_id)),
+                               type=as.character(rownames(mat_id)),
+                               stringsAsFactors=FALSE)
+
+    path_enri.edges <- data.frame(source=new_source,
+                               target=new_target,
+                               interaction=new_target,
+                               stringsAsFactors=FALSE)
+    
+    graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
+    cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
+
+  })
+
+  observeEvent(input$edge_wt, ignoreInit=TRUE, {
+       condition.name <- isolate(input$showCondition)
+       
+       print(overlap_wt())
+       setEdgeAttributes(session, attributeName="wt", sourceNodes=new_source_var(),
+                    targetNodes=new_target_var(),
+                    interactions=new_target_var(),
+                    values=overlap_wt())
+       })
+
+  # observe({
+  #   overlap_cnt <- pathway_overlap()
+  #   if(overlap_cnt != 0)
+  #   {
+  #     updateSelectInput(session, "overlap_min", choices = unique(sort(overlap_cnt[,1])), selected = unique(sort(overlap_cnt[,1]))[1])
+  #   }
+  # })
+  
 
   ###################################
   ###################################
