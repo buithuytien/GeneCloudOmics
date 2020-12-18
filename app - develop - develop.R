@@ -386,13 +386,24 @@ ui <- tagList(
     mainPanel(
       h2("Welcome to ABioTrans Plus", align = "center",style = "color:#73C6B6;font-weight: bold;"),
       p("The Biostatistical Tool for Gene Expression Data Analysis", align = "center"),
-      h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;")," is a web-based bio-statistical/informatics tool developed in R for gene expression analysis."),
-      h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;")," allows the user to directly read ",span("RNA-Seq or Microarray", style = "font-weight: bold;"),
-         " data files, pre-process them and perform several statistical and data mining analyses. It provides easy options for multiple statistical distribution fitting,
-         Pearson and Spearman rank correlations, PCA, k-means and hierarchical clustering, differential expression (DE) analysis, 
-         Shannon entropy and noise (square of the coefficient of variation) analyses, Entropy analysis, support vector machine (SVM) and Random Forest clustering, tSNE and SOM analyses."),
-      h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;"), " also provides several gene and protein datasets analyses such as gene ontology (GO) classifications, pathways enrichment,
-         protein-protein interaction (PPI), subcellular localization, protein complex enrichment, protein domains annotation and Protein Sequence Download."),
+      h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;")," is a web server for transcriptome data analysis and visualization. It supports the analysis of 
+      microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, 
+      it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets."),
+      h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;"),"  is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical 
+      user interface (GUI) that waves the hassle of coding, installing tools,  packages or libraries and dealing with operating systems compatibility and versioning issues, some of 
+      the complications that make data analysis tasks more challenging for biologists. ABioTrans Plus is an open-source tool and the website is free and open to all users 
+      and there is no login requirement."),
+      h4(span("Supported Transcriptome data:", style = "color:#73C6B6;font-weight: bold;"), " RNA-Seq and Microarray "),
+      h4(span("Data Preprocessing:", style = "color:#73C6B6;font-weight: bold;"), " ABioTrans Plus performs raw data normalization using four normalization methods RPKM, 
+      FPKM, TPM and RUV. The raw vs. normalized data are visualized as boxplots and violin plots."),
+      h4(span("Differential Gene Expression (DGE) Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GDE using five methods EdgeR, DESeq2, NOISeq, LIMMA and ScatLay."),
+      h4(span("Bio-statistical Analysis:", style = "color:#73C6B6;font-weight: bold;"), " ABioTrans Plus provides the user with the following bio-statistical analyses: 
+      Pearson and Spearman rank correlations, PCA, k-means and hierarchical clustering, 
+      Shannon entropy and noise (square of the coefficient of variation), t-SNE, random forest and SOM analyses. All analyses include proper high-resolution visualization."),
+      h4(span("Bioinformatics Analysis of Gene and Protein sets:", style = "color:#73C6B6;font-weight: bold;"), " For the differential expressed genes (DEG), ABioTrans Plus provides 
+      the users with multiple bioinformatics tools to investigate their 
+      gene/protein list including gene ontology (GO), pathway enrichment analysis, PPI, co-expression, gene/protein function, subcellular localization, complex enrichment, protein domains, tissue expression, sequence properties (acidity, hydrophobicity and charge),
+       evolutionary analysis (gene tree, phylogenetic tree and species/chromosome location)  and pathological analysis (diseases that these genes/proteins are involved in). The analyses include proper high-resolution visualization, when applicable."),
       br(),
       h4("Please cite"),
       HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>"),
