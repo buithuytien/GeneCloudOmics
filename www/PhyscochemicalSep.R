@@ -44,8 +44,6 @@ GetSequences <- function (ProteinAccList, directorypath = NULL)
   return(ProteinInfoParsed_total)
 }
 
-
-
 #Get Sequence information from Uniprot
 GETSeqFastaUniprot <- function(Accessions, FileName)
 {
@@ -72,7 +70,6 @@ GETSeqFastaUniprot <- function(Accessions, FileName)
   }
   return(OutNumber)
 }
-
 
 PlotCharge <- function(SeqDataObjPath)
 {
@@ -181,4 +178,131 @@ ConstructPhylogeny <- function(ProteinDataObject)
   #Plot new tree
   plot(NTree, "f", FALSE, cex = 0.7 , main="Phylogenetic Tree of proteins")
   #RegularTree <- plot(mTree)
+}
+
+ConstructGenes <- function(ProteinDataObject)
+{
+  ProteinDataObject <- ProteinDataObject %>% select(3)
+  ProteinDataObject <- na.omit(ProteinDataObject)
+  UniqueLocis <- unique(ProteinDataObject$Gene.names...primary..)
+  ChromoTree <- Node$new("GeneNames")
+  for (loc in UniqueLocis) {
+    loca <- ChromoTree$AddChild(loc)
+    Frequencyindecies <- which(ProteinDataObject$Gene.names...primary.. %in% 
+                                 loc)
+    for (index in Frequencyindecies) {
+      locaa <- loca$AddChild(rownames(ProteinDataObject)[index])
+    }
+  }
+  #plot with networkD3
+  useRtreeList <- ToListExplicit(ChromoTree, unname = TRUE)
+  radialNetwork(useRtreeList)
+}
+
+library(qdapRegex)
+library(dplyr)
+library(stringr)
+library(bubbles)
+
+CreateOMIMlink <- function(Omim.ids) {
+  sprintf('<a href="https://www.omim.org/entry/%s" target="_blank" class="btn btn-primary">View in OMIM</a>',Omim.ids)
+  
+  #paste0("<a href='","https://www.omim.org/entry/",Omim.ids,"'>",Omim.ids,"</a>")
+}
+
+#Get disease for set of proteins 
+Get.diseases <- function(Pathology_object)
+{
+  Disease <- select(Pathology_object, "Involvement.in.disease")
+  Disease <- setNames(data.frame(Disease[!is.na(Disease$Involvement.in.disease),]), "Involvement.in.disease")
+  if (dim(Disease)[1] == 0)
+  {
+    return(NULL)
+  }
+  Protein.disease <- NULL
+  #Get disease id 
+  for (i in 1:dim(Disease)[1])
+  {
+    Disease.List <- paste0(do.call('rbind' ,str_extract_all(Disease$Involvement.in.disease[i] ,"DISEASE:(.*?)]")), collapse = ";")
+    Protein.disease <- c(Protein.disease, Disease.List)
+  }
+  Protein.disease <- as.data.frame(Protein.disease, row.names = rownames(Disease))
+  Protein.disease$Protein.disease <- gsub("DISEASE: " , "" , Protein.disease$Protein.disease)
+  
+  Disease.count.list <- setNames(data.frame(unlist(str_extract_all(Disease$Involvement.in.disease ,"DISEASE:(.*?)]"))), "DISEASE")
+  Disease.count <- setNames(data.frame(plyr::count(Disease.count.list , "DISEASE")), c("Disease", "Numberofproteins"))
+  Disease.count$Disease <- gsub("DISEASE: " , "" , Disease.count$Disease)
+  Disease.count <- Disease.count[order(Disease.count$Numberofproteins, decreasing = T),]
+  #Get OMIM Ids
+  OMIMID <- do.call('rbind', strsplit(unlist(qdapRegex::ex_between(Disease.count$Disease ,"[", "]")), ":"))[,2]
+  Disease.count$OMIMID <- CreateOMIMlink(OMIMID)
+  return(Disease.count)
+}
+
+
+Plot.NDiseases <- function(Disease.List, Top = 10)
+{
+  Disease.List <- Disease.List[,1:2]
+  if (dim(Disease.List)[1] < 10)
+    Top <- dim(Disease.List)[1]
+  
+  Disease.List <- Disease.List[1:Top,]
+  Disease.Object <- data.frame(cbind(Disease.List,do.call('rbind',qdapRegex::ex_between(Disease.List$Disease, "(", ")"))))
+  colnames(Disease.Object) <- c("Disease Name", "Number of proteins", "Disease abbreviation")
+  Disease.Object$`Disease abbreviation` <- paste0(Disease.Object$`Disease abbreviation`, " (" , Disease.Object$`Number of proteins` , ")")
+  
+  P <- bubbles(value = Disease.Object$`Number of proteins`,
+          color = brewer.pal(dim(Disease.Object)[1], "Paired")[sample(dim(Disease.Object)[1])],
+          label = Disease.Object$`Disease abbreviation`)
+  P
+  return(P)
+}
+
+Plot.GOMolecular <- function(GOObj, Top = 10)
+{
+  MolecularDF <- Goparse(GOObj, 4)
+  if (dim(MolecularDF)[1] < 10)
+    Top <- dim(MolecularDF)[1]
+  MolecularDF <- MolecularDF[1:Top, ]
+  MolecularDF <- na.omit(MolecularDF)
+  MolecularPlot <- ggplot(data = MolecularDF, aes(x = reorder(MolecularDF$Goterm, 
+                                                              MolecularDF$Frequences), y = MolecularDF$Frequences)) + 
+    geom_bar(stat = "identity", fill = "darkgreen") + xlab("Molecular Function") + 
+    ylab("Protein count") + theme_bw() + theme(text = element_text(size = 12, 
+                                                                   face = "bold", colour = "black"), 
+                                               axis.text.x = element_text(vjust = 2)) + coord_flip()
+
+  return(MolecularPlot)
+}
+
+PlotGOBiological <- function(GOObj, Top = 10)
+{
+  BiologicalDF <- Goparse(GOObj, 3)
+  if (dim(BiologicalDF)[1] < 10)
+    Top <- dim(BiologicalDF)[1]
+  BiologicalDF <- BiologicalDF[1:Top, ]
+  BiologicalDF <- na.omit(BiologicalDF)
+  BiologicalPlot <- ggplot(data = BiologicalDF, aes(x = reorder(BiologicalDF$Goterm, 
+                                                                BiologicalDF$Frequences), y = BiologicalDF$Frequences)) + 
+    geom_bar(stat = "identity", fill = "darkred") + xlab("Biological Process") + 
+    ylab("Protein count") + theme_bw() + theme(text = element_text(size = 12, 
+                                                                   face = "bold", colour = "black"),
+                                               axis.text.x = element_text(vjust = 2)) + coord_flip()
+  return(BiologicalPlot)
+}
+
+Plot.GOSubCellular <- function(GOObj, Top = 10)
+{
+  CellularDF <- Goparse(GOObj, 5)
+  if (dim(CellularDF)[1] < 10)
+    Top <- dim(CellularDF)[1]
+  CellularDF <- CellularDF[1:Top, ]
+  CellularDF <- na.omit(CellularDF)
+  CellularPlot <- ggplot(data = CellularDF, aes(x = reorder(CellularDF$Goterm, 
+                                                            CellularDF$Frequences), y = CellularDF$Frequences)) + 
+    geom_bar(stat = "identity", fill = "darkblue") + xlab("Cellular component") + 
+    ylab("Protein count") + theme_bw() + theme(text = element_text(size = 12, 
+                                                                   face = "bold", colour = "black"),
+                                               axis.text.x = element_text(vjust = 2))+ coord_flip()
+  return(CellularPlot)
 }

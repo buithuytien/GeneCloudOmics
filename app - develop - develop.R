@@ -2,13 +2,13 @@
 # Sys.setenv("plotly_api_key"="your_api_key")
 ## test repo
 
-# wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
-# print(wd == getwd())
-# print(wd)
-# print(getwd())
-# if (!wd == getwd()) {
-#   setwd(wd)
-# }
+wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
+print(wd == getwd())
+print(wd)
+print(getwd())
+if (!wd == getwd()) {
+  setwd(wd)
+}
 
 print("start loading")
 start.load <- Sys.time() ### time
@@ -43,6 +43,10 @@ if (length(find.package(package = "rstudioapi", quiet = T)) > 0) {
 } else {
   install.packages("rstudioapi")
   library(rstudioapi)
+}
+
+if (!length(find.package(package = "rlang", quiet = T)) > 0) {
+  install.packages("rlang")
 }
 
 #################################
@@ -99,12 +103,12 @@ if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
 
 ####################### Dependencies For RAFSIL ###################################
 
-if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
-  library(RAFSIL)
-} else {
-  install.packages("RAFSIL")
-  library(RAFSIL)
-}
+# if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+#   library(RAFSIL)
+# } else {
+#   install.packages("RAFSIL")
+#   library(RAFSIL)
+# }
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
@@ -134,6 +138,27 @@ if (length(find.package(package = "ggpubr", quiet = T)) > 0) {
   library(ggpubr)
 }
 
+if (length(find.package(package = "networkD3", quiet = T)) > 0) {
+  library(networkD3)
+} else {
+  install.packages("networkD3")
+  library(networkD3)
+}
+
+if (length(find.package(package = "networkD3", quiet = T)) > 0) {
+  library(networkD3)
+} else {
+  install.packages("networkD3")
+  library(networkD3)
+}
+
+
+if (length(find.package(package = "bubbles", quiet = T)) > 0) {
+  library(bubbles)
+} else {
+  devtools::install_github("jcheng5/bubbles")
+  library(bubbles)
+}
 ###################################################################################
 
 ####################### Dependencies For Uniprot ###################################
@@ -252,12 +277,12 @@ if (length(find.package(package = "remotes", quiet = T)) > 0) {
   library(remotes)
 }
 
-if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
-  suppressPackageStartupMessages({library("maEndToEnd")})
-} else {
-  remotes::install_github("b-klaus/maEndToEnd", ref="master")
-  suppressPackageStartupMessages({library("maEndToEnd")})
-}
+# if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
+#   suppressPackageStartupMessages({library("maEndToEnd")})
+# } else {
+#   remotes::install_github("b-klaus/maEndToEnd", ref="master")
+#   suppressPackageStartupMessages({library("maEndToEnd")})
+# }
 
 if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
     library(moments)
@@ -351,13 +376,13 @@ source("./www/PhyscochemicalSep.R")
 #
 loadPkg()
 
-id_to_name <- read.csv(paste0("./ABioTrans-online-version/www/TransTable_Human.csv"))
+id_to_name <- read.csv(paste0("./www/TransTable_Human.csv"))
 
 
 #################### Complex Enrichment ##########################
 
-complexes <- load(paste0("./ABioTrans-online-version/www/allComplexes.RData")) #allComplexes is masked under complexes
-up_corum_mapping <- read.csv(paste0("./ABioTrans-online-version/www/UniProt_CORUM_Mapping.csv"))
+complexes <- load(paste0("./www/allComplexes.RData")) #allComplexes is masked under complexes
+up_corum_mapping <- read.csv(paste0("./www/UniProt_CORUM_Mapping.csv"))
 
 ##################################################################
 
@@ -5912,7 +5937,7 @@ RLE.plot <- reactive({
                                stringsAsFactors=FALSE)
     
     graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
-    cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./ABioTrans-online-version/www/style/basicStyle.js")
+    cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
 
   })
   
@@ -6033,7 +6058,7 @@ RLE.plot <- reactive({
                                   stringsAsFactors=FALSE)
     
     graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
-    cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./ABioTrans-online-version/www/style/basicStyle.js")
+    cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
     
   })
 
@@ -7044,6 +7069,7 @@ RLE.plot <- reactive({
   
   Pathodata <- NULL
   DiseaseTable <- NULL
+  
   output$DisaeseTable <- renderDataTable({
     if(!is.null(df_prot_seq_Patho()))
     {
