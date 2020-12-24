@@ -163,7 +163,7 @@ ConstructPhylogeny <- function(ProteinDataObject)
   Seqlist <- as.character(ProteinDataObject$Sequence)
   
   #Apply multiple sequence alignment
-  MSAresult <- msa(Seqlist , type = "protein")
+  MSAresult <- msa(Seqlist , type = "protein", method="ClustalOmega")
   #Convert algniment results to tree
   MSAtree <- msaConvert(MSAresult, type="seqinr::alignment")
   # generate a distance matrix using seqinr package
