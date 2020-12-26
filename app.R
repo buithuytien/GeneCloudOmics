@@ -141,7 +141,7 @@ if (length(find.package(package = "ggpubr", quiet = T)) > 0) {
 if (length(find.package(package = "networkD3", quiet = T)) > 0) {
   library(networkD3)
 } else {
-  install.packages("networkD3", version = "0.2.11")
+  install.packages("https://cran.r-project.org/src/contrib/Archive/networkD3/networkD3_0.2.10.tar.gz", repo=NULL, type="source")
   library(networkD3)
 }
 
