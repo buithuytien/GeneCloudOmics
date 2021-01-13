@@ -103,12 +103,6 @@ if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
 
 ####################### Dependencies For RAFSIL ###################################
 
-if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
-  library(RAFSIL)
-} else {
-  install.packages("RAFSIL")
-  library(RAFSIL)
-}
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
@@ -1351,7 +1345,7 @@ ui <- tagList(
           conditionalPanel(
             condition = "!$('html').hasClass('shiny-busy')",
             div(id = "hide_link", 
-                p("Please click", htmlOutput("link")))
+                p("Please click", htmlOutput("linkCo")))
             %>% shinyjs::hidden()
           ),
         ))
@@ -6827,8 +6821,8 @@ server <- function(input, output, session) {
     
   })
   
-  output$link <- renderUI({
-    a("here", href = gene_mania_link(), inline = TRUE)
+  output$linkCo <- renderUI({
+    tags$a(href = gene_mania_link(), "here", inline =TRUE)
   })
   
   output$help_text_gene_mania <- renderUI({
