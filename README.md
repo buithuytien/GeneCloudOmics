@@ -29,17 +29,17 @@ Choose an RNA-Seq data file in comma-separated value (.csv) format.
 
 * Alternatively, if you input a normalized data file, it should have gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database. 
 
-  ![Figure 1a: Required format for raw counts data file](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png?raw=true)
+  ![Figure 1a: Required format for raw counts data file](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png)
 
-  ![Figure 1b: Gene length file format](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_gene_length.png?raw=true) 
+  ![Figure 1b: Gene length file format](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_gene_length.png) 
 
 List of negative control genes (spike-in or stably expressed genes accross all samples), if available, should be contained in one-column .csv file. Negative control genes are required for Remove Unwated Variation (RUV) normalziation.
 
-![Figure 1c:Negative control gene file format ](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_negative_control_genes.png?raw=true) 
+![Figure 1c:Negative control gene file format ](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_negative_control_genes.png) 
 
 Finally, a metadata table matching column names of data file to experimental conditions should be given in two-column .csv format. **Metadata table is required** for differential expression analysis
 
-![Figure 1d: Metadata file format](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png?raw=true) 
+![Figure 1d: Metadata file format](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png) 
 
 ##### Pre-processing
 
@@ -50,7 +50,7 @@ Preprocessing involves two steps: removing lowly expressed genes and normalizing
 
 Relative Log Expression (RLE) plots of raw and processed data are displayed to visualize the effects of normalization. Distribution of gene expression in each data column is visualized by violin plot.
 
-![Figure 2: Preprocessing panel with RLE plots of raw data (upper figure) and filtered, RUV-normalized data (lower figure). Gene expression with minimum five counts in at least two columns are retained.](![1b_preprocess(2).PNG](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/1b_preprocess(2).PNG?raw=true)
+![Figure 2: Preprocessing panel with RLE plots of raw data (upper figure) and filtered, RUV-normalized data (lower figure). Gene expression with minimum five counts in at least two columns are retained.](![1b_preprocess(2).PNG](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/1b_preprocess(2).PNG)
 
 #### Microarray Preprocessing (new feature)
 
@@ -68,14 +68,14 @@ As gene expression data is naturally skewed towards very high expression level r
 
 ABioTransPlus overlay a 2D kernel density estimation on the scatter plot to visualize the density of expression level. The user can choose to download each single scatter plot, or to download all pairs of samples scatter plot in one PDF file, which may take some time to run.
 
-![Figure 3: Scatter plot](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2a_scatter.PNG?raw=true) 
+![Figure 3: Scatter plot](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2a_scatter.PNG) 
 
 ### Distribution fitting
 Choose the column you want to fit and compare with any combinations of the six statistical distributions. You can adjust the slider or input the range for x-axis to zoom in to see the fitted curve.
 
 Distribution fitting compares the gene expression to a number of statistical continuous distributions, which can be used to validate the data. To visualize the comparison, ABioTransPlus displays the Cumulative Distribution Function of the preprocessed gene expression data with the user-selected theoretical distributions. Once it is confirmed that the gene set follow a distribution, it would be safe conclude the validity of the gene expression data. `AIC table` is also provided in `AIC table` tab to show the best fitted distribution in each sample
 
-![Figure 3: Distribution fitting - Cumulative Distribution Function](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2b_distfit.PNG?raw=true) 
+![Figure 3: Distribution fitting - Cumulative Distribution Function](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2b_distfit.PNG) 
 
 ### Pearson and Spearman correlations
 The Pearson correlation evaluates the linear relationship between two continuous variables. A relationship is linear when a change in one variable is associated with a proportional change in the other variable.
@@ -84,12 +84,12 @@ The Spearman correlation evaluates the monotonic relationship between two contin
 
 User shall choose a correlation method and view it in either correlation heatmap, correlation plot in circle or correlation matrix.
 
-![Figure 4: Correlation heatmap](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2c_corr.PNG?raw=true) 
+![Figure 4: Correlation heatmap](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2c_corr.PNG) 
 
 ### PCA and K-means clustering
 Principal Components Analysis (PCA) is an multivariate statistical technique for simplifying high-dimensional data sets ([Basilevsky 1994](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2669932/#R1)). Given *m* observations on *n* variables, the goal of PCA is to reduce the dimensionality of the data matrix by finding *r* new variables, where *r* is less than *n*. Termed principal components, these *r* new variables together account for as much of the variance in the original *n* variables as possible while remaining mutually uncorrelated and orthogonal. Each principal component is a linear combination of the original variables, and so it is often possible to ascribe meaning to what the components represent. A PCA analysis of transcriptomic data consider the genes as variables, creating a set of “principal gene components” that indicate the features of genes that best explain the experimental responses they produce.
 
-![Figure 5: Principal Component plot](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2d_pca(2).PNG?raw=true) 
+![Figure 5: Principal Component plot](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2d_pca(2).PNG) 
 
 ### Differential Expression Analysis
 
@@ -115,7 +115,7 @@ To carry out the analysis, first the user needs to specify DE methods, two condi
 
 When the computation finishes, table of DE genes, volcano plot of DE result and dispersion plot of input data are displayed in their respective tabs. Please note that volcano plot and dispersion plot are only available for edgeR and DESeq2 methods.
 
-![Figure 6: Volcano plot summarizing differential expression analysis result](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2e_volcano.PNG?raw=true)
+![Figure 6: Volcano plot summarizing differential expression analysis result](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2e_volcano.PNG)
 
 ### Heatmap of gene expression and Hierarchical clustering
 Hierarchical clustering is used to find the groups of co-expressed genes. The clustering is performed on normalized expressions of differentially expressed genes using Ward clustering method.
@@ -124,7 +124,7 @@ Heat map of gene expression and hierarchical clustering can be carried out on DE
 
 The gene names in each cluster are displayed in the `Gene clusters` panel, corresponding to the heatmap you just generated.
 
-![Figure 7: Heatmap of gene expression and hierarchical clustering for co-expressed genes](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2f_headmap_cluster(2).PNG?raw=true)
+![Figure 7: Heatmap of gene expression and hierarchical clustering for co-expressed genes](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2f_headmap_cluster(2).PNG)
 
 ### Transcriptome-wide average noise
 
@@ -144,7 +144,7 @@ Shannon entropy ([Shannon, 1948](https://onlinelibrary.wiley.com/doi/10.1002/j.1
 * If the data is not in time series, entropy values of all samples will directly be displayed. 
 * Otherwise, if it is a time series data, specify the number of time points. For example, if the number of time points is 6, then sample 1 to 6 will be regarded as genotype A time 1 - time 6, sample 7 to 12 will be genotype B time 1- time 6, and so on and so forth. For a line chart, the entropy of each genotype will be shown in one line. 
 
-![Figure 8: Entropy](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2g_entropy.PNG?raw=true)
+![Figure 8: Entropy](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2g_entropy.PNG)
 
 ### t-distributed stochastic neighbor embedding (t-SNE)  (new feature)
 t-SNE is a dimensionality-reduction approach that reduces the complexity of highly complex data such as the transcriptomic data. It visualizes the sample interrelations in a 2- or 3-dimensional visualization. This allows the identification of the close similarities between samples through the relative location of mapped points. Since t-SNE is nonlinear and able to control the trade-off between local and global relationships among points, its visualization of the clusters is usually more compelling when compared with the other methods [[Cieslak 2020](https://pubmed.ncbi.nlm.nih.gov/31784353/)]. 
