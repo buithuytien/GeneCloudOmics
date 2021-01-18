@@ -169,11 +169,11 @@ ConstructPhylogeny <- function(ProteinDataObject)
   # generate a distance matrix using seqinr package
   MSAdistance <- dist.alignment(MSAtree, "identity")
   #neighbor-joining tree estimation
-  mTree <- nj(MSAdistance)
+  mTree <- njs(MSAdistance)
   mTree$tip.label <- as.character(rownames(ProteinDataObject))
   
   # pile up the functions to make a new tree
-  NTree <- nj(dist.alignment(MSAtree, "identity"))
+  NTree <- njs(dist.alignment(MSAtree, "identity"))
   NTree$tip.label <- mTree$tip.label
   #Plot new tree
   plot(NTree, "f", FALSE, cex = 0.7 , main="Phylogenetic Tree of proteins")
