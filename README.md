@@ -1,119 +1,168 @@
-# ABioTrans
+# ABioTransPlus
 A Biostatistical tool for Transcriptomics Analysis
+
+[ABioTransPlus](http://combio-sifbi.org/ABioTrans/) is a web server for transcriptome data analysis and visualization. It supports the analysis of microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets.
+
+ABioTransPlus is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical user interface (GUI) that waves the hassle of coding, installing tools, packages or libraries and dealing with operating systems compatibility and versioning issues, some of the complications that make data analysis tasks more challenging for biologists. ABioTrans Plus is an open-source tool and the website is free and open to all users and there is no login requirement.
+
+ABioTransPlus  is available at http://combio-sifbi.org/ABioTrans/
 
 If you find ABioTrans useful, please cite our paper:  
 Zou Y, Bui TT and Selvarajoo K (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Front. Genet. 10:499. doi: 10.3389/fgene.2019.00499
 
 Full text (free access) can be found at https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full 
 
-## How to set up
-1. Install R from https://cran.r-project.org/ 
-2. Install Rstudio from https://www.rstudio.com/ 
-3. Download ABioTrans-master.zip on GitHub and unzip it. Please do not modify www inside ABioTrans folder.
-4. Open the ABioTrans.R file using RStudio and click `RunApp` button on the topright. When you run the code for the first time, installation of the required R packages can take up to 30 minutes. For subsequent runs, ABioTrans will only take 30s.
+## Transcriptomic analysis
+### Import data and pre-processing
 
-You can start your analysis now!
+ABioTransPlus supports two types of common data formats for gene expression analysis: RNA-Seq count matrix and Microarray CEL files.
 
-## How to do analysis
-### Home
-* Choose an RNA-Seq data file in comma-separated value (.csv) format. 
+#### RNA-Seq gene expression matrix format
+
+##### Import data
+
+Choose an RNA-Seq data file in comma-separated value (.csv) format. 
+
 * If you input raw data (read counts), please make sure that the first column contains gene names, and the read counts of each genotype (conditions: wildtype, mutants, replicates, etc.) are in the following columns. Each genotype column should have a column name.
+
 * Along with raw read counts, you can provide gene length (base pair) information in two-column .csv file, with the first column specifying gene names, which must match the gene names in raw data file, and the second column specifying gene length in base pair. Gene length file is required for normalization methods for sequencing depth and gene length: RPKM, FPKM, TPM
-* List of negative control genes (spike-in or stably expressed genes accross all samples), if available, should be contained in one-column .csv file. Negative control genes are required for Remove Unwated Variation (RUV) normalziation.
-* If you input a normalised data file, it should have gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database. 
-* Finally, a metadata table matching column names of data file to experimental conditions should be given in two-column .csv formate. Metadata table is required for differential expression analysis
-* Move on to the preprocessing and analysis methods once a datafile is loaded.
 
-### Preprocessing
- Specify the cut-off expression values (same unit to your input data file - either raw read counts or normalized expression), and the minimum number of columns (samples) whose expression is above threshold value. Normalization methods are available upon your input of supporting data files (gene length and negative control genes). Relative Log Expression (RLE) plot of raw and normalized data are displayed to compare the effects of normalziation
+* Alternatively, if you input a normalized data file, it should have gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database. 
 
-### Scatter plot
- Choose the variable on x and y axis. Take log transformation on the values if needed. The colors refer to kernel density estimation (KDE). You can download a single plot as PDF. You can also download all pairs of samples scatter plot in one PDF file, which may take some time to run. 
+  ![Figure 1a: Required format for raw counts data file](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png?raw=true)
 
-### Distributions
- Choose the column you want to fit and compare with any combinations of the six statistical distributions. You can adjust the slider or input the range for x-axis to zoom in to see the fitted curve.
+  ![Figure 1b: Gene length file format](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_gene_length.png?raw=true) 
 
-### Pearson and Spearman correlations
- Choose a correlation method and view it in either correlation heatmap, correlation plot in circle or correlation matrix.
+List of negative control genes (spike-in or stably expressed genes accross all samples), if available, should be contained in one-column .csv file. Negative control genes are required for Remove Unwated Variation (RUV) normalziation.
 
-### PCA and K-means clustering
- To take sample from all the genes, choose a gene sample size and a gene sample order. By defualt the full sample is taken. Then the variance percentage of all principal components,  2-D plot of any PC-axis combination and 3-D plot will be shown. K-means clustering is available for PCA 2-D and 3-D plots.
+![Figure 1c:Negative control gene file format ](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_negative_control_genes.png?raw=true) 
 
-### Differential Expression Analysis
-* ABioTrans provides 3 Differential Expression (DE) Analysis methods for multiple replicate dataset: edgeR, DESeq2 and NOISeq. For data with single replicate in all experiment condition, NOISeq method can simulate technical replicates to carry out DE test.
-* For edgeR and DESeq2, raw read counts datafile must be provided. For NOISeq, gene expression should be normalized (by select normalization method in preprocessing tab if raw counts is inputted, or by directly providing normalized gene expression)  
-* Metadata file is required for DE Analysis. Please make sure metadata contains all column names from input datafile and match them with experimental condition
-* Specify DE methods, two conditions you wish to compare (condition 2 is compared against condition 1), and threshold criteria. By convention, DE genes are thresholded at 0.05 False Discovery Rate (FDR) and 2-fold change
-* Volcano plot of DE result, dispersion plot of input data, and heatmap of DE genes are only available for edgeR and DESeq2 methods.
+Finally, a metadata table matching column names of data file to experimental conditions should be given in two-column .csv format. **Metadata table is required** for differential expression analysis
 
-### Heatmap
-* Heat map and hierachical clustering can be carried out on DE genes resulted from DE analysis tab by selecting `DE result`. Otherwise, you can specify the minimum fold change and minimum number of samples (columns in input data file) satisfying the fold change. Finally, you need to specify the number of clusters on rows (genes), then hit `Submit`.
-* The gene names in each cluster are displayed in the `Gene clusters` panel, corresponding to the heatmap you just generated.
+![Figure 1d: Metadata file format](https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png?raw=true) 
 
-### Noise
-* Select a desired noise plot according to your data. By default the name of the first replicate in each genotype is used as the name of the genotype. You can specify the names of the genotypes, only make sure that all names are different (due to the mapping mechanism of Plotly). Please be reminded that the consecutive columns will be regarded as of the same genotype.
-* Noise here refers to the average transcriptome noise — the squared coefficient of variation — defined as the variance (σ2) of expression divided by the square mean expression (μ2). 
-* If `replicates` is selected, the noise within one genotype will be computed. 
-* If `genotypes (average of replicates)` is selected, the gene expression data within one genotype will first be taken average of, and the average value will be used as the expression value of that certain genotype. Then noise will be computed between the anchor genotype and all the other genotypes. 
-* If `genotypes (no replicate)` is selected, each sample column is treated as a different genotype. Noise will directly be computed between the anchor genotype and the rest of the genotypes. 
+##### Pre-processing
 
-### Entropy
-* First specify whether your data is a time series data.
-* Entropy here refers to Shannon entropy. It is calculated for each sample column.
-* If the data is not in time series, entropy values of all samples will directly be displayed. 
-* Otherwise, if it is a time series data, specify the number of time points. For example, if the number of time points is 6, then sample 1 to 6 will be regarded as genotype A time 1 - time 6, sample 7 to 12 will be genotype B time 1- time 6, and so on and so forth. For a line chart, the entropy of each genotype will be shown in one line. 
+Preprocessing involves two steps: removing lowly expressed genes and normalizing the remaining gene expression. 
 
-### Gene ontology
-* Provide a list of genes for each cluster in NCBI gene ID format, (in one-column .csv format, or the .csv file downloaded from DE analysis tab), background gene set, select the over-representation test (`clusterProfiler`, `GOstats`, or `enrichR`), then select the proper organism and gene identifier.
-* Click Plot button and wait for around 15 to 20 seconds for the result to be generated. Please avoid launching a new analysis when the system is still in a busy state. A list of enriched GO terms will be displayed in the `Table` tab.
-* If clusterProfiler and GOStats are chosen, a pie chart showing relative size of all associated level-2 GO terms will be displayed in `Pie chart` tab. Please note that the GO terms in pie chart might not be significantly enriched since no over-representation test was carried out to generate the pie chart.
-* For clusterProfiler method, graph visualization of user-specified GO terms are displayed in `Graph` tab
+- For removing lowly expressed genes, the user need to specify threshold expression values (which must be in same unit to the input data file - either raw read counts or normalized expression), and the minimum number of data columns that must exceed the threshold value. 
+- Normalization methods are available upon the availability of supporting data files: normalization for sequencing depth, including TPM and RPKM, requires gene length and normalization for sample variation, including RUV, requires negative control genes. User can download the filtered, normalized data in the `Data` tab.
 
-## New features
+Relative Log Expression (RLE) plots of raw and processed data are displayed to visualize the effects of normalization. Distribution of gene expression in each data column is visualized by violin plot.
 
+![Figure 2: Preprocessing panel with RLE plots of raw data (upper figure) and filtered, RUV-normalized data (lower figure). Gene expression with minimum five counts in at least two columns are retained.](![1b_preprocess(2).PNG](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/1b_preprocess(2).PNG?raw=true)
 
-### Microarray Preprocessing
+#### Microarray Preprocessing (new feature)
+
 Microarrays can be used in many types of experiments including genotyping, epigenetics, translation profiling and gene expression profiling </br></br>
 Raw Count data & Metadata can be extracted from the Microarray which can further be used to perform all the different analysis.<br>
 The user needs to zip all the ```CEL``` files along with the ```SDRF```(Sample and Data Relationship Format) file ( e.g. E-MTAB-2967.sdrf.txt) & upload it.</br></br>
 Once the processing is complete, the user can download the output in ```csv``` format.
 ![alt text](https://github.com/rahul799/ABioTrans/blob/update-readme/Screenshots/Microarray.png)
 
-### t-SNE directional plot
-t-SNE directional plot is used to find the paths of samples across different time points. The script for the t-SNE directional plot utilises the preprocessing method from [DigitalCellSorter.](https://github.com/sdomanskyi/DigitalCellSorter) PCA is applied to the preprocessed data, then t-SNE on the PCA step. </br>
-**Note: At the time of upload the script is no longer up-to-date with the latest release of DigitalCellSorter** </br>
+### Scatter plot
 
-The plot is currently only applicable **for samples with time points**. Samples have to be named in the format ```samplename_time```. Time can be in seconds ```s```, minutes ```min```, hours ```hr``` or days ```d```. All units will be automatically converted to minutes equivalent (if unspecified, minutes is taken as the default). Thus, *sample1_20s*, *sample1_2min*, *sample1_10* are all valid names. </br>
+Scatter plot compares any 2 samples (or 2 replicates) by displaying the respective expression of all genes in 2D space. It is recommended to preform normalization for sequencing depth (TPM, RPKM, FPKM) for this step (and so does distribution fitting, correlation, hierarchical clustering, noise and entropy).
 
-There are 3 parameters to control the t-SNE output. ```Perplexity value``` tweaks the position of points on the t-SNE plot. A suitable perplexity value usually ranges between 5 to 50. ```No. of PCs``` determines the number of principal components to retain in the PCA step. ```No. of clusters``` classifies the samples into the specified cluster size. </br>
+As gene expression data is naturally skewed towards very high expression level region, we recommend applying log-transformation to capture the whole data range. User can choose between log base 2, natural log, or log base 10. An option to add linear regression line is also available. Gene expression data is densely distributed in the lowly expressed region, making the dots usually indistinguishable in regular scatter plot. 
 
-The following keys can be used to interact with the generated t-SNE plot: </br>
-```Left```, ```Right```, ```Left mouse click```: Find points on the plot </br>
-```Enter```, ```Space```: Select a point </br>
-```Shift```: Generate paths connecting time points of selected points </br>
-```A```: Auto generate paths in a sequential manner </br>
-```R```: Reset plot to default state </br>
-```Esc```: Close plot </br>
+ABioTransPlus overlay a 2D kernel density estimation on the scatter plot to visualize the density of expression level. The user can choose to download each single scatter plot, or to download all pairs of samples scatter plot in one PDF file, which may take some time to run.
 
-t-SNE directional plots are saved in the ```tsne_output``` folder after each run.
+![Figure 3: Scatter plot](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2a_scatter.PNG?raw=true) 
 
-### t-SNE directional plot demo
-First, launch ABioTrans and open the ```test data``` folder. Under ABioTrans' ```Home``` tab, select ```Normalised file```. Load ```yeast_nm.csv``` as the normalised expression file and ```yeast_meta``` as the meta data file. Press on ```Submit``` once both files have been loaded. Next, click on the ```Preprocessing``` tab. Input **0** for ```Min. value``` and **1** for ```Min. columns```. Click on ```Submit``` and wait for the preprocessing to be done. Then, click on the ```New``` tab and choose ```t-SNE``` from the dropdown selection. Following which, input **25** for ```Perplexity value```, **4** for ```No. of PCs```, **6** for ```No. of clusters``` and **None** for ```Transformation```. Click on ```Submit```. The t-SNE plot once generated should as such:
-![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/t-SNE_1.png)
+### Distribution fitting
+Choose the column you want to fit and compare with any combinations of the six statistical distributions. You can adjust the slider or input the range for x-axis to zoom in to see the fitted curve.
 
-Feel free to interact with the plot. After generating paths of selected points, it might look like this:
-![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/t-SNE_2.png)
+Distribution fitting compares the gene expression to a number of statistical continuous distributions, which can be used to validate the data. To visualize the comparison, ABioTransPlus displays the Cumulative Distribution Function of the preprocessed gene expression data with the user-selected theoretical distributions. Once it is confirmed that the gene set follow a distribution, it would be safe conclude the validity of the gene expression data. `AIC table` is also provided in `AIC table` tab to show the best fitted distribution in each sample
 
-### Clustering with random forest
-While generally used for classification and regression problems, here random forest is used for clustering. The plot can be navigated in a similar manner to the updated heatscatter. </br>
+![Figure 3: Distribution fitting - Cumulative Distribution Function](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2b_distfit.PNG?raw=true) 
 
-There are 2 parameters to control the random forest cluster plot. ```No. of trees``` defines the size of the forest. ```No. of clusters``` classifies the samples into the specified cluster size. </br>
+### Pearson and Spearman correlations
+The Pearson correlation evaluates the linear relationship between two continuous variables. A relationship is linear when a change in one variable is associated with a proportional change in the other variable.
+
+The Spearman correlation evaluates the monotonic relationship between two continuous or ordinal variables. In a monotonic relationship, the variables tend to change together, but not necessarily at a constant rate. The Spearman correlation coefficient is based on the ranked values for each variable rather than the raw data.
+
+User shall choose a correlation method and view it in either correlation heatmap, correlation plot in circle or correlation matrix.
+
+![Figure 4: Correlation heatmap](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2c_corr.PNG?raw=true) 
+
+### PCA and K-means clustering
+Principal Components Analysis (PCA) is an multivariate statistical technique for simplifying high-dimensional data sets ([Basilevsky 1994](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2669932/#R1)). Given *m* observations on *n* variables, the goal of PCA is to reduce the dimensionality of the data matrix by finding *r* new variables, where *r* is less than *n*. Termed principal components, these *r* new variables together account for as much of the variance in the original *n* variables as possible while remaining mutually uncorrelated and orthogonal. Each principal component is a linear combination of the original variables, and so it is often possible to ascribe meaning to what the components represent. A PCA analysis of transcriptomic data consider the genes as variables, creating a set of “principal gene components” that indicate the features of genes that best explain the experimental responses they produce.
+
+![Figure 5: Principal Component plot](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2d_pca(2).PNG?raw=true) 
+
+### Differential Expression Analysis
+
+DE analysis identifies the genes that are statistically different in expression levels between the 2 selected conditions. Two important threshold are:
+
+- The lower bound of expression **fold change** between the 2 selected conditions
+
+- The upper bound of hypothesis test p-value
+
+AbioTransPlus implements 3 popular methods to identify DE genes:
+
+- [DESeq2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8)
+
+- [EdgeR](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2796818/)
+
+- [NOISeq](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4666377/)
+
+For data with single replicate in all experiment condition, NOISeq method can simulate technical replicates to carry out DE test. Metadata file is required for DE Analysis. Please make sure metadata contains all column names from input data file and match them with experimental condition 
+
+For edgeR and DESeq2, raw read counts data file must be provided. For NOISeq, gene expression should be normalized for sequencing depths (by select normalization method in Preprocessing tab if raw counts file is inputted, or by directly providing normalized gene expression) 
+
+To carry out the analysis, first the user needs to specify DE methods, two conditions to compare (condition 2 is compared against condition 1), fold change cut-off value and False Discovery Rate (FDR or adjusted p-value) threshold, then hit the “Submit” button. By convention, DE genes are filtered at FDR = 0.05 and 2-fold change. 
+
+When the computation finishes, table of DE genes, volcano plot of DE result and dispersion plot of input data are displayed in their respective tabs. Please note that volcano plot and dispersion plot are only available for edgeR and DESeq2 methods.
+
+![Figure 6: Volcano plot summarizing differential expression analysis result](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2e_volcano.PNG?raw=true)
+
+### Heatmap of gene expression and Hierarchical clustering
+Hierarchical clustering is used to find the groups of co-expressed genes. The clustering is performed on normalized expressions of differentially expressed genes using Ward clustering method.
+
+Heat map of gene expression and hierarchical clustering can be carried out on DE genes resulted from DE analysis tab by selecting `DE result`. Otherwise, you can specify the minimum fold change and minimum number of samples (columns in input data file) satisfying the fold change. Finally, you need to specify the number of clusters on rows (genes), then hit `Submit`.
+
+The gene names in each cluster are displayed in the `Gene clusters` panel, corresponding to the heatmap you just generated.
+
+![Figure 7: Heatmap of gene expression and hierarchical clustering for co-expressed genes](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2f_headmap_cluster(2).PNG?raw=true)
+
+### Transcriptome-wide average noise
+
+Transcriptome-wide average noise is used to quantify between gene expressions scatter of all replicates in one experimental condition. Formula is adapted from [Kumar et. al](https://www.nature.com/articles/srep07137) 's paper
+
+* User to select a desired noise plot according to your data. By default the name of the first replicate in each genotype is used as the name of the genotype. You can specify the names of the genotypes, only make sure that all names are different (due to the mapping mechanism of Plotly). Please be reminded that the consecutive columns will be regarded as of the same genotype.
+* Noise here refers to the average transcriptome noise — the squared coefficient of variation — defined as the variance (σ2) of expression divided by the square mean expression (μ2). 
+* If `replicates` is selected, the noise within one genotype will be computed. 
+* If `genotypes (average of replicates)` is selected, the gene expression data within one genotype will first be taken average of, and the average value will be used as the expression value of that certain genotype. Then noise will be computed between the anchor genotype and all the other genotypes. 
+* If `genotypes (no replicate)` is selected, each sample column is treated as a different genotype. Noise will directly be computed between the anchor genotype and the rest of the genotypes. 
+
+### Entropy
+
+Shannon entropy ([Shannon, 1948](https://onlinelibrary.wiley.com/doi/10.1002/j.1538-7305.1948.tb01338.x)) measures the disorder of a high-dimensional system, where higher values indicate increasing disorder. ABioTransPlus adapts the Shannon entropy formula to quantify the variability of one sample of gene expression.
+
+* First specify whether your data is a time series data.
+* If the data is not in time series, entropy values of all samples will directly be displayed. 
+* Otherwise, if it is a time series data, specify the number of time points. For example, if the number of time points is 6, then sample 1 to 6 will be regarded as genotype A time 1 - time 6, sample 7 to 12 will be genotype B time 1- time 6, and so on and so forth. For a line chart, the entropy of each genotype will be shown in one line. 
+
+![Figure 8: Entropy](https://github.com/buithuytien/ABioTrans/blob/readmeBranch/Screenshots/2g_entropy.PNG?raw=true)
+
+### t-distributed stochastic neighbor embedding (t-SNE)  (new feature)
+t-SNE is a dimensionality-reduction approach that reduces the complexity of highly complex data such as the transcriptomic data. It visualizes the sample interrelations in a 2- or 3-dimensional visualization. This allows the identification of the close similarities between samples through the relative location of mapped points. Since t-SNE is nonlinear and able to control the trade-off between local and global relationships among points, its visualization of the clusters is usually more compelling when compared with the other methods [[Cieslak 2020](https://pubmed.ncbi.nlm.nih.gov/31784353/)]. 
+
+ABioTrans Plus introduces an intuitive interface that allows performing t-SNE analysis on the processed untransformed transcriptomic data through entering three inputs perplexity value, the number of principal components (PC) and the number of clusters. The user can also choose to log transform the data before submission. 
+
+### Clustering with random forest (new feature)
+Random forest clustering is an unsupervised learning approach, where each sample is clustered into different classes, based on their similarity (usually based on Euclidean distance). 
+
+ABioTrans Plus uses the random forest algorithm to generate a proximity matrix, a rough estimate of the distance between samples based on the proportion of times the samples end up in the same leaf node of the decision tree. The proximity matrix is converted to a dist matrix which is then inputted to the hierarchical clustering algorithm [[Chen 2012](https://pubmed.ncbi.nlm.nih.gov/22546560/)].
 
 The ```diff_genes.csv``` file will be generated after each run, containing names of differential genes.
 ![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/Random%20forest.png)
 
-### SOM
-5 types of SOM plots are available for use: </br>
+### Self-Organizing Map (SOM) (new feature)
+SOM is a dimensionality reduction technique that produces a two-dimensional, discretized representation of the high-dimensional gene expression matrix. It uses a neighbourhood function to preserve the topological properties of the input gene expression matrix. Each data point (e.g. 1 sample) in the input gene expression matrix recognizes itself by competing for representation. SOM mapping steps start from initializing the weight vectors. From there, a sample vector is selected randomly and the map of weight vectors is searched to find which weight best represents that sample. Each weight vector has neighbouring weights that are close to it. The weight that is chosen is rewarded by being able to become more like that randomly selected sample vector. The neighbours of that weight are also rewarded by being able to become more like the chosen sample vector. This allows the map to grow and form different shapes. Most generally, they form square/rectangular/hexagonal/L shapes in 2D feature space [[Yin 2020](https://link.springer.com/chapter/10.1007%2F978-3-540-78293-3_17)].
+
+ABioTrans Plus provides 5 types of SOM plots: </br>
 ```Property```: Uses values of codebook vectors (weight of gene vectors) and output as coloured nodes </br>
 ```Count```: Shows how many genes are mapped to each node </br>
 ```Codes```: Displays codebook vectors </br>
