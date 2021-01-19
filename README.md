@@ -172,6 +172,54 @@ ABioTrans Plus provides 5 types of SOM plots: </br>
 There are 4 parameters to control the SOM plots. ```Samples used``` determines the sample chosen for the plots, either all samples or individual ones. ```No. of horizontal grids``` and ```No. of vertical grids``` changes the number of nodes used in the SOM. ```No. of clusters```  classifies the SOM nodes into the specified cluster size (for cluster plot).
 ![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/SOM.png)
 
+## Gene/Protein Set Analysis
+
+Differentially expressed gene (DGE) analysis usually outputs a list of genes that are statistically determined as differentially expressed. Then, the list of DEGs is analyzed, interpreting and annotated to learn more about the functions, pathways and cellular processes that these genes are involved in. Most of the gene differential expression analysis tools do not include bioinformatics features for gene set analysis or include few basic analyses such as GO and pathways enrichment. 
+
+In ABioTrans Plus, we designed the GO feature to be dynamic by reading the GO terms associated with the genes/proteins directly from UniProt Knowledgebase [[UniProt Consortium 2019](https://pubmed.ncbi.nlm.nih.gov/30395287/)] then visualize each of the three GO domains (cellular component, molecular function and biological process) in an independent tab in a bar chart and on a downloadable tabular format (Figure YY). Furthermore, we introduced 11 new bioinformatics analyses that can be performed on a given gene/protein dataset. 
+
+### Pathways Enrichment Analysis
+
+For a given gene or protein set, ABioTrans Plus uses g:Profiler [[Raudvere 2019](https://doi.org/10.1093/nar/gkz369)] to perform a pathway enrichment analysis and displays the results as a network where the nodes are the pathways and the edges are the overlap between the pathways (Figure X). We use Cytoscape.JS for the network visualization [[Franz 2016](https://academic.oup.com/bioinformatics/article/32/2/309/1744007)] and, therefore, the network properties such as the colour and layout can be changed from the left panel. 
+
+The users can choose from nine different network layouts and five different network colour schemes. The overlap between the pathways can be also changed from the provided controllers so that the user can choose an overlap cutoff or overlap range. The enrichment results can also be downloaded as a CSV file.      
+
+### Protein-Protein Interaction
+
+Investigating PPIs is one of the essential steps in systems biology studies. PPI databases are growing in size with improved accuracy of PPI curations. Furthermore, several recent large-scale projects provide experimentally-confirmed interaction such as the reference map of the human binary protein interactome (HuRI) project [[Luck 2020](https://www.nature.com/articles/s41586-020-2188-x)]. The PPI feature in ABioTrans Plus provides the users with an interface where they can upload a set of proteins (UniProt accessions) and get all the interactions associated with them. The interactions are visualized as a network where the nodes are the proteins and the edges are the interactions and the node size corresponds to the number of interactors of the protein. We use Cytoscape.JS for PPI visualization [[Franz 2016](https://academic.oup.com/bioinformatics/article/32/2/309/1744007)]. We provide users with five network styles and nine network layouts to customize their results. The results are also displayed as an interactions table and can be downloaded as a network or an interaction table. 
+
+### Complex Enrichment 
+
+The identification of the subunits of the protein complexes is important to understand the functions and the formation of these macromolecular machines. We provide the user with a complex enrichment feature that allows the identification of proteins in the provided dataset that are part of a known protein complex. This feature uses CORUM databases, which contain curated complex information for mammalian proteins [[Giurgiu 2019](https://pubmed.ncbi.nlm.nih.gov/30357367/)]. This feature provides the user with complex-forming proteins and the complex information in the submitted dataset.   
+
+### Protein Function
+
+UniProt Knowledgebase provides a detailed function for thousands of proteins. The protein function feature retrieves the protein function information from UniProt of a given protein set (UniProt accessions). The retrieved protein functions are displayed in a downloadable tabular format. 
+
+### Protein Subcellular Localization
+
+The protein localization critically affects the protein function. The change of the protein localization is a cellular approach to regulate biological processes. UniProt Knowledgebase provides curated subcellular localization information for the proteins. The protein subcellular localization feature provides the user with an interface to get the subcellular localization information for a given list of proteins (UniProt accessions) and display the results in a downloadable tabular format.
+
+### Protein Domains
+
+The protein domains are the functional subunits of the proteins that contribute to their overall function. Each domain is responsible for a certain function or interaction. ABioTrans Plus provides the users with a protein domain feature that connects to UniProt Knowledgebase and retrieves the domain information associated with each protein in a given list of UniProt accession. 
+
+### Tissue Expression
+
+The distinct expression profile of genes and proteins per tissue is what gives the different tissues the suitability for their functions. The tissue expression feature in ABioTrans Plus provides the user with the tissue expression for each protein in a given protein list (UniProt accessions) through retrieving this information from UniProt Knowledgebase. The result is displayed in a downloadable tabular format. 8) Gene Co-expression: The co-expression analysis is a common analysis that assesses the expression level of different genes to identify simultaneously expressed genes. The resultant co-expression networks are used to identify functionally related genes or genes being controlled by the same transcriptional mechanism [[Vella 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5359264/)]. ABioTrans Plus provides the users with an interface where they can submit a co-expression query to GeneMANIA [[Franz 2018](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6030815/)] then shows the results at GeneMANIA’s website in a new tab. Currently, we support queries for nine model organisms including human, yeast, E. coli, C. elegans, Arabidopsis, Drosophila, zebrafish, mouse and rat.9) Protein Physicochemical Properties: For a given set of proteins (UniProt accessions), this feature provides the user with the complete sequences of them in a single FASTA file and allows the user to investigate their physicochemical properties. The physicochemical analysis includes sequence charge, GRAVY index [[Kyte 1982](https://pubmed.ncbi.nlm.nih.gov/7108955/)] and hydrophobicity (Figure YA).
+
+### Protein Evolutionary Analysis
+
+For a given set of proteins (UniProt accessions), this feature provides the user with a phylogenetic and evolutionary analysis that include multiple sequence alignment (MSA) of the protein sequences, clustering based on the amino acid sequences, chromosomal location or gene tree (Figure YB).     
+
+### Protein Pathological Analysis
+
+Several diseases are associated with the malfunction of certain genes or proteins. The disease-protein association is collected in different online resources such as OMIM databases [[Amberger 2019](https://pubmed.ncbi.nlm.nih.gov/30445645/)], DisProt [[Hatos 2020](https://academic.oup.com/nar/article/48/D1/D269/5622715)] and DisGeNET [[Pinero 2019](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1021/5611674)]. ABioTrans Plus provides the users with an interface that retrieves the disease-protein association from online databases for a given list of proteins (UniProt accessions). The disease-protein association is visualized as bubble chats that shows the distribution of the proteins among the disease (each bubble is protein and the bubble size is the number of associated disease) or the distribution of proteins among the diseases (each bubble is a disease and the bubble size is the number of associated proteins) (Figure YC).    
+
+The features that communicate with UniProt Knowledgebase use UniProtR, an R package for data retrieval and visualization from UniProt [[Soudy 2020](https://pubmed.ncbi.nlm.nih.gov/31843688/)]. Since all the bioinformatics features only accept gene names (gene symbol) or UniProt accessions, we provide the users on each page with links to two ID converters UniProt ID mapping [[UniProt Consortium 2019](https://pubmed.ncbi.nlm.nih.gov/30395287/)] and g:Convert [[Raudvere 2019](https://doi.org/10.1093/nar/gkz369)] to convert their identifiers to gene names or UniProt accessions. 
+
+
+
 ## Download instructions
 1. Scatter plot, distribution fit, correlation plot and heatmap can be saved as PDF by clicking `Download as PDF`. You can name the file before saving it. Also, you can directly drag the plot from the GUI to a folder on the computer.
 
