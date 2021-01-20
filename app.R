@@ -101,8 +101,11 @@ if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
   library(Rtsne)
 }
 
-####################### Dependencies For RAFSIL ###################################
 
+####################### Dependencies For RAFSIL ###################################
+if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+  library(RAFSIL)
+}
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
@@ -1080,6 +1083,12 @@ ui <- tagList(
                    ),
                    radioButtons('tsne2_trans',"Transformation:",
                                 c('None', 'log10')),
+                   checkboxInput("tsne_cluster", strong("Kmeans clustering on columns"), FALSE),
+                   conditionalPanel(
+                     condition = "input.tsne_cluster == true",
+                     numericInput("tsne_cluster_num", "Number of clusters:", min = 1, value = 2),
+                     checkboxInput("tsne_text", strong("Display sample name"), FALSE)
+                   ),
                    actionButton("submit_tsne2","Submit")),
                  mainPanel(
                    h3('t-SNE Plot'),
@@ -4404,7 +4413,7 @@ server <- function(input, output, session) {
   ###################################
   # data for t-sne
   plotTSNE2 <- eventReactive(input$submit_tsne2, {
-    tsne2.start <- Sys.time()
+    
     tsne2_trans <- input$tsne2_trans
     type <- input$file_type
     perplexity_value <- input$perplexity_value
@@ -4418,24 +4427,28 @@ server <- function(input, output, session) {
       DS <- df_raw_shiny()
     }
     if(tsne2_trans=='None'){
-      tsne2.data <- DS
+      tsne2.data <- t(apply(DS, MARGIN = 1, scale)); 
+      colnames(tsne2.data) <- colnames(DS)
     }
     else if(tsne2_trans=='log10'){
       tsne2.data <- log10(DS+1)
     }
-    tsne2.end <- Sys.time()
-    print("t-SNE plot time")
-    print(tsne2.end - tsne2.start)
-    return (list(tsne2.data, perplexity_value, no_of_pca)) #, no_of_clusters
+    
+    tsne_cluster_flag <- input$tsne_cluster # ture or false
+   
+    return (list(tsne2.data, perplexity_value, no_of_pca, tsne_cluster_flag)) #, no_of_clusters
   })
   
   
   tsne2plot <- function(){
+    set.seed(13)
+    tsne2.start <- Sys.time()
     # get data 
     li <- plotTSNE2()
     tsne2.data <- li[[1]]
     perplexity_value <- li[[2]]
     no_of_pca <- li[[3]]
+    tsne_cluster_flag <- li[[4]]
     # no_of_clusters <- li[[4]] 
     
     # get tsne value
@@ -4444,17 +4457,35 @@ server <- function(input, output, session) {
                       initial_dims = no_of_pca,
                       perplexity = perplexity_value,
                       theta = 0.0)
-    
-    # create the data frame for plotting
     tsne_df <- data.frame(
       TSNE1 = tsne_val$Y[, 1],
       TSNE2 = tsne_val$Y[, 2],
       Sample = colnames(tsne2.data)
     )
     
-    # plotting    
-    p <- plot_ly(data = tsne_df, x = ~TSNE1, y = ~TSNE2, text = ~Sample )
+    if(!tsne_cluster_flag){
+      # plotting
+      p <- plot_ly(data = tsne_df, x = ~TSNE1, y = ~TSNE2, text = ~Sample) %>%
+        add_trace(type = "scatter", mode = 'markers', opacity = 0.5)
+      p
+
+    } else { # tsne_cluster_flag == TRUE
+      set.seed(13)
+      tsne_cluster_num <- as.numeric(input$tsne_cluster_num)
+      tsne_kmeans_result <- kmeans(tsne_df[,1:2], tsne_cluster_num)
+      tsne_df$cluster <- factor(tsne_kmeans_result$cluster, levels = 1:max(tsne_kmeans_result$cluster) )
+      
+      # plotting
+      p <- plot_ly(data = tsne_df, x = ~TSNE1, y = ~TSNE2, text = ~Sample, color = ~cluster ) %>%
+        add_trace(type = "scatter", mode = 'markers', opacity = 0.5)
+      p
+    }
     
+    tsne2.end <- Sys.time()
+    print("t-SNE plot time")
+    print(tsne2.end - tsne2.start)
+    
+    return(p)
   }
   
   output$tsne2.plot <- renderPlotly({
@@ -4641,7 +4672,7 @@ server <- function(input, output, session) {
     # plot the graph
     df <- data.frame(x = mds_out$points[, 1], y = mds_out$points[, 2], color = shape_legend, shape = shape_legend)
     p <- ggplot(data = df, aes(x = x, y = y, color = color, shape = shape, text = paste("x: ", round(x, 4), "\n", "y: ", round(y, 4), "\n", "Name: ", rownames(mds_out$points), "\n", "Cluster: ", shape, sep = ""), group = 1)) +
-      geom_point(size = 1.40)
+      geom_point(size = 1.40) + theme_bw()
     p <- p + theme(legend.position = "none")
     p
     
