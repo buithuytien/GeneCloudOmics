@@ -1,0 +1,12 @@
+name: ABioTrans
+title: ABioTrans
+username:
+account: tasbihaasim
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3481854
+bundleId: 4120498
+url: https://tasbihaasim.shinyapps.io/ABioTrans/
+when: 1611128349.74676
+asMultiple: FALSE
+asStatic: FALSE
