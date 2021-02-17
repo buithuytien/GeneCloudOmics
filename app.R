@@ -2,13 +2,13 @@
 # Sys.setenv("plotly_api_key"="your_api_key")
 ## test repo
 
-wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
-print(wd == getwd())
-print(wd)
-print(getwd())
-if (!wd == getwd()) {
-  setwd(wd)
-}
+# wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
+# print(wd == getwd())
+# print(wd)
+# print(getwd())
+# if (!wd == getwd()) {
+#   setwd(wd)
+# }
 
 print("start loading")
 start.load <- Sys.time() ### time
