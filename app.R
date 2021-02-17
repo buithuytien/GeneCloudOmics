@@ -2,13 +2,13 @@
 # Sys.setenv("plotly_api_key"="your_api_key")
 ## test repo
 
-# wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
-# print(wd == getwd())
-# print(wd)
-# print(getwd())
-# if (!wd == getwd()) {
-#   setwd(wd)
-# }
+wd <- dirname(rstudioapi::getActiveDocumentContext()$path) # set wd as the current folder
+print(wd == getwd())
+print(wd)
+print(getwd())
+if (!wd == getwd()) {
+  setwd(wd)
+}
 
 print("start loading")
 start.load <- Sys.time() ### time
@@ -283,10 +283,11 @@ if (length(find.package(package = "remotes", quiet = T)) > 0) {
 
 if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
   suppressPackageStartupMessages({library("maEndToEnd")})
-} else {
-  remotes::install_github("b-klaus/maEndToEnd", ref="master")
-  suppressPackageStartupMessages({library("maEndToEnd")})
-}
+} 
+# else {
+#   remotes::install_github("b-klaus/maEndToEnd", ref="master")
+#   suppressPackageStartupMessages({library("maEndToEnd")})
+# }
 
 if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
   library(moments)
@@ -1086,9 +1087,9 @@ ui <- tagList(
                    checkboxInput("tsne_cluster", strong("Kmeans clustering on columns"), FALSE),
                    conditionalPanel(
                      condition = "input.tsne_cluster == true",
-                     numericInput("tsne_cluster_num", "Number of clusters:", min = 1, value = 2),
-                     checkboxInput("tsne_text", strong("Display sample name"), FALSE)
+                     numericInput("tsne_cluster_num", "Number of clusters:", min = 1, value = 2)
                    ),
+                   checkboxInput("tsne_text", strong("Display sample name"), FALSE),
                    actionButton("submit_tsne2","Submit")),
                  mainPanel(
                    h3('t-SNE Plot'),
@@ -2957,8 +2958,8 @@ server <- function(input, output, session) {
     if (length(fits) != 0) {
       cdfcomp(fits,
               xlogscale = TRUE, ylogscale = TRUE,
-              ylab = "CDF", xlab = "Expression levels (log)", xlim = c(fit_range[1], fit_range[2]),
-              legendtext = distrs, cex = 0.5, lwd = 2, main = var, fitcol = rainbow(6)[which(numcol == 1)], fitlty = line_types[which(numcol == 1)]
+              ylab = "CDF", xlab = "Expression levels (log)", xlim = c(fit_range[1], fit_range[2]), ylim = c(10^-3, 1),
+              legendtext = distrs, cex = 0.5, main = var, fitcol = rainbow(6)[which(numcol == 1)], fitlty = line_types[which(numcol == 1)]
       )
     }
   }
@@ -3580,11 +3581,13 @@ server <- function(input, output, session) {
     res$Gene <- rownames(res)
     res <- na.omit(res)
     # plot
-    ymax <- max(-log10(res$PValue))
-    if (ymax > 5) ymax <- 5
+    ymax <- quantile(-log10(res$PValue), c(0.98))
+    xmax <- quantile(abs(res$log2FC), c(0.98))
+    # if (ymax > 5) ymax <- 5
     # print("from volcano plot - range(res$PValue)")
     # print(range(res$PValue))
-    with(res, plot(log2FC, -log10(PValue), pch = 20, main = "Volcano plot", xlim = c(-2.5, 2.5), ylim = c(0, ymax))) # xlim=c(-5,5),ylim=c(0,ymax)
+    with(res, plot(log2FC, -log10(PValue), pch = 20, main = "Volcano plot", 
+                   xlim = c(-xmax, xmax), ylim = c(0, ymax))) # xlim=c(-5,5),ylim=c(0,ymax)
     # Add colored points: red if padj<0.05, orange of log2FC>1, green if both)
     with(subset(res, FDR < p_val), points(log2FC, -log10(PValue), pch = 20, col = "red"))
     with(subset(res, abs(log2FC) > log2(fc)), points(log2FC, -log10(PValue), pch = 20, col = "orange"))
@@ -4449,6 +4452,7 @@ server <- function(input, output, session) {
     perplexity_value <- li[[2]]
     no_of_pca <- li[[3]]
     tsne_cluster_flag <- li[[4]]
+    tsne_text_flag <- input$tsne_text # display sample name or not
     # no_of_clusters <- li[[4]] 
     
     # get tsne value
@@ -4465,9 +4469,8 @@ server <- function(input, output, session) {
     
     if(!tsne_cluster_flag){
       # plotting
-      p <- plot_ly(data = tsne_df, x = ~TSNE1, y = ~TSNE2, text = ~Sample) %>%
+      p <- plot_ly(data = tsne_df, x = ~TSNE1, y = ~TSNE2, text = ~Sample) %>% 
         add_trace(type = "scatter", mode = 'markers', opacity = 0.5)
-      p
 
     } else { # tsne_cluster_flag == TRUE
       set.seed(13)
@@ -4478,7 +4481,11 @@ server <- function(input, output, session) {
       # plotting
       p <- plot_ly(data = tsne_df, x = ~TSNE1, y = ~TSNE2, text = ~Sample, color = ~cluster ) %>%
         add_trace(type = "scatter", mode = 'markers', opacity = 0.5)
-      p
+    }
+    
+    if(tsne_text_flag){
+      p <- p %>% hide_colorbar() %>%
+        add_trace(type = "scatter", mode = 'text', textposition = "top right", showlegend = FALSE)
     }
     
     tsne2.end <- Sys.time()
@@ -4607,9 +4614,9 @@ server <- function(input, output, session) {
       
       par(mfrow=c(1,2))
       par(mai=c(.1,.1,.5,.1))
-      plotTSNE(dis.r1,labels=t_list[[1]],is_distance=FALSE,verbose=FALSE,perplexity=5)
+      plotTSNE(dis.r1,labels=t_list[[1]],is_distance=FALSE,verbose=TRUE,perplexity=5)
       mtext("rafsil-1 / embedding", line=1)
-      plotTSNE(dis.r2,labels=t_list[[1]],is_distance=FALSE,verbose=FALSE,perplexity=5)
+      plotTSNE(dis.r2,labels=t_list[[1]],is_distance=FALSE,verbose=TRUE,perplexity=5)
       mtext("rafsil-2 / embedding", line=1)
     }, error = function(error_condition) {
       plot_exception("RAFSIL cannot be applied on this dataset.\nPlease use random forest clustering instead")
