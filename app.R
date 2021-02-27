@@ -5674,11 +5674,18 @@ server <- function(input, output, session) {
   
   
   output$path_enri.plot_gene <- renderPlotly({
-    ggplotly(plot_path_enri_gene(), tooltip = c("text"))
+  gene_name <- as.data.frame(df_path_enri_id_prot())
+    gene_name[,1] <- as.character(gene_name[,1])
+    
+    ggplotly(Pathway.Enr(gene_name[,1]), tooltip = c("text"))
   })
   
   output$path_enri.plot_prot <- renderPlotly({
-    ggplotly(plot_path_enri_prot(), tooltip = c("text"))
+    
+    gene_name <- as.data.frame(df_path_enri_id_prot())
+    gene_name[,1] <- as.character(gene_name[,1])
+    
+    ggplotly(Pathway.Enr(gene_name[,1]), tooltip = c("text"))
   })
   
   #visualization
