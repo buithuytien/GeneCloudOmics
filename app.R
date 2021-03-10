@@ -1628,7 +1628,7 @@ ui <- tagList(
       tabPanel(
         "Protein properties",
         sidebarPanel(
-          fileInput("file_prot_seq", "a text file with UniProt accessions"),
+          fileInput("file_prot_seq", "Upload UniProt accession CSV file"),
           shinyjs::hidden(downloadButton('downloadData', 'Download Sequence FASTA')),
           
         ),
@@ -1702,7 +1702,7 @@ ui <- tagList(
       tabPanel(
         "Evolutionary Analysis",
         sidebarPanel(
-          fileInput("file_prot_seq_evol", "a text file with UniProt accessions"),
+          fileInput("file_prot_seq_evol", "Upload UniProt accession CSV file"),
           
         ),
         mainPanel(
@@ -1759,7 +1759,7 @@ ui <- tagList(
       tabPanel(
         "Pathological Analysis",
         sidebarPanel(
-          fileInput("file_prot_seq_Patho", "a text file with UniProt accessions"),
+          fileInput("file_prot_seq_Patho", "Upload UniProt accession CSV file"),
           
         ),
         mainPanel(
