@@ -404,41 +404,36 @@ ui <- tagList(
     theme = shinytheme("flatly"),
     title = "",
     tabPanel(
-      "dCloudGene",
+      "GeneCloudOmics",
       br(),
       sidebarLayout(
         sidebarPanel(
           img(
-            src = "dcloudgene-logo.jpeg",
+            src = "GeneCloudOmics-logo.png",
             width = "100%", height = "100%"
           )
         ),
         mainPanel(
-          h2("Welcome to dCloudGene", align = "center",style = "color:#73C6B6;font-weight: bold;"),
+          h2("Welcome to GeneCloudOmics", align = "center",style = "color:#73C6B6;font-weight: bold;"),
           p("The Biostatistical Tool for Gene Expression Data Analysis", align = "center"),
-          h4(span("dCloudGene", style = "color:#73C6B6;font-weight: bold;")," is a web server for transcriptome data analysis and visualization. It supports the analysis of 
+          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;")," is a web server for transcriptome data analysis and visualization. It supports the analysis of 
       microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, 
       it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets."),
-          h4(span("dCloudGene", style = "color:#73C6B6;font-weight: bold;"),"  is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical 
+          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;"),"  is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical 
       user interface (GUI) that waves the hassle of coding, installing tools,  packages or libraries and dealing with operating systems compatibility and versioning issues, some of 
-      the complications that make data analysis tasks more challenging for biologists. dCloudGene is an open-source tool and the website is free and open to all users 
+      the complications that make data analysis tasks more challenging for biologists. GeneCloudOmics is an open-source tool and the website is free and open to all users 
       and there is no login requirement."),
           h4(span("Supported Transcriptome data:", style = "color:#73C6B6;font-weight: bold;"), " RNA-Seq and Microarray "),
-          h4(span("Data Preprocessing:", style = "color:#73C6B6;font-weight: bold;"), " dCloudGene performs raw data normalization using four normalization methods RPKM, 
+          h4(span("Data Preprocessing:", style = "color:#73C6B6;font-weight: bold;"), " GeneCloudOmics performs raw data normalization using four normalization methods RPKM, 
       FPKM, TPM and RUV. The raw vs. normalized data are visualized as boxplots and violin plots."),
           h4(span("Differential Gene Expression (DGE) Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GDE using five methods EdgeR, DESeq2, NOISeq, and LIMMA."),
-          h4(span("Bio-statistical Analysis:", style = "color:#73C6B6;font-weight: bold;"), " dCloudGene provides the user with the following bio-statistical analyses: 
+          h4(span("Bio-statistical Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GeneCloudOmics provides the user with the following bio-statistical analyses: 
       Pearson and Spearman rank correlations, PCA, k-means and hierarchical clustering, 
       Shannon entropy and noise (square of the coefficient of variation), t-SNE, random forest and SOM analyses. All analyses include proper high-resolution visualization."),
-          h4(span("Bioinformatics Analysis of Gene and Protein sets:", style = "color:#73C6B6;font-weight: bold;"), " For the differential expressed genes (DEG), dCloudGene provides 
+          h4(span("Bioinformatics Analysis of Gene and Protein sets:", style = "color:#73C6B6;font-weight: bold;"), " For the differential expressed genes (DEG), GeneCloudOmics provides 
       the users with multiple bioinformatics tools to investigate their 
       gene/protein list including gene ontology (GO), pathway enrichment analysis, PPI, co-expression, gene/protein function, subcellular localization, complex enrichment, protein domains, tissue expression, sequence properties (acidity, hydrophobicity and charge),
        evolutionary analysis (gene tree, phylogenetic tree and species/chromosome location)  and pathological analysis (diseases that these genes/proteins are involved in). The analyses include proper high-resolution visualization, when applicable."),
-          br(),
-          h4("Please cite"),
-          HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>"),
-          div(style="display:inline-block;text-align: center;",actionButton("start_rnaseq", label = "Process RNASeq Data", icon = icon("paper-plane"))),
-          div(style="display:inline-block;text-align: center;",actionButton("start_micro", label = "Process Micro Array Data", icon = icon("paper-plane")))
         )
       )
     ),
