@@ -493,10 +493,10 @@ ui <- tagList(
                        actionButton("submit_input", "Submit")
                      ),
                      mainPanel(
-                       # h3("Welcome to ABioTrans --"),
+                       # h3("Welcome to GeneCloudOmics --"),
                        # h3("A Biostatistical tool for Transcriptomics Analysis"),
                        # img(
-                       #   src = "Abiotrans-logo.png",
+                       #   src = "GeneCloudOmics-logo.png",
                        #   width = 570, height = 370
                        # )
                      )
@@ -3695,7 +3695,7 @@ server <- function(input, output, session) {
         </p>
         <p>
           <b>
-            AbioTrans implements 3 popular methods to identify DE genes:<br>
+            GeneCloudOmics implements 3 popular methods to identify DE genes:<br>
               1. <a href='https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8'>DESeq2</a><br>
               2. <a href='https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2796818/'>EdgeR</a><br>
               3. <a href='https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4666377/'>NOISeq</a>
