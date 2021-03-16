@@ -454,21 +454,21 @@ ui <- tagList(
                          condition = "input.file_type=='raw'", # raw
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a(href="https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png", "here"))
+                               p("Example ", a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "here"))
                            )
                          }),
                          fileInput("file1", "Choose Raw Counts"),
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("length1", "Choose Gene Length"), # gene id + length
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
+                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("spikes1", "Choose Negative Control Genes")
@@ -477,7 +477,7 @@ ui <- tagList(
                          condition = "input.file_type=='norm'", # normalized
                          withTags({
                            div(class = "header",
-                               p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
+                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("file2", "Choose Normalized Expression")
@@ -486,7 +486,7 @@ ui <- tagList(
                        
                        withTags({
                          div(class = "header",
-                             p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+                             p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
                          )
                        }),
                        fileInput("metafile1", "Choose Meta Data File"),
@@ -601,7 +601,7 @@ ui <- tagList(
                  sidebarPanel(
                    withTags({
                      div(class = "header",
-                         p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
+                         p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
                      )
                    }),
                    fileInput("file_micro", "Choose Microarray Data"),
@@ -1207,7 +1207,7 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gPro_gene_names.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv")),
               )
             }),
             fileInput("file_path_enri_gene", "Upload genes CSV file"),
@@ -1283,7 +1283,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_prot_expr", "Upload UniProt accession CSV file"),
@@ -1326,7 +1326,7 @@ ui <- tagList(
                       )),
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_names.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_names.csv")),
             )
           }),
           fileInput("file_gene", "Upload genes CSV file"),
@@ -1364,7 +1364,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_uniprot", "Upload UniProt accession CSV file"),
@@ -1444,7 +1444,7 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
               )
             }),
             fileInput("file_prot_Int", "Upload UniProt accession CSV file"),
@@ -1533,7 +1533,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_prot_func", "Upload UniProt accession CSV file"),
@@ -1564,7 +1564,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_prot_local", "Upload UniProt accession CSV file"),
@@ -1594,7 +1594,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_prot_domain", "Upload UniProt accession CSV file"),
@@ -1801,7 +1801,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_complex_prot", "Upload UniProt accession CSV file"),
@@ -1834,7 +1834,7 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gPro_gene_names.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv")),
               )
             }),
             fileInput("file_path_enri_prot", "Upload genes CSV file"),
