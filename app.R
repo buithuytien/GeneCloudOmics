@@ -404,41 +404,36 @@ ui <- tagList(
     theme = shinytheme("flatly"),
     title = "",
     tabPanel(
-      "ABioTrans Plus",
+      "GeneCloudOmics",
       br(),
       sidebarLayout(
         sidebarPanel(
           img(
-            src = "Abiotrans-logo.png",
+            src = "GeneCloudOmics-logo.png",
             width = "100%", height = "100%"
           )
         ),
         mainPanel(
-          h2("Welcome to ABioTrans Plus", align = "center",style = "color:#73C6B6;font-weight: bold;"),
+          h2("Welcome to GeneCloudOmics", align = "center",style = "color:#73C6B6;font-weight: bold;"),
           p("The Biostatistical Tool for Gene Expression Data Analysis", align = "center"),
-          h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;")," is a web server for transcriptome data analysis and visualization. It supports the analysis of 
+          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;")," is a web server for transcriptome data analysis and visualization. It supports the analysis of 
       microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, 
       it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets."),
-          h4(span("ABioTrans Plus", style = "color:#73C6B6;font-weight: bold;"),"  is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical 
+          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;"),"  is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical 
       user interface (GUI) that waves the hassle of coding, installing tools,  packages or libraries and dealing with operating systems compatibility and versioning issues, some of 
-      the complications that make data analysis tasks more challenging for biologists. ABioTrans Plus is an open-source tool and the website is free and open to all users 
+      the complications that make data analysis tasks more challenging for biologists. GeneCloudOmics is an open-source tool and the website is free and open to all users 
       and there is no login requirement."),
           h4(span("Supported Transcriptome data:", style = "color:#73C6B6;font-weight: bold;"), " RNA-Seq and Microarray "),
-          h4(span("Data Preprocessing:", style = "color:#73C6B6;font-weight: bold;"), " ABioTrans Plus performs raw data normalization using four normalization methods RPKM, 
+          h4(span("Data Preprocessing:", style = "color:#73C6B6;font-weight: bold;"), " GeneCloudOmics performs raw data normalization using four normalization methods RPKM, 
       FPKM, TPM and RUV. The raw vs. normalized data are visualized as boxplots and violin plots."),
           h4(span("Differential Gene Expression (DGE) Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GDE using five methods EdgeR, DESeq2, NOISeq, and LIMMA."),
-          h4(span("Bio-statistical Analysis:", style = "color:#73C6B6;font-weight: bold;"), " ABioTrans Plus provides the user with the following bio-statistical analyses: 
+          h4(span("Bio-statistical Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GeneCloudOmics provides the user with the following bio-statistical analyses: 
       Pearson and Spearman rank correlations, PCA, k-means and hierarchical clustering, 
       Shannon entropy and noise (square of the coefficient of variation), t-SNE, random forest and SOM analyses. All analyses include proper high-resolution visualization."),
-          h4(span("Bioinformatics Analysis of Gene and Protein sets:", style = "color:#73C6B6;font-weight: bold;"), " For the differential expressed genes (DEG), ABioTrans Plus provides 
+          h4(span("Bioinformatics Analysis of Gene and Protein sets:", style = "color:#73C6B6;font-weight: bold;"), " For the differential expressed genes (DEG), GeneCloudOmics provides 
       the users with multiple bioinformatics tools to investigate their 
       gene/protein list including gene ontology (GO), pathway enrichment analysis, PPI, co-expression, gene/protein function, subcellular localization, complex enrichment, protein domains, tissue expression, sequence properties (acidity, hydrophobicity and charge),
        evolutionary analysis (gene tree, phylogenetic tree and species/chromosome location)  and pathological analysis (diseases that these genes/proteins are involved in). The analyses include proper high-resolution visualization, when applicable."),
-          br(),
-          h4("Please cite"),
-          HTML("<h4>Zou Y, Bui TT, Selvarajoo K. (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Frontiers in Genetics.<a href='https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full' style = 'color: blue;'> 10:499. doi.org/10.3389/fgene.2019.00499</a></h4>"),
-          div(style="display:inline-block;text-align: center;",actionButton("start_rnaseq", label = "Process RNASeq Data", icon = icon("paper-plane"))),
-          div(style="display:inline-block;text-align: center;",actionButton("start_micro", label = "Process Micro Array Data", icon = icon("paper-plane")))
         )
       )
     ),
@@ -459,21 +454,21 @@ ui <- tagList(
                          condition = "input.file_type=='raw'", # raw
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a(href="https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png", "here"))
+                               p("Example ", a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "here"))
                            )
                          }),
                          fileInput("file1", "Choose Raw Counts"),
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("length1", "Choose Gene Length"), # gene id + length
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
+                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("spikes1", "Choose Negative Control Genes")
@@ -482,7 +477,7 @@ ui <- tagList(
                          condition = "input.file_type=='norm'", # normalized
                          withTags({
                            div(class = "header",
-                               p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
+                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("file2", "Choose Normalized Expression")
@@ -491,7 +486,7 @@ ui <- tagList(
                        
                        withTags({
                          div(class = "header",
-                             p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+                             p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
                          )
                        }),
                        fileInput("metafile1", "Choose Meta Data File"),
@@ -606,7 +601,7 @@ ui <- tagList(
                  sidebarPanel(
                    withTags({
                      div(class = "header",
-                         p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
+                         p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
                      )
                    }),
                    fileInput("file_micro", "Choose Microarray Data"),
@@ -1226,7 +1221,7 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gPro_gene_names.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv")),
               )
             }),
             fileInput("file_path_enri_gene", "Upload genes CSV file"),
@@ -1235,12 +1230,7 @@ ui <- tagList(
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
             sliderInput("overlap_min_gene", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 50),
-            sliderInput("overlap_node_min_gene", "Minimum Node Overlap",
-                        min = 0, max = 100,
-                        value = 50),
-            selectInput("showCondition_gene", "Select Condition:", choices=c("A","B","C")),
-            selectInput("edge_wt_gene", "Select wt:", choices=c("A","B","C")),
+                        value = 15),
             selectInput("doLayout_path_gene", "Select Layout:",
                         choices=c("",
                                   "cose",
@@ -1307,7 +1297,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_prot_expr", "Upload UniProt accession CSV file"),
@@ -1350,7 +1340,7 @@ ui <- tagList(
                       )),
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_names.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_names.csv")),
             )
           }),
           fileInput("file_gene", "Upload genes CSV file"),
@@ -1388,7 +1378,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_uniprot", "Upload UniProt accession CSV file"),
@@ -1468,7 +1458,7 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
               )
             }),
             fileInput("file_prot_Int", "Upload UniProt accession CSV file"),
@@ -1557,7 +1547,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_prot_func", "Upload UniProt accession CSV file"),
@@ -1588,7 +1578,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_prot_local", "Upload UniProt accession CSV file"),
@@ -1618,7 +1608,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_prot_domain", "Upload UniProt accession CSV file"),
@@ -1647,7 +1637,7 @@ ui <- tagList(
       tabPanel(
         "Protein properties",
         sidebarPanel(
-          fileInput("file_prot_seq", "a text file with UniProt accessions"),
+          fileInput("file_prot_seq", "Upload UniProt accession CSV file"),
           shinyjs::hidden(downloadButton('downloadData', 'Download Sequence FASTA')),
           
         ),
@@ -1721,7 +1711,7 @@ ui <- tagList(
       tabPanel(
         "Evolutionary Analysis",
         sidebarPanel(
-          fileInput("file_prot_seq_evol", "a text file with UniProt accessions"),
+          fileInput("file_prot_seq_evol", "Upload UniProt accession CSV file"),
           
         ),
         mainPanel(
@@ -1778,7 +1768,7 @@ ui <- tagList(
       tabPanel(
         "Pathological Analysis",
         sidebarPanel(
-          fileInput("file_prot_seq_Patho", "a text file with UniProt accessions"),
+          fileInput("file_prot_seq_Patho", "Upload UniProt accession CSV file"),
           
         ),
         mainPanel(
@@ -1825,7 +1815,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
             )
           }),
           fileInput("file_complex_prot", "Upload UniProt accession CSV file"),
@@ -1858,7 +1848,7 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/ABioTrans/blob/online-version/Test%20data/gPro_gene_names.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv")),
               )
             }),
             fileInput("file_path_enri_prot", "Upload genes CSV file"),
@@ -5599,6 +5589,7 @@ server <- function(input, output, session) {
     
     hide("help_text_path_enri")
     df <- df_path_enri_gene()
+
     return(df)
   })
   
@@ -5643,7 +5634,7 @@ server <- function(input, output, session) {
   
   
   plot_path_enri_gene <- function() {
-    
+    df_path_enri_id_gene()
     gene_name <- as.data.frame(df_path_enri_id_gene())
     gene_name[,1] <- as.character(gene_name[,1])
     
@@ -5676,7 +5667,7 @@ server <- function(input, output, session) {
   }
   
   plot_path_enri_prot <- function() {
-    
+    df_path_enri_id_prot()
     gene_name <- as.data.frame(df_path_enri_id_prot())
     gene_name[,1] <- as.character(gene_name[,1])
     
@@ -5710,11 +5701,19 @@ server <- function(input, output, session) {
   
   
   output$path_enri.plot_gene <- renderPlotly({
-    ggplotly(plot_path_enri_gene(), tooltip = c("text"))
+    df_path_enri_id_gene()
+  gene_name <- as.data.frame(df_path_enri_id_gene())
+    gene_name[,1] <- as.character(gene_name[,1])
+    
+    ggplotly(Pathway.Enr(gene_name[,1]), tooltip = c("text"))
   })
   
   output$path_enri.plot_prot <- renderPlotly({
-    ggplotly(plot_path_enri_prot(), tooltip = c("text"))
+    df_path_enri_id_prot()
+    gene_name <- as.data.frame(df_path_enri_id_prot())
+    gene_name[,1] <- as.character(gene_name[,1])
+    
+    ggplotly(Pathway.Enr(gene_name[,1]), tooltip = c("text"))
   })
   
   #visualization
@@ -5890,116 +5889,19 @@ server <- function(input, output, session) {
   output$path_enri_visu_gene <- renderCyjShiny({
     
     print("visualization")
-    gene_id <- as.data.frame(df_path_enri_id_gene())
-    path_df <- pathway_enri_df()
-    print("testing running")
-    
-    mat_id <- matrix(0,nrow = nrow(path_df),ncol = nrow(gene_id))
-    col_names <- t(gene_id)
-    colnames(mat_id) <- col_names
-    rownames(mat_id) <- path_df$term_name
+    df_path_enri_id_gene()
+    Enrich <- gost(df_path_enri_id_gene(),evcodes = T, sources = c('KEGG', 'REAC'))
+    Pathway <- Construct.COPathway(Enrich, input$overlap_min_gene)
+    nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
     
     
-    for(j in 1:nrow(path_df))
-    {
-      for(i in strsplit(path_df[j,"intersection"],",")[[1]])
-      {
-        mat_id[j,i] <- 1
-      }
-    }
-    
-    mat_id_raw <- mat_id
-    mat_id <- matrix(data = 0, nrow = 0, ncol = nrow(gene_id))
-    mat_row_names <- character()
-    
-    for(i in 1:nrow(pathway_enri_nodes()))
-    {
-      if(as.numeric(pathway_enri_nodes()[i,2])>=input$overlap_node_min_gene)
-      {
-        mat_id <- rbind(mat_id, mat_id_raw[i,])
-        mat_row_names <- c(mat_row_names,as.character(rownames(mat_id_raw)[i]))
-      }
-    }
-    
-    print(mat_row_names)
-    rownames(mat_id) <- mat_row_names
-    print(mat_id)
-    
-    edge_source <- character()
-    edge_target <- character()
-    
-    for(idx in 1:ncol(mat_id))
-    {
-      if(max(mat_id[,idx]) == 0) next()
-      for (i in 1:nrow(mat_id)) {
-        if(mat_id[i,idx])
-        {
-          for(j in i:nrow(mat_id))
-          {
-            if(mat_id[j,idx] && j!=i)
-            {
-              edge_source <- c(edge_source,as.character(rownames(mat_id)[i]))
-              edge_target <- c(edge_target,as.character(rownames(mat_id)[j]))
-            }
-          }
-        }
-      }
-    }
-    
-    overlap_cnt <- matrix(0,nrow = (nrow(mat_id)*(nrow(mat_id)-1))/2,ncol = 3)
-    overlap_name <- character()
-    pair_1 <- character()
-    pair_2 <- character()
-    for(i in 1:nrow(mat_id))
-    {
-      if(i == nrow(mat_id)) next()
-      start <- i+1
-      for(j in start:nrow(mat_id))
-      {
-        overlap_name <- c(overlap_name,paste0(rownames(mat_id)[i]," & ",rownames(mat_id)[j]))
-        pair_1 <- c(pair_1,rownames(mat_id)[i])
-        pair_2 <- c(pair_2,rownames(mat_id)[j])
-      }
-    }
-    rownames(overlap_cnt) <- overlap_name
-    overlap_cnt <- as.data.frame(overlap_cnt)
-    overlap_cnt[,2] <- as.character(pair_1)
-    overlap_cnt[,3] <- as.character(pair_2)
-    overlap_cnt[,1] <- as.numeric(overlap_cnt[,1])
-    for(i in 1:length(edge_source))
-    {
-      overlap_cnt[paste0(edge_source[i]," & ",edge_target[i]),1] <- overlap_cnt[paste0(edge_source[i]," & ",edge_target[i]),1] + 1
-    }
-    
-    pathway_overlap(overlap_cnt)
-    # updateSelectInput(session, "overlap_min", choices = unique(sort(overlap_cnt[,1])), selected = unique(sort(overlap_cnt[,1]))[1]) 
-    
-    overlap_val <- input$overlap_min_gene
-    new_source <- character()
-    new_target <- character()
-    num_value <- numeric()
-    
-    for(i in 1:nrow(overlap_cnt))
-    {
-      if(overlap_cnt[i,1] >= as.numeric(overlap_val))
-      {
-        new_source <- c(new_source,overlap_cnt[i,2])
-        new_target <- c(new_target,overlap_cnt[i,3])
-        num_value <- c(num_value,overlap_cnt[i,1])
-      }
-    }
-    
-    new_source_var(new_source)
-    new_target_var(new_target)
-    overlap_wt(num_value)
-    
-    path_enri.nodes <- data.frame(id=as.character(rownames(mat_id)),
-                                  type=as.character(rownames(mat_id)),
+    path_enri.nodes <- data.frame(id=nodes_tot,
+                                  type=nodes_tot,
                                   stringsAsFactors=FALSE)
     
-    path_enri.edges <- data.frame(source=new_source,
-                                  target=new_target,
-                                  interaction=new_target,
+    path_enri.edges <- data.frame(source=Pathway[,1],
+                                  target=Pathway[,2],
+                                  interaction=Pathway[,1],
                                   stringsAsFactors=FALSE)
     
     graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
@@ -6009,7 +5911,7 @@ server <- function(input, output, session) {
 
   Construct.COPathway <- function(EnrichmentObject, threshold = 1)
 {
-  print("INSIDE")
+  
   PathwayNetwork <- data.frame()
   PathwayDF <- EnrichmentObject[["result"]] 
   for (i in 1:nrow(PathwayDF))
@@ -6038,6 +5940,7 @@ server <- function(input, output, session) {
   output$path_enri_visu_prot <- renderCyjShiny({
     
     print("visualization")
+    df_path_enri_id_prot()
     Enrich <- gost(df_path_enri_id_prot(),evcodes = T, sources = c('KEGG', 'REAC'))
     Pathway <- Construct.COPathway(Enrich, input$overlap_min_prot)
     nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
