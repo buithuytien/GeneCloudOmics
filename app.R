@@ -1090,11 +1090,25 @@ ui <- tagList(
                      numericInput("tsne_cluster_num", "Number of clusters:", min = 1, value = 2)
                    ),
                    checkboxInput("tsne_text", strong("Display sample name"), FALSE),
-                   actionButton("submit_tsne2","Submit")),
+                   actionButton("submit_tsne2","Submit"),
+                   
+                   conditionalPanel(
+                     condition = "input.tsne_tabs=='t-SNE table'",
+                     downloadButton("download_tsne", "Download as CSV")
+                   )
+                   
+                 ),
                  mainPanel(
                    h3('t-SNE Plot'),
-                   uiOutput("help_text_tsne"),
-                   plotlyOutput('tsne2.plot')
+                   
+                   tabsetPanel(
+                     type = "tabs", id = "tsne_tabs",
+                     tabPanel("t-SNE plot", 
+                              uiOutput("help_text_tsne"),
+                              plotlyOutput('tsne2.plot')),
+                     tabPanel("t-SNE table", 
+                              DT::dataTableOutput("tsne_table") )
+                   )
                  )),
                
                tabPanel(
@@ -4492,12 +4506,30 @@ server <- function(input, output, session) {
     print("t-SNE plot time")
     print(tsne2.end - tsne2.start)
     
-    return(p)
+    return(list(p, tsne_df))
   }
   
   output$tsne2.plot <- renderPlotly({
-    tsne2plot()
+    li <- tsne2plot()
+    p <- li[[1]]
+    tsne_table <- li[[2]]
+    p
   })
+  
+  output$tsne_table <- DT::renderDataTable({
+    tsne_table <- tsne2plot()[[2]] # get table
+    tsne_table
+  })
+  
+  output$download_tsne <- downloadHandler(
+    filename = function() {
+      paste("tsne_list", ".csv", sep = "")
+    },
+    content = function(file) {
+      gl <- tsne2plot()[[2]]
+      write.csv(gl, file, row.names = FALSE)
+    }
+  )
   
   output$help_text_tsne <- renderUI({
     HTML("
