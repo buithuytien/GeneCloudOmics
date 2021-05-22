@@ -6009,8 +6009,10 @@ server <- function(input, output, session) {
     }
     
     Accessions <- read.csv(input$file_uniprot$datapath)
-    Accessions <- na.omit(Accessions)
-    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+    Accessions <- na.omit(Accessions)[,1]
+    Accessions <- unique(Accessions)
+    Accessions <- trimws(Accessions)
+    print(Accessions)
     
     return(Accessions)
     
@@ -6020,8 +6022,8 @@ server <- function(input, output, session) {
     
     Accessions <- df_uniprot()
     hide("help_text_bio_pr")
-    print("Please Wait... Fetching Taxa Object. It may take a while")
-    TaxaObj <- GetNamesTaxa(Accessions)
+    #print("Please Wait... Fetching Taxa Object. It may take a while")
+    #TaxaObj <- GetNamesTaxa(Accessions)
     print("Please Wait... Fetching Gene Ontology Object. It may take a while")
     GeneOntologyObj <- GetProteinGOInfo(Accessions) 
     print("Done") 
