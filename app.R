@@ -124,7 +124,7 @@ if (length(find.package(package = "gridExtra", quiet = T)) > 0) {
 if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
   library(tidyverse)
 } else {
-  install.packages("tidyverse")
+  install.packages("tidyverse", dependencies = TRUE, INSTALL_opts = '--no-lock')
   library(tidyverse)
 }
 
@@ -220,7 +220,7 @@ if (length(find.package(package = "qdapTools", quiet = T)) > 0) {
 if (length(find.package(package = "alakazam", quiet = T)) > 0) {
   library(alakazam)
 } else {
-  install.packages("alakazam")
+  install.packages("https://cran.r-project.org/src/contrib/Archive/alakazam/alakazam_1.0.0.tar.gz", repo=NULL, type="source")
   library(alakazam)
 }
 
@@ -6781,7 +6781,7 @@ server <- function(input, output, session) {
   })
   
   output$help_text_prot_seq_evol <- renderUI({
-    HTML("<h3><b>This page retrieves the full protein sequences from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.</b></h3>")
+    HTML("<h3><b>This page performs Evolutionary analysis of protein sequences retrieved from <a href ='https://www.uniprot.org/'>UniProt.org</a>, Please upload accessions to start analysis.</b></h3>")
   })
   
   output$help_text_prot_seq_Patho <- renderUI({
