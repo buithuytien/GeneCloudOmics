@@ -124,7 +124,7 @@ if (length(find.package(package = "gridExtra", quiet = T)) > 0) {
 if (length(find.package(package = "tidyverse", quiet = T)) > 0) {
   library(tidyverse)
 } else {
-  install.packages("tidyverse", dependencies = TRUE, INSTALL_opts = '--no-lock')
+  install.packages("tidyverse", dependencies = TRUE)
   library(tidyverse)
 }
 
