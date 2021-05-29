@@ -1729,7 +1729,7 @@ ui <- tagList(
                         ),
                         conditionalPanel(
                           condition = "!$('html').hasClass('shiny-busy')",
-                          radialNetworkOutput("GenePlot") #  , width="750px",height="750px"
+                          radialNetworkOutput("GenePlot", width="900px",height="750px") #  , width="750px",height="750px"
                         ),
                       ),
                       tabPanel(
@@ -1743,7 +1743,7 @@ ui <- tagList(
                         ),
                         conditionalPanel(
                           condition = "!$('html').hasClass('shiny-busy')",
-                          plotOutput("Chromo") #  , width="750px",height="750px"
+                          plotOutput("Chromo", width="1200px",height="1500px") #  , width="750px",height="750px"
                         ),
                       ),
                       tabPanel(
@@ -1757,7 +1757,7 @@ ui <- tagList(
                         ),
                         conditionalPanel(
                           condition = "!$('html').hasClass('shiny-busy')",
-                          plotOutput("Phylogenetic") # , width="900px",height="750px"
+                          plotOutput("Phylogenetic", width="900px",height="750px") # , width="900px",height="750px"
                         ),
                       )
                       
