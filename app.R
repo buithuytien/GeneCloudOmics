@@ -483,7 +483,6 @@ ui <- tagList(
                          fileInput("file2", "Choose Normalized Expression")
                          # helpText("* Format requirement: CSV file. Gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database.")
                        ),
-                       
                        withTags({
                          div(class = "header",
                              p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
@@ -491,6 +490,8 @@ ui <- tagList(
                        }),
                        fileInput("metafile1", "Choose Meta Data File"),
                        actionButton("submit_input", "Submit")
+                       
+                       
                      ),
                      mainPanel(
                        # h3("Welcome to GeneCloudOmics --"),
@@ -621,6 +622,7 @@ ui <- tagList(
                    )
                  )
                )
+               
     ),
     navbarMenu('Transcriptome Analysis',
                tabPanel(
@@ -1295,6 +1297,10 @@ ui <- tagList(
       tabPanel(
         "Tissue Expression",
         sidebarPanel(
+          radioButtons(
+            "input_type", "Choose input type Type",
+            c("Input a file" = "file", "Enter the accession number" = "text")
+          ),
           withTags({
             div(class = "header",
                 p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
@@ -1638,6 +1644,7 @@ ui <- tagList(
         "Protein properties",
         sidebarPanel(
           fileInput("file_prot_seq", "Upload UniProt accession CSV file"),
+          actionButton("submit_prot_Seq", "Submit"),br(),br(),
           shinyjs::hidden(downloadButton('downloadData', 'Download Sequence FASTA')),
           
         ),
@@ -1712,6 +1719,7 @@ ui <- tagList(
         "Evolutionary Analysis",
         sidebarPanel(
           fileInput("file_prot_seq_evol", "Upload UniProt accession CSV file"),
+          actionButton("submit_prot_seq_evol","Submit")
           
         ),
         mainPanel(
@@ -1769,7 +1777,7 @@ ui <- tagList(
         "Pathological Analysis",
         sidebarPanel(
           fileInput("file_prot_seq_Patho", "Upload UniProt accession CSV file"),
-          
+          actionButton("submit_prot_seq_Patho","Submit")
         ),
         mainPanel(
           h3("Protein pathological analysis"),
@@ -2171,7 +2179,7 @@ server <- function(input, output, session) {
       write.csv(micro_meta_data, file, row.names = FALSE)
     }
   )
-  
+
   
   ####################################################################
   
@@ -6751,7 +6759,7 @@ server <- function(input, output, session) {
   ###################################
   ###################################
   Proteins <- NULL
-  df_prot_seq <- reactive({
+  df_prot_seq <- eventReactive(input$submit_prot_Seq, {
     print("running")
     if (is.null(input$file_prot_seq)) {
       return(NULL)
@@ -6777,16 +6785,43 @@ server <- function(input, output, session) {
   Seqdata <- NULL
   
   output$help_text_prot_seq <- renderUI({
-    HTML("<h3><b>This page retrieves the full protein sequences from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.</b></h3>")
+    HTML("<br>
+    <br>
+      <center>
+        <p>
+          <b>This page retrieves the full protein sequences from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.
+          </b>
+        </p>
+      </center>
+    ")
   })
   
   output$help_text_prot_seq_evol <- renderUI({
-    HTML("<h3><b>This page performs Evolutionary analysis of protein sequences retrieved from <a href ='https://www.uniprot.org/'>UniProt.org</a>, Please upload accessions to start analysis.</b></h3>")
+    HTML("<br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page performs Evolutionary analysis of protein sequences retrieved from <a href ='https://www.uniprot.org/'>UniProt.org</a>, Please upload accessions to start analysis.
+          </b>
+        </p>
+      </center>
+    ")
   })
   
   output$help_text_prot_seq_Patho <- renderUI({
-    HTML("<h3><b>This page retrieves protein's pathological information from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.</b></h3>")
-  })
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page retrieves protein's pathological information from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.
+          </b>
+        </p>
+      </center>
+    ")
+    })
   output$SequencePlot <- renderPlot(
     {
       if (!is.null(df_prot_seq()))
@@ -6880,7 +6915,7 @@ server <- function(input, output, session) {
   ##################################
   ######## protein revolution ######
   
-  df_prot_seq_evol <- reactive({
+  df_prot_seq_evol <- eventReactive(input$submit_prot_seq_evol,{
     print("running")
     if (is.null(input$file_prot_seq_evol)) {
       return(NULL)
@@ -6948,7 +6983,7 @@ server <- function(input, output, session) {
   ###################################
   
   #Pathogens
-  df_prot_seq_Patho <- reactive({
+  df_prot_seq_Patho <- eventReactive(input$submit_prot_seq_Patho,{
     print("running")
     if (is.null(input$file_prot_seq_Patho)) {
       return(NULL)
