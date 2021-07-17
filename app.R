@@ -471,7 +471,15 @@ ui <- tagList(
                                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("spikes1", "Choose Negative Control Genes")
+                         fileInput("spikes1", "Choose Negative Control Genes"),
+                         withTags({
+                           div(class = "header",
+                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+                           )
+                         }),
+                         fileInput("metafile1", "Choose Meta Data File"),
+                         actionButton("submit_input", "Submit"),
+                         
                        ),
                        conditionalPanel(
                          condition = "input.file_type=='norm'", # normalized
@@ -480,19 +488,22 @@ ui <- tagList(
                                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("file2", "Choose Normalized Expression")
+                         fileInput("file2", "Choose Normalized Expression"),
                          # helpText("* Format requirement: CSV file. Gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database.")
-                       ),
-                       withTags({
-                         div(class = "header",
-                             p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
-                         )
-                       }),
-                       fileInput("metafile1", "Choose Meta Data File"),
-                       actionButton("submit_input", "Submit")
-                       
-                       
+                         withTags({
+                           div(class = "header",
+                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+                           )
+                         }),
+                         fileInput("metafile1", "Choose Meta Data File"),
+                         actionButton("submit_input", "Submit"),
+                         
+                         ),
+                      
                      ),
+                     
+                     
+                     
                      mainPanel(
                        # h3("Welcome to GeneCloudOmics --"),
                        # h3("A Biostatistical tool for Transcriptomics Analysis"),
@@ -620,6 +631,24 @@ ui <- tagList(
                          style = "text-align: center;"
                      )
                    )
+                 )
+               ),
+               tabPanel(
+                 "GEO Data Import",
+                 value = "active_tab_geo",
+                 sidebarPanel(
+                   textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
+                   actionButton("submit_geo_acc_no", "Submit")
+                 ),
+                 
+                 
+                 mainPanel(
+                   h3("Preprocessing GEO Data"),
+                   
+                   tabsetPanel(type ="tabs",  tabPanel("Box Plot",plotOutput("geo_box_plot")),
+                               tabPanel("Expression Density", plotOutput("geo_expr_plot")),
+                               tabPanel("Mean variance", plotOutput("geo_mean_plot")),
+                               tabPanel("UMAP", plotOutput("geo_umap_plot")))
                  )
                )
                
@@ -2279,7 +2308,8 @@ server <- function(input, output, session) {
     raw_ds <- read.csv(input$file1$datapath)
     raw_ds <- na.omit(raw_ds)
     raw_ds <- raw_ds[!duplicated(raw_ds[, 1]), ] # remove duplicated gene names
-    
+
+      
     # raw_ds <- as.data.frame(raw_ds)
     if (ncol(raw_ds) <= 1) {
       showModal(modalDialog(
@@ -2346,6 +2376,116 @@ server <- function(input, output, session) {
   })
   
   
+  
+  ############################## GEO IMPORT###################
+  library(xml2)
+  library(GEOquery)
+  library(limma)
+  library(umap)
+  getDirListing <- function(url) {
+    # Takes a URL and returns a character vector of filenames
+    a <- xml2::read_html(url)
+    fnames = grep('^G',xml_text(xml_find_all(a,'//a/@href')),value=TRUE)
+    return(fnames)
+  }
+  
+  getFiles <- function(GEO, makeDirectory = TRUE,
+                       baseDir = getwd(), fetch_files = TRUE,
+                       filter_regex = NULL) {
+    geotype <- toupper(substr(GEO,1,3))
+    storedir <- baseDir
+    fileinfo <- list()
+    stub = gsub('\\d{1,3}$','nnn',GEO,perl=TRUE)
+    if(geotype=='GSM') {
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/samples/%s/%s/suppl/",stub,GEO)
+    }
+    if(geotype=='GSE') {
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/suppl/",stub,GEO)
+    }
+    if(geotype=='GPL') {
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/platform/%s/%s/suppl/",stub,GEO)
+    }
+    fnames <- try(getDirListing(url),silent=TRUE)
+    print(fnames)
+    if(inherits(fnames,'try-error')) {
+      message('No supplemental files found.')
+      message('Check URL manually if in doubt')
+      message(url)
+      return(NULL)
+    }
+    if(makeDirectory) {
+      suppressWarnings(dir.create(storedir <- file.path(baseDir,GEO)))
+    }
+    if(!is.null(filter_regex)) {
+      fnames = fnames[grepl(filter_regex, fnames)]
+    }
+    for(i in fnames) {
+      
+      download.file(paste(file.path(url,i),'tool=geoquery',sep="?"),
+                    destfile=file.path(storedir,i),
+                    mode='wb',
+                    method=getOption('download.file.method.GEOquery'))
+      acc_data <- read.table(file.path(storedir,i))
+      return(acc_data)
+    }
+    
+  }
+  
+  observeEvent(input$submit_geo_acc_no, {
+    
+    #df=getFiles(input$geo_acc_no)
+    #df
+    gset <- getGEO(input$geo_acc_no, GSEMatrix =TRUE, getGPL=FALSE)
+    if (length(gset) > 1) idx <- grep("GPL96", attr(gset, "names")) else idx <- 1
+    gset <- gset[[idx]]
+    
+    ex <- exprs(gset)
+    # log2 transform
+    qx <- as.numeric(quantile(ex, c(0., 0.25, 0.5, 0.75, 0.99, 1.0), na.rm=T))
+    LogC <- (qx[5] > 100) ||
+      (qx[6]-qx[1] > 50 && qx[2] > 0)
+    if (LogC) { ex[which(ex <= 0)] <- NaN
+    ex <- log2(ex) }
+    
+      
+    output$geo_box_plot <- renderPlot({# load series and platform data from GEO
+      
+      # box-and-whisker plot
+      par(mar=c(7,4,2,1))
+      title <- paste (input$geo_acc_no, "/", annotation(gset), sep ="")
+      boxplot(ex, boxwex=0.7, notch=T, main=title, outline=FALSE, las=2)})
+    output$geo_expr_plot <- renderPlot({
+      
+      par(mar=c(4,4,2,1))
+      title <- paste (input$geo_acc_no, "/", annotation(gset), " value distribution", sep ="")
+      plotDensities(ex, main=title, legend=F)
+      
+    })
+    output$geo_mean_plot <- renderPlot({
+      
+      # mean-variance trend
+      ex <- na.omit(ex) # eliminate rows with NAs
+      plotSA(lmFit(ex), main="Mean variance trend")
+      
+    })
+    output$geo_umap_plot <- renderPlot({
+      
+      ex <- ex[!duplicated(ex), ]  # remove duplicates
+      ump <- umap(t(ex), n_neighbors = 6, random_state = 123)
+      plot(ump$layout, main="UMAP plot, nbrs=6", xlab="", ylab="", pch=20, cex=1.5)
+      library("maptools")  # point labels without overlaps
+      pointLabel(ump$layout, labels = rownames(ump$layout), method="SANN", cex=0.6)
+      
+    })
+    
+  })
+  
+  
+  
+  
+  
+  
+ 
   ###############################################################
   
   # get gene length
