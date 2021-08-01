@@ -515,6 +515,7 @@ ui <- tagList(
                    ),
                    tabPanel(
                      "Preprocessing",
+                     value="active_tab_preprocessing_rnaseq",
                      sidebarPanel(
                        h4("Filtering"),
                        splitLayout(
@@ -637,18 +638,26 @@ ui <- tagList(
                  "GEO Data Import",
                  value = "active_tab_geo",
                  sidebarPanel(
-                   textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
-                   actionButton("submit_geo_acc_no", "Submit")
-                 ),
+                   tabsetPanel(type="tabs",
+                               tabPanel("GEO DATA",textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
+                                        actionButton("submit_geo_acc_no", "Submit")),
+                               tabPanel("PREPROCESSING",radioButtons("file_name_button","SELECT FILE",
+                                                                     c("a")),
+                                        actionButton("submit_geo_preprocessing", "Submit"),
+                               )
+                               
+                   )),
                  
                  
                  mainPanel(
                    h3("Preprocessing GEO Data"),
                    
-                   tabsetPanel(type ="tabs",  tabPanel("Box Plot",plotOutput("geo_box_plot")),
-                               tabPanel("Expression Density", plotOutput("geo_expr_plot")),
-                               tabPanel("Mean variance", plotOutput("geo_mean_plot")),
-                               tabPanel("UMAP", plotOutput("geo_umap_plot")))
+                   tabsetPanel(type ="tabs", 
+                               tabPanel(
+                                 "Data table",
+                                 h3("Normalized data"),
+                                 DT::dataTableOutput("geo_norm_table")
+                               ))
                  )
                )
                
@@ -1989,6 +1998,7 @@ server <- function(input, output, session) {
     } else if (type == "raw") {
       DS <- df_raw()
     }
+    
     nms <- colnames(DS)
     updateSelectInput(session, "scatter.x", choices = nms, selected = nms[1])
     updateSelectInput(session, "scatter.y", choices = nms, selected = nms[2])
@@ -2039,6 +2049,7 @@ server <- function(input, output, session) {
     ### gene expression range for distribution fit ###
     if (is.null(DS) == FALSE) {
       DS_dist <- distfit_df()
+      print(DS_dist)
       range_min <- min(DS_dist)
       range_max <- max(DS_dist)
       updateSliderInput(session, "dist_range", max = round(range_max), value = c(0.1, range_max))
@@ -2293,9 +2304,10 @@ server <- function(input, output, session) {
   
   # get raw counts
   df_raw <- reactive({
-    if (is.null(input$file1)) {
+    if (is.null(input$file1) && input$file_name_button == "a") {
       return(NULL)
     }
+    else if (!is.null(input$file1)){
     parts <- strsplit(input$file1$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
     if (type != "csv") {
@@ -2306,10 +2318,20 @@ server <- function(input, output, session) {
       return(NULL)
     }
     raw_ds <- read.csv(input$file1$datapath)
-    raw_ds <- na.omit(raw_ds)
-    raw_ds <- raw_ds[!duplicated(raw_ds[, 1]), ] # remove duplicated gene names
-
+    
+    
+    }
+    else if(input$file_name_button != "a"){
       
+      if(!file.exists(file.path(getwd(),input$file_name_button)))
+        return(NULL)
+      print("Reading geo_file")
+      
+      raw_ds <- read.table(file.path(getwd(),input$file_name_button) ,header=TRUE, stringsAsFactors = FALSE)
+    } # remove duplicated gene names
+
+    raw_ds <- na.omit(raw_ds)
+    raw_ds <- raw_ds[!duplicated(raw_ds[, 1]), ]  
     # raw_ds <- as.data.frame(raw_ds)
     if (ncol(raw_ds) <= 1) {
       showModal(modalDialog(
@@ -2322,8 +2344,8 @@ server <- function(input, output, session) {
     row_names <- raw_ds[, 1]
     rownames(raw_ds) <- row_names
     raw_DS <- raw_ds[, -1] # remove the first column, which is gene Id
-    
     for (i in 1:ncol(raw_DS)) {
+      
       if (class(raw_DS[, i]) != "numeric" & class(raw_DS[, i]) != "integer") {
         showModal(modalDialog(
           title = "Error",
@@ -2332,6 +2354,7 @@ server <- function(input, output, session) {
         return(NULL)
       }
     }
+    print(raw_DS)
     return(raw_DS)
   })
   
@@ -2380,8 +2403,7 @@ server <- function(input, output, session) {
   ############################## GEO IMPORT###################
   library(xml2)
   library(GEOquery)
-  library(limma)
-  library(umap)
+ 
   getDirListing <- function(url) {
     # Takes a URL and returns a character vector of filenames
     a <- xml2::read_html(url)
@@ -2389,98 +2411,74 @@ server <- function(input, output, session) {
     return(fnames)
   }
   
-  getFiles <- function(GEO, makeDirectory = TRUE,
-                       baseDir = getwd(), fetch_files = TRUE,
-                       filter_regex = NULL) {
+  getFileUrl <- function(GEO,filetype){
     geotype <- toupper(substr(GEO,1,3))
-    storedir <- baseDir
     fileinfo <- list()
     stub = gsub('\\d{1,3}$','nnn',GEO,perl=TRUE)
     if(geotype=='GSM') {
-      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/samples/%s/%s/suppl/",stub,GEO)
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/samples/%s/%s/%s/",stub,GEO,filetype)
     }
     if(geotype=='GSE') {
-      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/suppl/",stub,GEO)
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/%s/",stub,GEO,filetype)
     }
     if(geotype=='GPL') {
-      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/platform/%s/%s/suppl/",stub,GEO)
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/platform/%s/%s/%s/",stub,GEO,filetype)
     }
+    return(url)
+  }
+  
+  getFiles <- function(url) {
+    
     fnames <- try(getDirListing(url),silent=TRUE)
-    print(fnames)
+    
     if(inherits(fnames,'try-error')) {
       message('No supplemental files found.')
       message('Check URL manually if in doubt')
       message(url)
       return(NULL)
     }
-    if(makeDirectory) {
-      suppressWarnings(dir.create(storedir <- file.path(baseDir,GEO)))
-    }
-    if(!is.null(filter_regex)) {
-      fnames = fnames[grepl(filter_regex, fnames)]
-    }
-    for(i in fnames) {
-      
-      download.file(paste(file.path(url,i),'tool=geoquery',sep="?"),
-                    destfile=file.path(storedir,i),
-                    mode='wb',
-                    method=getOption('download.file.method.GEOquery'))
-      acc_data <- read.table(file.path(storedir,i))
-      return(acc_data)
-    }
+    return(fnames)
+    
+    
+  }
+  
+  getFileData <- function(url,fname){
+    storedir <- getwd()
+    #suppressWarnings(dir.create(storedir <- file.path(getwd(),GEO)))
+    download.file(paste(file.path(url,fname),'tool=geoquery',sep="?"),
+                  destfile=file.path(storedir,fname),
+                  mode='wb',
+                  method=getOption('download.file.method.GEOquery'))
+    acc_data <- read.table(file.path(storedir,fname))
+    return(acc_data)
     
   }
   
   observeEvent(input$submit_geo_acc_no, {
+    url<-getFileUrl(input$geo_acc_no,"suppl")
+    fname <- getFiles(url)
+    print(fname[1])
     
-    #df=getFiles(input$geo_acc_no)
-    #df
-    gset <- getGEO(input$geo_acc_no, GSEMatrix =TRUE, getGPL=FALSE)
-    if (length(gset) > 1) idx <- grep("GPL96", attr(gset, "names")) else idx <- 1
-    gset <- gset[[idx]]
-    
-    ex <- exprs(gset)
-    # log2 transform
-    qx <- as.numeric(quantile(ex, c(0., 0.25, 0.5, 0.75, 0.99, 1.0), na.rm=T))
-    LogC <- (qx[5] > 100) ||
-      (qx[6]-qx[1] > 50 && qx[2] > 0)
-    if (LogC) { ex[which(ex <= 0)] <- NaN
-    ex <- log2(ex) }
-    
-      
-    output$geo_box_plot <- renderPlot({# load series and platform data from GEO
-      
-      # box-and-whisker plot
-      par(mar=c(7,4,2,1))
-      title <- paste (input$geo_acc_no, "/", annotation(gset), sep ="")
-      boxplot(ex, boxwex=0.7, notch=T, main=title, outline=FALSE, las=2)})
-    output$geo_expr_plot <- renderPlot({
-      
-      par(mar=c(4,4,2,1))
-      title <- paste (input$geo_acc_no, "/", annotation(gset), " value distribution", sep ="")
-      plotDensities(ex, main=title, legend=F)
-      
-    })
-    output$geo_mean_plot <- renderPlot({
-      
-      # mean-variance trend
-      ex <- na.omit(ex) # eliminate rows with NAs
-      plotSA(lmFit(ex), main="Mean variance trend")
-      
-    })
-    output$geo_umap_plot <- renderPlot({
-      
-      ex <- ex[!duplicated(ex), ]  # remove duplicates
-      ump <- umap(t(ex), n_neighbors = 6, random_state = 123)
-      plot(ump$layout, main="UMAP plot, nbrs=6", xlab="", ylab="", pch=20, cex=1.5)
-      library("maptools")  # point labels without overlaps
-      pointLabel(ump$layout, labels = rownames(ump$layout), method="SANN", cex=0.6)
-      
-    })
+    updateRadioButtons(session, "file_name_button",
+                       choices = fname,
+                       selected = fname[1]
+    )
     
   })
   
-  
+  observeEvent(input$submit_geo_preprocessing,{
+    print("innn")
+    url<-getFileUrl(input$geo_acc_no,"suppl")
+    print(input$file_name_button)
+    DS_raw<-getFileData(url,input$file_name_button)
+    
+    output$geo_norm_table <- DT::renderDataTable({
+      DS_filt 
+    })
+    
+    
+    
+  })
   
   
   
@@ -2880,6 +2878,7 @@ server <- function(input, output, session) {
     } else if (type == "raw") {
       DS <- df_raw_shiny()
     }
+
     if (trans == "None") {
       scatter.data <- DS
     } else if (trans == "Natural log") {
@@ -3167,9 +3166,12 @@ server <- function(input, output, session) {
     } else if (type == "raw") {
       DS <- df_raw_shiny()
     }
+    
+    
     method <- input$cor_method
     if (method == "Pearson correlation") {
       Cor2 <- data.frame(COR((DS), 1:length(DS), "pearson"))
+      
     } else if (method == "Spearman correlation") {
       Cor2 <- data.frame(COR((DS), 1:length(DS), "spearman"))
     }
