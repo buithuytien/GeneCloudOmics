@@ -12,7 +12,7 @@
 
 print("start loading")
 start.load <- Sys.time() ### time
-
+library(webshot2)
 if (length(find.package(package = "shiny", quiet = T)) > 0) {
   library(shiny)
 } else {
@@ -638,10 +638,12 @@ ui <- tagList(
                  "GEO Data Import",
                  value = "active_tab_geo",
                  sidebarPanel(
-                   tabsetPanel(type="tabs",
+                   tabsetPanel(type="tabs", id = "geo_tab",
                                tabPanel("GEO DATA",textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
+                                        radioButtons("file_type_button","FILE TYPE",
+                                                     c("RnaSeq","Microarray","Auto")),
                                         actionButton("submit_geo_acc_no", "Submit")),
-                               tabPanel("PREPROCESSING",radioButtons("file_name_button","SELECT FILE",
+                               tabPanel("PREPROCESSING",value="geo_pre",radioButtons("file_name_button","SELECT FILE",
                                                                      c("a")),
                                         actionButton("submit_geo_preprocessing", "Submit"),
                                )
@@ -673,14 +675,32 @@ ui <- tagList(
                      c("None", "Natural log", "log2", "log10")
                    ),
                    checkboxInput("regline", "Display regression line", value = FALSE),
+                   actionButton("submit_scatter", "Plot"),
+                   br(),
+                   br(),
                    downloadButton("downloadscatter", "Download as PNG"),
-                   h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
+                   #h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
+                   br(),
                    downloadButton("downloadscatter_collage", "Download collage")
                  ),
                  mainPanel(
                    h3("Heatscatter"),
                    uiOutput("help_text_scatter"),
-                   plotlyOutput("scatter.plot")
+                   plotlyOutput("scatter.plot"),
+              #      tags$script('
+              # document.getElementById("downloadscatter").onclick = function() {
+              # var gd = document.getElementById("scatter.plot");
+              # Plotly.Snapshot.toImage(gd, {format: "png"}).once("success", function(url) {
+              #   var a = window.document.createElement("a");
+              #   a.href = url; 
+              #   a.type = "image/png";
+              #   a.download = "plot.png";
+              #   document.body.appendChild(a);
+              #   a.click();
+              #   document.body.removeChild(a);                      
+              # });
+              # }
+              # ')
                  )
                ),
                tabPanel(
@@ -700,6 +720,7 @@ ui <- tagList(
                                    value = c(0.1, 1000)
                        )
                      ),
+                     actionButton("submit_distfit","Plot"),
                      conditionalPanel(
                        condition = "input.dist_zoom=='text input'",
                        textOutput("dist_range_allowed"),
@@ -745,6 +766,7 @@ ui <- tagList(
                      "cor_method", "Method:",
                      c("Pearson correlation", "Spearman correlation")
                    ),
+                   actionButton("submit_corr","Plot"),
                    conditionalPanel(
                      condition = "input.cor_tabs == 'Correlation heatmap'",
                      downloadButton("downloadcorrplot", "Download as PDF")
@@ -756,7 +778,8 @@ ui <- tagList(
                    conditionalPanel(
                      condition = "input.cor_tabs == 'Correlation matrix'",
                      downloadButton("downloadcorrmat", "Download as CSV")
-                   )
+                   ),
+                   #downloadButton("downloadcorrAll","Download All")
                  ),
                  mainPanel(
                    conditionalPanel(
@@ -812,6 +835,7 @@ ui <- tagList(
                      actionButton("pca_refresh", "Resample", style = "background-color: #337ab7;border-color:#337ab7"),
                      br(), br()
                    ),
+                   actionButton("submit_pca","Plot"),
                    conditionalPanel(
                      condition = "input.pca_tabs == 'PCA variance'",
                      downloadButton("downloadpcavar", "Download as PNG")
@@ -972,9 +996,9 @@ ui <- tagList(
                        # radioButtons('heatmap_value',"Values",
                        #              c('Fold change','Log fold change'))
                      ),
+                     actionButton("heatmap_plot", "Plot"),
                      
-                     downloadButton("downloadheatmap", "Download as PDF"),
-                     actionButton("heatmap_plot", "Plot", width = "65px", style = "color: #fff; background-color: #337ab7; border-color: #337ab7;float:right")
+                     downloadButton("downloadheatmap", "Download as PDF")
                      
                      # conditionalPanel(
                      #   condition = "input.heatmap_de_ind == 'ind' ",
@@ -1039,8 +1063,9 @@ ui <- tagList(
                      "noise_graph_type", "Graph type:",
                      c("Bar chart", "Line chart")
                    ),
+                   actionButton("noise_plot", "Plot"),
                    downloadButton("downloadnoise", "Download as PNG"),
-                   actionButton("noise_plot", "Plot", width = "65px", style = "color: #fff; background-color: #337ab7; border-color:#337ab7;float:right"),
+                   
                    conditionalPanel(
                      condition = "input.noise_situation=='a' | input.noise_situation=='b' ",
                      h5("Specify names of the genotypes"),
@@ -1077,6 +1102,7 @@ ui <- tagList(
                      "entropy_graph_type", "Graph type:",
                      c("Bar chart", "Line chart")
                    ),
+                   actionButton("submit_entropy","Plot"),
                    downloadButton("downloadentropy", "Download as PNG"),
                    conditionalPanel(
                      condition = "input.tsflag==true",
@@ -1122,11 +1148,15 @@ ui <- tagList(
                    checkboxInput("tsne_cluster", strong("Kmeans clustering on columns"), FALSE),
                    conditionalPanel(
                      condition = "input.tsne_cluster == true",
-                     numericInput("tsne_cluster_num", "Number of clusters:", min = 1, value = 2)
+                     numericInput("tsne_cluster_num", "Number of clusters:", min = 1, value = 2),
+                     
                    ),
                    checkboxInput("tsne_text", strong("Display sample name"), FALSE),
-                   actionButton("submit_tsne2","Submit"),
-                   
+                   actionButton("submit_tsne2","Plot"),
+                   conditionalPanel(
+                     condition = "input.tsne_tabs=='t-SNE plot",
+                     downloadButton("download_tsne2", "Download as PNG")
+                   ),
                    conditionalPanel(
                      condition = "input.tsne_tabs=='t-SNE table'",
                      downloadButton("download_tsne", "Download as CSV")
@@ -1203,7 +1233,7 @@ ui <- tagList(
                      "som_trans", "Transformation:",
                      c("None", "log10")
                    ),
-                   actionButton("submit_som", "Submit"),
+                   actionButton("submit_som", "Plot"),
                    br(),
                    br(),
                    conditionalPanel(
@@ -1976,10 +2006,38 @@ ui <- tagList(
 
 server <- function(input, output, session) {
   
-  
+  value_var<- reactiveValues()
+  value_var$geo_file_type<-"none"
   gene_mania_link <- reactiveVal("https://genemania.org")
   count_fasta <- reactiveVal(0)
   count_id <- reactiveVal(0)
+  ##########Hide download buttons#########
+  hide("downloadscatter")
+  hide("downloadscatter_collage")
+  hide("downloaddist")
+  hide("downloaddistaic")
+  hide("downloadcorrplot")
+  hide("downloadcorrplot2")
+  hide("downloadcorrmat")
+  #hide("downloadcorrAll")
+  hide("downloadpcavar")
+  hide("downloadpca2d")
+  hide("downloadpca3d")
+  hide("download_de_table")
+  hide("download_volcano")
+  hide("download_dispersion")
+  hide("downloadheatmap")
+  hide("downloadclusters")
+  hide("downloadnoise")
+  hide("downloadentropy")
+  hide("download_tsne")
+  hide("download_tsne2")
+  hide("downloadProperty")
+  hide("downloadCount")
+  hide("downloadCodes")
+  hide("downloadDistance")
+  hide("downloadCluster")
+  
   
   ########################################
   ##### Increases the Upload Limit #######
@@ -2304,7 +2362,9 @@ server <- function(input, output, session) {
   
   # get raw counts
   df_raw <- reactive({
-    if (is.null(input$file1) && input$file_name_button == "a") {
+    print("in df_raw")
+    print(value_var$geo_file_type)
+    if (is.null(input$file1) && value_var$geo_file_type != "rnaseq") {
       return(NULL)
     }
     else if (!is.null(input$file1)){
@@ -2321,15 +2381,18 @@ server <- function(input, output, session) {
     
     
     }
-    else if(input$file_name_button != "a"){
+    else if(value_var$geo_file_type == "rnaseq"){
       
-      if(!file.exists(file.path(getwd(),input$file_name_button)))
-        return(NULL)
+      print((file.exists(file.path(getwd(),input$file_name_button))))
+        
       print("Reading geo_file")
       
       raw_ds <- read.table(file.path(getwd(),input$file_name_button) ,header=TRUE, stringsAsFactors = FALSE)
+      print(raw_ds)
     } # remove duplicated gene names
-
+    else{
+      return(NULL)
+    }
     raw_ds <- na.omit(raw_ds)
     raw_ds <- raw_ds[!duplicated(raw_ds[, 1]), ]  
     # raw_ds <- as.data.frame(raw_ds)
@@ -2363,9 +2426,12 @@ server <- function(input, output, session) {
   
   df_micro <- reactive({
     print("running")
-    if (is.null(input$file_micro)) {
+    print("In Micro array")
+    print(value_var$geo_file_type)
+    if (is.null(input$file_micro)&& value_var$geo_file_type != "microarray") {
       return(NULL)
     }
+    else if(!is.null(input$file_micro)){
     parts <- strsplit(input$file_micro$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
     
@@ -2378,6 +2444,13 @@ server <- function(input, output, session) {
     }
     
     unzip(input$file_micro$datapath,exdir = parts[[1]][1])
+    }else if( value_var$geo_file_type == "microarray"){
+      parts <- strsplit(input$file_name_button, ".", fixed = TRUE)
+      untar(file.path(getwd(),input$file_name_button),exdir = parts[[1]][1])
+      
+    }else {
+      return(NULL)
+    }
     fol_name <- print(list.files(parts[[1]][1]))
     micro_data_dir <- paste0(parts[[1]][1],"/",fol_name)
     print(micro_data_dir)
@@ -2442,15 +2515,44 @@ server <- function(input, output, session) {
     
   }
   
-  getFileData <- function(url,fname){
+  downloadFile <- function(url,fname){
     storedir <- getwd()
     #suppressWarnings(dir.create(storedir <- file.path(getwd(),GEO)))
     download.file(paste(file.path(url,fname),'tool=geoquery',sep="?"),
                   destfile=file.path(storedir,fname),
                   mode='wb',
                   method=getOption('download.file.method.GEOquery'))
-    acc_data <- read.table(file.path(storedir,fname))
-    return(acc_data)
+    #acc_data <- read.table(file.path(storedir,fname))
+    #return(acc_data)
+    
+  }
+  
+  check_file_type <- function(){
+    parts <- strsplit(input$file_name_button, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    print("before")
+    print(value_var$geo_file_type)
+    if (type == "gz"){
+      
+      value_var$geo_file_type<-"rnaseq"
+      updateTabsetPanel(session, inputId = "Rnaseq_pre", selected = "Preprocessing")
+      print("redirected")
+    }
+    else if(type == "tar"){
+      file_list <- untar(file.path(getwd(),input$file_name_button),list=TRUE)
+      print(file_list[1])
+      parts <- strsplit(file_list[1], ".", fixed = TRUE)
+      type <- parts[[1]][length(parts[[1]])-1]
+      print(type)
+      if(type == "cel" || type == "CEL"){
+        value_var$geo_file_type<-"microarray"
+      }
+      
+      
+      #df_micro()
+    }
+    print("After")
+    print(value_var$geo_file_type)
     
   }
   
@@ -2464,24 +2566,18 @@ server <- function(input, output, session) {
                        selected = fname[1]
     )
     
+    updateTabsetPanel(session, "geo_tab",
+                      selected = "geo_pre")
+    
   })
   
   observeEvent(input$submit_geo_preprocessing,{
     print("innn")
     url<-getFileUrl(input$geo_acc_no,"suppl")
     print(input$file_name_button)
-    DS_raw<-getFileData(url,input$file_name_button)
-    
-    output$geo_norm_table <- DT::renderDataTable({
-      DS_filt 
-    })
-    
-    
-    
+    downloadFile(url,input$file_name_button)
+    check_file_type()
   })
-  
-  
-  
   
  
   ###############################################################
@@ -2929,9 +3025,12 @@ server <- function(input, output, session) {
       p <- p + geom_smooth(method = lm, se = FALSE, size = 0.5, color = "blue")
     }
     p
-    
+    shinyjs::show("downloadscatter")
+    hide("help_text_scatter")
     # add interactivity w/ plotly
     ggplotly(p, tooltip = c("text"))
+    
+    
   }
   
   scatterplot_collage <- function() {
@@ -2952,8 +3051,11 @@ server <- function(input, output, session) {
     }
   }
   
-  output$scatter.plot <- renderPlotly({
-    scatterplot()
+  observeEvent(input$submit_scatter, {
+    output$scatter.plot <- renderPlotly({
+      scatterplot()
+    })
+    
   })
   
   output$downloadscatter_collage <- downloadHandler(
@@ -2969,12 +3071,11 @@ server <- function(input, output, session) {
   
   output$downloadscatter <- downloadHandler(
     filename = function() {
-      paste("heatscatter", ".pdf", sep = "")
+      paste("heatscatter", ".png", sep = "")
     },
     content = function(file) {
-      pdf(file)
-      scatterplot()
-      dev.off()
+      htmlwidgets::saveWidget(widget = scatterplot(), file = "scatterplot.html")
+      webshot(url = "scatterplot.html", file = file)
     }
   )
   
@@ -2996,6 +3097,7 @@ server <- function(input, output, session) {
   ############################
   ######## distfit ###########
   ############################
+  
   
   output$downloaddist <- downloadHandler(
     filename = function() {
@@ -3069,10 +3171,6 @@ server <- function(input, output, session) {
     return(list(fits, distrs, numcol, var, fit_range))
   })
   
-  output$dist.plot <- renderPlot({
-    distplot()
-  })
-  
   distaic <- reactive({
     dist.start <- Sys.time()
     DS <- distfit_df()
@@ -3095,15 +3193,9 @@ server <- function(input, output, session) {
     dist.end <- Sys.time()
     print("distribution fitting time")
     print(dist.end - dist.start)
+    shinyjs::show("downloaddistaic")
     return(AIC.df)
   })
-  
-  output$dist.aic <- renderTable(
-    {
-      distaic()
-    },
-    rownames = TRUE
-  )
   
   distplot <- function() {
     li <- plotDist()
@@ -3120,6 +3212,7 @@ server <- function(input, output, session) {
               legendtext = distrs, cex = 0.5, main = var, fitcol = rainbow(6)[which(numcol == 1)], fitlty = line_types[which(numcol == 1)]
       )
     }
+    shinyjs::show("downloaddist")
   }
   
   output$downloaddistaic <- downloadHandler(
@@ -3130,6 +3223,19 @@ server <- function(input, output, session) {
       write.csv(distaic(), file, row.names = TRUE)
     }
   )
+  
+  observeEvent(input$submit_distfit, {
+    output$dist.plot <- renderPlot({
+      distplot()
+    })
+    output$dist.aic <- renderTable({
+      distaic()
+    },
+    rownames = TRUE
+    )
+    
+  })
+  
   
   output$help_text_dis_fit <- renderUI({
     HTML("
@@ -3179,24 +3285,27 @@ server <- function(input, output, session) {
     cor.end <- Sys.time()
     print("correlation time")
     print(cor.end - cor.start)
+    shinyjs::show("downloadcorrmat")
     return(Cor2)
   })
   
-  output$corr.plot <- renderPlot({
-    corrplot1()
+  observeEvent(input$submit_corr, {
+    output$corr.plot <- renderPlot({
+      corrplot1()
+    })
+    
+    output$corr.plot2 <- renderPlot({
+      corrplot2()
+    })
+    
+    output$corr.matrix <- renderTable(
+      {
+        cor_df()
+      },
+      rownames = TRUE
+    )
+    #shinyjs::show("downloadcorrAll")
   })
-  
-  output$corr.plot2 <- renderPlot({
-    corrplot2()
-  })
-  
-  output$corr.matrix <- renderTable(
-    {
-      cor_df()
-    },
-    rownames = TRUE
-  )
-  
   corrplot1 <- function() {
     corr <- as.matrix(cor_df())
     corr <- apply(corr, 2, as.numeric)
@@ -3207,6 +3316,8 @@ server <- function(input, output, session) {
       fontsize <- 20 / ncol(corr)
     }
     corrplot(corr, method = "shade", shade.col = NA, tl.col = "black", cl.lim = c(min(corr), 1), is.corr = FALSE, tl.cex = fontsize)
+    shinyjs::show("downloadcorrplot")
+    hide("help_text_correlation")
   }
   
   corrplot2 <- function() {
@@ -3219,7 +3330,8 @@ server <- function(input, output, session) {
       fontsize <- 20 / ncol(corr)
     }
     corrplot(corr, type = "upper", tl.col = "black", cl.lim = c(min(corr), 1), is.corr = FALSE, tl.cex = fontsize)
-  }
+    shinyjs::show("downloadcorrplot2")
+    }
   
   output$downloadcorrplot <- downloadHandler(
     filename = function() {
@@ -3251,6 +3363,7 @@ server <- function(input, output, session) {
       write.csv(cor_df(), file, row.names = TRUE)
     }
   )
+  
   
   output$help_text_correlation <- renderUI({
     HTML("
@@ -3394,7 +3507,8 @@ server <- function(input, output, session) {
       name = "PCA variance",
       type = "bar"
     ) %>% layout(xaxis = xform)
-    
+    shinyjs::show("downloadpcavar")
+    hide("help_text_PCA")
     return(p)
   }
   
@@ -3449,6 +3563,7 @@ server <- function(input, output, session) {
           layout(xaxis = list(title = xlabel), yaxis = list(title = ylabel), showlegend = FALSE)
       }
     }
+    shinyjs::show("downloadpca2d")
   }
   
   pca3dplot <- function() {
@@ -3498,18 +3613,24 @@ server <- function(input, output, session) {
           layout(scene = list(xaxis = list(title = xlabel), yaxis = list(title = ylabel), zaxis = list(title = zlabel)), showlegend = FALSE)
       }
     }
+    shinyjs::show("downloadpca3d")
   }
+ 
   
-  output$pcavar.plot <- renderPlotly({
-    pcavarplot()
-  })
-  
-  output$pca2d.plot <- renderPlotly({
-    pca2dplot()
-  })
-  
-  output$pca3d.plot <- renderPlotly({
-    pca3dplot()
+  observeEvent(input$submit_pca, {
+    output$pcavar.plot <- renderPlotly({
+      pcavarplot()
+    })
+    
+    output$pca2d.plot <- renderPlotly({
+      pca2dplot()
+    })
+    
+    output$pca3d.plot <- renderPlotly({
+      pca3dplot()
+    })
+    
+    
   })
   
   output$downloadpcavar <- downloadHandler(
@@ -3517,8 +3638,8 @@ server <- function(input, output, session) {
       paste("pca_variance", ".png", sep = "")
     },
     content = function(file) {
-      p <- pcavarplot()
-      orca(p, file = "pca_variance.png")
+      htmlwidgets::saveWidget(widget = pcavarplot(), file = "pcavariance.html")
+      webshot(url = "pcavariance.html", file = file)
     }
   )
   
@@ -3527,8 +3648,8 @@ server <- function(input, output, session) {
       paste("pca2d", ".png", sep = "")
     },
     content = function(file) {
-      p <- pca2dplot()
-      orca(p, file = "pca2d.png")
+      htmlwidgets::saveWidget(widget = pca2dplot(), file = "pca2d.html")
+      webshot(url = "pca2d.html", file = file)
     }
   )
   
@@ -3537,8 +3658,8 @@ server <- function(input, output, session) {
       paste("pca3d", ".png", sep = "")
     },
     content = function(file) {
-      p <- pca3dplot()
-      plotly_IMAGE(p, format = "png", out_file = "pca3d.png")
+      htmlwidgets::saveWidget(widget = pca3dplot(), file = "pca3d.html")
+      webshot(url = "pca3d.html", file = file)
     }
   )
   
@@ -3718,6 +3839,8 @@ server <- function(input, output, session) {
       res.df.filt <- de_filt(res.df, p_val, fc, rep_number)
       res.df.filt
     }
+    shinyjs::show("download_de_table")
+    hide("help_text_DE_anal")
   })
   
   ##### volcano plot ######
@@ -3762,6 +3885,7 @@ server <- function(input, output, session) {
     volcano.end.time <- Sys.time()
     print("volcano time")
     print(volcano.end.time - volcano.start.time)
+    shinyjs::show("download_volcano")
   })
   
   output$volcano_plot <- renderPlot({
@@ -3791,6 +3915,8 @@ server <- function(input, output, session) {
     dispersion.end.time <- Sys.time()
     print("dispersion time")
     print(dispersion.end.time - dispersion.start.time)
+    shinyjs::show("download_dispersion")
+    
   })
   
   output$dispersion_plot <- renderPlot({
@@ -4053,6 +4179,8 @@ server <- function(input, output, session) {
   mapPlot <- function() {
     myHeatmap <- plotHeatmap()[[1]]
     myHeatmap <- draw(myHeatmap)
+    shinyjs::show("heatmap_plot")
+    hide("help_text_heatmap")
   }
   
   output$heatmap.plot <- renderPlot({
@@ -4082,6 +4210,7 @@ server <- function(input, output, session) {
         dplyr::filter(gl, cluster == clusternum)
       }
     }
+    shinyjs::show("downloadclusters")
   })
   
   output$downloadclusters <- downloadHandler(
@@ -4165,8 +4294,8 @@ server <- function(input, output, session) {
     }
     selectInput("noise_anchor_b", "Anchor genotype", choices = names)
   })
-  
-  noisePlot <- eventReactive(input$noise_plot, {
+  noisePlot <- function(){
+    
     noise.start.time <- Sys.time()
     type <- input$file_type
     if (type == "norm") {
@@ -4288,20 +4417,27 @@ server <- function(input, output, session) {
     noise.end.time <- Sys.time()
     print("noise time")
     print(noise.end.time - noise.start.time)
+    shinyjs::show("downloadnoise")
+    hide("help_text_Noise")
     return(p)
+    
+  }
+  observeEvent(input$noise_plot, {
+    output$noise.plot <- renderPlotly({
+      noisePlot()
+    })
+    
   })
   
-  output$noise.plot <- renderPlotly({
-    noisePlot()
-  })
+
   
   output$downloadnoise <- downloadHandler(
     filename = function() {
       paste("noise", ".png", sep = "")
     },
     content = function(file) {
-      p <- noisePlot()
-      export(p, file = "noise.png")
+      htmlwidgets::saveWidget(widget = noisePlot(), file = "noise.html")
+      webshot(url = "noise.html", file = file)
     }
   )
   
@@ -4428,21 +4564,28 @@ server <- function(input, output, session) {
       entropy.end.time <- Sys.time()
       print("entropy time")
       print(entropy.end.time - entropy.start.time)
+      
+      shinyjs::show("downloadentropy")
+      hide("help_text_Entropy")
       return(p)
     }
   })
   
-  output$entropy.plot <- renderPlotly({
-    entropyPlot()
+  observeEvent(input$submit_entropy, {
+    output$entropy.plot <- renderPlotly({
+      entropyPlot()
+    })
+    
   })
+  
   
   output$downloadentropy <- downloadHandler(
     filename = function() {
       paste("entropy", ".png", sep = "")
     },
     content = function(file) {
-      p <- entropyPlot()
-      export(p, file = "entropy.png")
+      htmlwidgets::saveWidget(widget = entropyPlot(), file = "entropy.html")
+      webshot(url = "entropy.html", file = file)
     }
   )
   
@@ -4576,7 +4719,7 @@ server <- function(input, output, session) {
   ############# Python ##############
   ###################################
   # data for t-sne
-  plotTSNE2 <- eventReactive(input$submit_tsne2, {
+  plotTSNE2 <- function() {
     
     tsne2_trans <- input$tsne2_trans
     type <- input$file_type
@@ -4601,10 +4744,9 @@ server <- function(input, output, session) {
     tsne_cluster_flag <- input$tsne_cluster # ture or false
    
     return (list(tsne2.data, perplexity_value, no_of_pca, tsne_cluster_flag)) #, no_of_clusters
-  })
+  }
   
-  
-  tsne2plot <- function(){
+  tsne2plot <-eventReactive(input$submit_tsne2,{
     set.seed(13)
     tsne2.start <- Sys.time()
     # get data 
@@ -4652,11 +4794,12 @@ server <- function(input, output, session) {
     tsne2.end <- Sys.time()
     print("t-SNE plot time")
     print(tsne2.end - tsne2.start)
-    
+    hide("help_text_tsne")
     return(list(p, tsne_df))
-  }
+  })
   
   output$tsne2.plot <- renderPlotly({
+    shinyjs::show("download_tsne2")
     li <- tsne2plot()
     p <- li[[1]]
     tsne_table <- li[[2]]
@@ -4664,7 +4807,10 @@ server <- function(input, output, session) {
   })
   
   output$tsne_table <- DT::renderDataTable({
+    hide("download_tsne2")
+    shinyjs::show("download_tsne")
     tsne_table <- tsne2plot()[[2]] # get table
+    
     tsne_table
   })
   
@@ -4675,6 +4821,19 @@ server <- function(input, output, session) {
     content = function(file) {
       gl <- tsne2plot()[[2]]
       write.csv(gl, file, row.names = FALSE)
+    }
+  )
+  tsneplothtml<- function(){
+    tsne2plot()[[1]]
+  }
+  
+  output$download_tsne2 <- downloadHandler(
+    filename = function() {
+      paste("tsne_plot", ".png", sep = "")
+    },
+    content = function(file) {
+      htmlwidgets::saveWidget(widget = tsneplothtml(), file = "tsneplot.html")
+      webshot(url = "tsneplot.html", file = file)
     }
   )
   
@@ -4736,6 +4895,7 @@ server <- function(input, output, session) {
     rf.end <- Sys.time()
     print("Random forest plot time")
     print(rf.end - rf.start)
+    hide("help_text_rf")
     return(list(rf.data, num_trees, num_clusters))
   })
   
@@ -4772,6 +4932,7 @@ server <- function(input, output, session) {
     rf.end <- Sys.time()
     print("RFSIL plot time")
     print(rf.end - rf.start)
+    hide("help_text_rf")
     return(list(meta_df,DS))
   })
   
@@ -5009,8 +5170,11 @@ server <- function(input, output, session) {
       rev(brewer.pal(n, alpha))
     }
     # use codes vectors (weight) for property plot
+    shinyjs::show("downloadProperty")
+    hide("help_text_SOM")
     plot(som_model, type = "property", property = getCodes(som_model), main = "Property", palette.name = colors)
-  }
+  
+    }
   
   somcountplot <- function() {
     li <- plotSOM()
@@ -5020,7 +5184,7 @@ server <- function(input, output, session) {
     colors <- function(n, alpha = 'Set2') {
       rev(brewer.pal(n, alpha))
     }
-    
+    shinyjs::show("downloadCount")
     # show how many genes are mapped to each node
     plot(som_model, type = "count", main = "Count", palette.name = colors)
   }
@@ -5031,6 +5195,7 @@ server <- function(input, output, session) {
     
     # plot type: codes
     # shows codebook vectors of genes
+    shinyjs::show("downloadCodes")
     plot(som_model, type = "codes", main = "Codes")
   }
   
@@ -5042,7 +5207,7 @@ server <- function(input, output, session) {
     colors <- function(n, alpha = 'Set3') {
       rev(brewer.pal(n, alpha))
     }
-    
+    shinyjs::show("downloadDistance")
     # show how close genes are from each other when they are mapped
     plot(som_model, type = "dist.neighbours", main = "Distance", palette.name = colors)
   }
@@ -5063,6 +5228,7 @@ server <- function(input, output, session) {
     
     # use hierarchical clustering to cluster the SOM
     som.hc <- cutree(hclust(object.distances(som_model, "codes")), cluster_size)
+    shinyjs::show("downloadCluster")
     plot(som_model, type = "mapping", bgcol = col_vector[som.hc], main = "Clusters")
     add.cluster.boundaries(som_model, som.hc)
   }
