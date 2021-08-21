@@ -12,7 +12,7 @@
 
 print("start loading")
 start.load <- Sys.time() ### time
-library(webshot2)
+
 if (length(find.package(package = "shiny", quiet = T)) > 0) {
   library(shiny)
 } else {
@@ -101,7 +101,17 @@ if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
   library(Rtsne)
 }
 
+######################################For Report Generation#################
+library(webshot2)
+library(gridExtra)
+library(plotly)
+if (!require("processx")) install.packages("processx")
+library(png)
+library(capture)
 
+###################################For GEO import###############################
+library(xml2)
+library(GEOquery)
 ####################### Dependencies For RAFSIL ###################################
 if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
   library(RAFSIL)
@@ -652,13 +662,11 @@ ui <- tagList(
                  
                  
                  mainPanel(
-                   h3("Preprocessing GEO Data"),
+                   h3("GEO DATA IMPORT"),
                    
                    tabsetPanel(type ="tabs", 
                                tabPanel(
-                                 "Data table",
-                                 h3("Normalized data"),
-                                 DT::dataTableOutput("geo_norm_table")
+                                 uiOutput("help_text_geo")
                                ))
                  )
                )
@@ -681,6 +689,8 @@ ui <- tagList(
                    downloadButton("downloadscatter", "Download as PNG"),
                    #h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
                    br(),
+                   br(),
+                   actionButton("add_scatter","Add to report"),
                    downloadButton("downloadscatter_collage", "Download collage")
                  ),
                  mainPanel(
@@ -732,7 +742,10 @@ ui <- tagList(
                    conditionalPanel(
                      condition = "input.dist_tabs=='AIC table'",
                      downloadButton("downloaddistaic", "Download as CSV")
-                   )
+                   ),
+                   checkboxInput("checkbox_distfit", label = "Distribution Fit", value = FALSE),
+                   checkboxInput("checkbox_aic", label = "AIC table", value = FALSE),
+                   actionButton("add_distfit","Add to report")
                  ),
                  mainPanel(
                    h3("Distribution Fit"),
@@ -779,7 +792,11 @@ ui <- tagList(
                      condition = "input.cor_tabs == 'Correlation matrix'",
                      downloadButton("downloadcorrmat", "Download as CSV")
                    ),
-                   #downloadButton("downloadcorrAll","Download All")
+                   checkboxInput("checkbox_corrheatmap", label = "Correlation Heatmap", value = FALSE),
+                   checkboxInput("checkbox_corrplot", label = "Correlation Plot", value = FALSE),
+                   checkboxInput("checkbox_corrmat", label = "Correlation Matrix", value = FALSE),
+                   actionButton("add_correlation","Add to report"),
+                   
                  ),
                  mainPanel(
                    conditionalPanel(
@@ -847,7 +864,11 @@ ui <- tagList(
                    conditionalPanel(
                      condition = "input.pca_tabs == 'PCA-3D plot'",
                      downloadButton("downloadpca3d", "Download as PNG")
-                   )
+                   ),
+                   checkboxInput("checkbox_pcavar", label = "PCA Variance", value = FALSE),
+                   checkboxInput("checkbox_pca2d", label = "PCA-2D Plot", value = FALSE),
+                   checkboxInput("checkbox_pca3d", label = "PCA3D Plot", value = FALSE),
+                   actionButton("add_pca","Add to report")
                  ),
                  mainPanel(
                    h3("PCA"),
@@ -885,7 +906,7 @@ ui <- tagList(
                    fluidRow(
                      column(
                        4,
-                       actionButton("submit_DE", "Submit")
+                       actionButton("submit_DE", "Plot")
                      ),
                      column(
                        6,
@@ -900,11 +921,14 @@ ui <- tagList(
                        conditionalPanel(
                          condition = "input.DE_tabs=='Dispersion plot' ",
                          downloadButton("download_dispersion", "Download plot (PDF)")
-                       )
-                       # conditionalPanel(
-                       #   condition = "input.DE_tabs=='Heatmap plot' ",
-                       #   downloadButton("download_heatmap","Download plot")
-                       # )
+                       ),
+                       br(),
+                       br(),
+                       checkboxInput("checkbox_degenes", label = "DE genes", value = FALSE),
+                       checkboxInput("checkbox_volcano", label = "Volcano plot", value = FALSE),
+                       checkboxInput("checkbox_dispersion", label = "Dispersion plot", value = FALSE),
+                       actionButton("add_de_analysis","Add to report")
+                  
                      )
                    )
                  ),
@@ -1014,7 +1038,11 @@ ui <- tagList(
                        condition = "input.display_cluster=='ALL'",
                        downloadButton("downloadclusters", "Download as CSV")
                      )
-                   )
+                   ),
+                   checkboxInput("checkbox_heatmap", label = "Heatmap", value = FALSE),
+                   checkboxInput("checkbox_gene_cluster", label = "Gene Clusters", value = FALSE),
+                   actionButton("add_heatmap","Add to report")
+                   
                  ),
                  mainPanel(
                    h3("Heatmap"),
@@ -1070,7 +1098,9 @@ ui <- tagList(
                      condition = "input.noise_situation=='a' | input.noise_situation=='b' ",
                      h5("Specify names of the genotypes"),
                      uiOutput("expand_genonames_noise")
-                   )
+                   ),
+                   
+                   actionButton("add_noise","Add to report")
                  ),
                  mainPanel(
                    h3("Noise"),
@@ -1108,7 +1138,9 @@ ui <- tagList(
                      condition = "input.tsflag==true",
                      h5("Specify names of the genotypes"),
                      uiOutput("expand_genonames_entropy")
-                   )
+                   ),
+                   
+                   actionButton("add_entropy","Add to report")
                  ),
                  mainPanel(
                    h3("Shannon entropy"),
@@ -1160,7 +1192,10 @@ ui <- tagList(
                    conditionalPanel(
                      condition = "input.tsne_tabs=='t-SNE table'",
                      downloadButton("download_tsne", "Download as CSV")
-                   )
+                   ),
+                   checkboxInput("checkbox_tsne_plot", label = "t-SNE Plot", value = FALSE),
+                   checkboxInput("checkbox_tsne_table", label = "t-SNE table", value = FALSE),
+                   actionButton("add_tsne","Add to report")
                    
                  ),
                  mainPanel(
@@ -1193,20 +1228,18 @@ ui <- tagList(
                        "rf_trans", "Transformation:",
                        c("None", "log10")
                      ),
-                     actionButton("submit_rf", "Submit")
+                     actionButton("submit_rf", "Plot")
+                     
                    ),
                    conditionalPanel(
                      condition = "input.analysis_type=='rafsil'",  #rafsil
-                     actionButton("submit_rafsil", "Submit")
-                   )
-                   # conditionalPanel(
-                   #          condition = "input.rf_tabs == 'RF plot'",
-                   #          downloadButton("downloadrfplot", "Download as PDF")
-                   #        ),
-                   #        conditionalPanel(
-                   #          condition = "input.rf_tabs == 'RF matrix'",
-                   #          downloadButton("downloadrfmatrix", "Download as PDF")
-                   #        )
+                     actionButton("submit_rafsil", "Plot")
+                   ),
+                   checkboxInput("checkbox_rf_plot", label = "RF plot", value = FALSE),
+                   checkboxInput("checkbox_rafsil_plot", label = "RAFSIL plot", value = FALSE),
+                   checkboxInput("checkbox_rf_matrix", label = "RF Matrix", value = FALSE),
+                   actionButton("add_rf","Add to report")
+                  
                  ),
                  mainPanel(
                    h3("Clustering With Random Forest"),
@@ -1255,7 +1288,14 @@ ui <- tagList(
                    conditionalPanel(
                      condition = "input.som_tabs == 'Cluster plot'",
                      downloadButton("downloadCluster","Download as PDF")
-                   )
+                   ),
+                   checkboxInput("checkbox_property", label = "Property plot", value = FALSE),
+                   checkboxInput("checkbox_count", label = "Count plot", value = FALSE),
+                   checkboxInput("checkbox_codes", label = "Codes plot", value = FALSE),
+                   checkboxInput("checkbox_distance", label = "Distance plot", value = FALSE),
+                   checkboxInput("checkbox_cluster", label = "Cluster plot", value = FALSE),
+                   actionButton("add_som","Add to report"),
+                   
                  ),
                  mainPanel(
                    h3("SOM Analysis"),
@@ -1274,6 +1314,7 @@ ui <- tagList(
                             '.navbar { font-size: 17px;}'
                  )
                )
+              
     ),
     ###############################################
     ###############################################
@@ -1999,7 +2040,16 @@ ui <- tagList(
           )
         )) #Pathway enrichemnt analysis 
       
-    ) ####Nav bar closing 
+    ), ####Nav bar closing 
+    tabPanel('Generate Report',fluidPage(
+      uiOutput("error_text_report"),
+      tags$div(id = 'placeholder'),
+      capture_pdf(
+        selector = "#placeholder",
+        filename = "results",
+        icon("camera"), "Download as PDF"
+      )
+      ))
   )
 )
 ####################################################
@@ -2011,33 +2061,465 @@ server <- function(input, output, session) {
   gene_mania_link <- reactiveVal("https://genemania.org")
   count_fasta <- reactiveVal(0)
   count_id <- reactiveVal(0)
-  ##########Hide download buttons#########
-  hide("downloadscatter")
-  hide("downloadscatter_collage")
-  hide("downloaddist")
-  hide("downloaddistaic")
-  hide("downloadcorrplot")
-  hide("downloadcorrplot2")
-  hide("downloadcorrmat")
-  #hide("downloadcorrAll")
-  hide("downloadpcavar")
-  hide("downloadpca2d")
-  hide("downloadpca3d")
-  hide("download_de_table")
-  hide("download_volcano")
-  hide("download_dispersion")
-  hide("downloadheatmap")
-  hide("downloadclusters")
-  hide("downloadnoise")
-  hide("downloadentropy")
-  hide("download_tsne")
-  hide("download_tsne2")
-  hide("downloadProperty")
-  hide("downloadCount")
-  hide("downloadCodes")
-  hide("downloadDistance")
-  hide("downloadCluster")
+  ####################download report#############
+  output$error_text_report <- renderUI({
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          You have not added anything to the report. Please perform the analysis first.
+          </b>
+        </p>
+      </center>
+    ")
+  })
   
+  observeEvent(input$add_scatter, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h4("Scatter Plot",align = "center"), plotOutput("scatter", height = 500)))
+      )
+    )
+    output$scatter <- renderPlot({
+      scatterplot()
+    })
+  })
+  observeEvent(input$add_distfit,{
+    hide("error_text_report")
+    if(input$checkbox_distfit == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Distribution Fit",align = "center"), plotOutput("dis_fit", height = 500)))
+        )
+      )
+      output$dis_fit <- renderPlot({
+        distplot()
+      })
+      
+    }
+    if(input$checkbox_aic == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("AIC Table",align = "center"), div(tableOutput("dist_aic"), style = "font-size:80%")))
+        )
+      )
+      output$dist_aic <- renderTable({
+        distaic()
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_correlation, {
+    hide("error_text_report")
+    if(input$checkbox_corrheatmap == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Correlation Heatmap",align = "center"), plotOutput("corr_hm", height = 500)))
+        )
+      )
+      output$corr_hm <- renderPlot({
+        corrplot1()
+      })
+      
+    }
+    if(input$checkbox_corrplot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Correlation Plot",align = "center"), plotlyOutput("corr_m", height = 500)))
+        )
+      )
+      output$corr_m <- renderPlot({
+        corrplot2()
+      })
+      
+      
+    }
+    if(input$checkbox_corrmat == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Correlation Matrix",align = "center"), div(tableOutput("corr_mat"), style = "font-size:80%")))
+        )
+      )
+      output$corr_mat <- renderTable({
+        cor_df()
+      })
+      
+    }
+  })
+  observeEvent(input$add_pca, {
+    hide("error_text_report")
+    if(input$checkbox_pcavar == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("PCA Variance",align = "center"), plotlyOutput("pca_var", height = 500)))
+        )
+      )
+      output$pca_var <- renderPlotly({
+        pcavarplot()
+      })
+      
+    }
+    if(input$checkbox_pca2d == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("PCA 2D Plot",align = "center"), plotlyOutput("pca_2d", height = 500)))
+        )
+      )
+      output$pca_2d <- renderPlotly({
+        pca2dplot()
+      })
+      
+      
+    }
+    if(input$checkbox_pca3d == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          h4("PCA 3D Plot"),
+          fluidRow(plotlyOutput("pca_3d"))
+        )
+      )
+      output$pca_3d <- renderPlotly({
+        pca3dplot()
+      })
+      
+      
+    }
+  })
+  observeEvent(input$add_de_analysis, {
+    hide("error_text_report")
+    if(input$checkbox_volcano == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Volcano Plot",align = "center"), plotOutput("vol_plot", height = 500)))
+        )
+      )
+      output$vol_plot <- renderPlot({
+        volcano_plot()
+      })
+      
+    }
+    if(input$checkbox_dispersion == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Dispersion Plot",align = "center"), plotlyOutput("dis_plot", height = 500)))
+        )
+      )
+      output$dis_plot <- renderPlot({
+        dispersion_plot()
+      })
+      
+      
+    }
+    if(input$checkbox_corrmat == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("DE genes",align = "center"), div(DT::dataTableOutput("DE_gene"), style = "font-size:80%")))
+        )
+      )
+      output$DE_gene <- DT::renderDataTable({
+        res.df <- de_no_filt()
+        p_val <- input$p_val
+        fc <- input$fc
+        rep_number <- input$n_rep
+        if (input$submit_DE > 0) {
+          res.df.filt <- de_filt(res.df, p_val, fc, rep_number)
+          res.df.filt
+        }
+      })
+      
+    }
+  })
+  observeEvent(input$add_heatmap,{
+    hide("error_text_report")
+    if(input$checkbox_heatmap == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Heatmap",align = "center"), plotOutput("heat_plot", height = 500)))
+        )
+      )
+      output$heat_plot <- renderPlot({
+        mapplot()
+      })
+      
+    }
+    if(input$checkbox_gene_cluster == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Gene Clusters",align = "center"), div(dataTableOutput("cluster_gene"), style = "font-size:80%")))
+        )
+      )
+      output$cluster_gene <- DT::renderDataTable({
+        clusternum <- input$display_cluster
+        gl <- plotHeatmap()[[3]] # getCluster()
+        if (!is.null(gl)) {
+          if (clusternum == "ALL") {
+            gl
+          } else {
+            clusternum <- as.numeric(clusternum)
+            dplyr::filter(gl, cluster == clusternum)
+          }
+        }
+        
+      })
+    }
+  })
+  observeEvent(input$add_noise, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h4("Noise",align = "center"), plotlyOutput("noise_p", height = 500)))
+      )
+    )
+    output$noise_p <- renderPlotly({
+      noisePlot()
+    })
+  })
+  observeEvent(input$add_entropy, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h4("Shannon Entropy",align = "center"), plotlyOutput("entropy_plot", height = 500)))
+      )
+    )
+    output$entropy_plot <- renderPlotly({
+      entropyPlot()
+    })
+  })
+  observeEvent(input$add_tsne,{
+    hide("error_text_report")
+    if(input$checkbox_tsne_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("t-SNE Plot",align = "center"), plotlyOutput("tsne_p", height = 500)))
+        )
+      )
+      output$tsne_p <- renderPlotly({
+        li <- tsne2plot()
+        p <- li[[1]]
+        tsne_table <- li[[2]]
+        p
+      })
+      
+    }
+    if(input$checkbox_tsne_table == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("t-SNE Table",align = "center"), div(tableOutput("tsne_data"), style = "font-size:80%")))
+        )
+      )
+      output$tsne_data <- renderTable({
+        tsne_table <- tsne2plot()[[2]] # get table
+        
+        tsne_table
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_rf, {
+    hide("error_text_report")
+    if(input$checkbox_rf_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("RF Plot",align = "center"), plotlyOutput("rf", height = 500)))
+        )
+      )
+      output$rf <- renderPlotly({
+        rfplot()
+      })
+      
+    }
+    if(input$checkbox_rafsil_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("RAFSIL Plot",align = "center"), plotlyOutput("raf_sil", height = 500)))
+        )
+      )
+      output$raf_sil <- renderPlotly({
+        rafsilplot()
+      })
+      
+      
+    }
+    if(input$checkbox_rf_matrix == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("RF Matrix",align = "center"), div(tableOutput("rf_mat"), style = "font-size:80%")))
+        )
+      )
+      output$rf_mat <- renderTable({
+        rf_matrix()
+      })
+      
+    }
+  })
+  observeEvent(input$add_som, {
+    hide("error_text_report")
+    if(input$checkbox_property == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("SOM Analysis - ( Property Plot )",align = "center"), plotOutput("som_prop", height = 500)))
+        )
+      )
+      output$som_prop <- renderPlot({
+        sompropertyplot()
+      })
+      
+    }
+    if(input$checkbox_count == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("SOM Analysis - ( Count Plot )",align = "center"), plotOutput("som_co", height = 500)))
+        )
+      )
+      output$som_co <- renderPlot({
+        somcountplot()
+      })
+      
+    }
+    if(input$checkbox_codes == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("SOM Analysis - ( Codes Plot )",align = "center"), plotOutput("som_cod", height = 500)))
+        )
+      )
+      output$som_cod <- renderPlot({
+        somcodesplot()
+      })
+      
+    }
+    if(input$checkbox_distance == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("SOM Analysis - ( Distance Plot )",align = "center"), plotOutput("som_dis", height = 500)))
+        )
+      )
+      output$som_dis <- renderPlot({
+        somdistplot()
+      })
+      
+    }
+    if(input$checkbox_cluster == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("SOM Analysis - ( Cluster Plot )",align = "center"), plotOutput("som_clus", height = 500)))
+        )
+      )
+      output$som_clus <- renderPlot({
+        somclusterplot()
+      })
+      
+    }
+    
+  })
+  
+  
+  
+
   
   ########################################
   ##### Increases the Upload Limit #######
@@ -2474,9 +2956,20 @@ server <- function(input, output, session) {
   
   
   ############################## GEO IMPORT###################
-  library(xml2)
-  library(GEOquery)
- 
+  
+  output$help_text_geo <- renderUI({
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Please enter the GEO accession number to begin analysis.
+          </b>
+        </p>
+      </center>
+    ")
+  })
   getDirListing <- function(url) {
     # Takes a URL and returns a character vector of filenames
     a <- xml2::read_html(url)
@@ -2535,8 +3028,19 @@ server <- function(input, output, session) {
     if (type == "gz"){
       
       value_var$geo_file_type<-"rnaseq"
-      updateTabsetPanel(session, inputId = "Rnaseq_pre", selected = "Preprocessing")
-      print("redirected")
+      output$help_text_geo <- renderUI({
+        HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Its RnaSeq file. Please go to the preprocessing tab of RnaSeq and proceed with the analysis.
+          </b>
+        </p>
+      </center>
+    ")
+      })
     }
     else if(type == "tar"){
       file_list <- untar(file.path(getwd(),input$file_name_button),list=TRUE)
@@ -2546,21 +3050,29 @@ server <- function(input, output, session) {
       print(type)
       if(type == "cel" || type == "CEL"){
         value_var$geo_file_type<-"microarray"
+        output$help_text_geo <- renderUI({
+          HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Its Microarray file. Please go to the preprocessing tab of Microarray and proceed with the analysis.
+          </b>
+        </p>
+      </center>
+    ")
+        })
       }
-      
-      
       #df_micro()
     }
-    print("After")
-    print(value_var$geo_file_type)
+    
     
   }
   
   observeEvent(input$submit_geo_acc_no, {
     url<-getFileUrl(input$geo_acc_no,"suppl")
     fname <- getFiles(url)
-    print(fname[1])
-    
     updateRadioButtons(session, "file_name_button",
                        choices = fname,
                        selected = fname[1]
@@ -2572,7 +3084,6 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$submit_geo_preprocessing,{
-    print("innn")
     url<-getFileUrl(input$geo_acc_no,"suppl")
     print(input$file_name_button)
     downloadFile(url,input$file_name_button)
@@ -3014,21 +3525,22 @@ server <- function(input, output, session) {
     
     # plot heat scatter w/ ggplot
     p <- ggplot(df, aes(x = t1, y = t2, color = density, text = paste(xval, ": ", round(t1, 4), "\n", yval, ": ", round(t2, 4), sep = ""), group = 1)) +
-      geom_point(shape = 19, size = 0.25) +
+      geom_point(shape = 19, size =    0.25) +
       scale_color_viridis()
     
     # modify label and fill defaults
-    p <- p + xlab(xval) + ylab(yval) + labs(color = "KDE", title = paste("R=", round(cor(scatter.data[, xval], scatter.data[, yval]), 3)))
+    p <- p + xlab(xval) + ylab(yval) + labs(color = "KDE", title = paste("Scatter Plot, R=", round(cor(scatter.data[, xval], scatter.data[, yval]), 3)))
     
     # if checkbox is ticked, display regression line
     if (input$regline == TRUE) {
       p <- p + geom_smooth(method = lm, se = FALSE, size = 0.5, color = "blue")
     }
-    p
-    shinyjs::show("downloadscatter")
+    
+   
     hide("help_text_scatter")
     # add interactivity w/ plotly
-    ggplotly(p, tooltip = c("text"))
+    p
+    #ggplotly(p, tooltip = c("text"))
     
     
   }
@@ -3193,7 +3705,7 @@ server <- function(input, output, session) {
     dist.end <- Sys.time()
     print("distribution fitting time")
     print(dist.end - dist.start)
-    shinyjs::show("downloaddistaic")
+    
     return(AIC.df)
   })
   
@@ -3212,7 +3724,7 @@ server <- function(input, output, session) {
               legendtext = distrs, cex = 0.5, main = var, fitcol = rainbow(6)[which(numcol == 1)], fitlty = line_types[which(numcol == 1)]
       )
     }
-    shinyjs::show("downloaddist")
+    
   }
   
   output$downloaddistaic <- downloadHandler(
@@ -3285,7 +3797,6 @@ server <- function(input, output, session) {
     cor.end <- Sys.time()
     print("correlation time")
     print(cor.end - cor.start)
-    shinyjs::show("downloadcorrmat")
     return(Cor2)
   })
   
@@ -3315,8 +3826,7 @@ server <- function(input, output, session) {
     } else {
       fontsize <- 20 / ncol(corr)
     }
-    corrplot(corr, method = "shade", shade.col = NA, tl.col = "black", cl.lim = c(min(corr), 1), is.corr = FALSE, tl.cex = fontsize)
-    shinyjs::show("downloadcorrplot")
+    corrplot(corr, method = "shade", shade.col = NA, tl.col = "black", cl.lim = c(min(corr), 1), is.corr = FALSE,tl.cex = fontsize)
     hide("help_text_correlation")
   }
   
@@ -3330,7 +3840,7 @@ server <- function(input, output, session) {
       fontsize <- 20 / ncol(corr)
     }
     corrplot(corr, type = "upper", tl.col = "black", cl.lim = c(min(corr), 1), is.corr = FALSE, tl.cex = fontsize)
-    shinyjs::show("downloadcorrplot2")
+    
     }
   
   output$downloadcorrplot <- downloadHandler(
@@ -3507,7 +4017,6 @@ server <- function(input, output, session) {
       name = "PCA variance",
       type = "bar"
     ) %>% layout(xaxis = xform)
-    shinyjs::show("downloadpcavar")
     hide("help_text_PCA")
     return(p)
   }
@@ -3527,7 +4036,8 @@ server <- function(input, output, session) {
         type = "scatter",
         mode = "markers"
       ) %>% layout(xaxis = list(title = xlabel), yaxis = list(title = ylabel))
-    } else if (cluster_flag == TRUE) {
+    } 
+    else if (cluster_flag == TRUE) {
       kmeans.result <- li[[9]]
       text_flag <- input$pca_text
       if (text_flag == TRUE) {
@@ -3563,7 +4073,6 @@ server <- function(input, output, session) {
           layout(xaxis = list(title = xlabel), yaxis = list(title = ylabel), showlegend = FALSE)
       }
     }
-    shinyjs::show("downloadpca2d")
   }
   
   pca3dplot <- function() {
@@ -3613,7 +4122,6 @@ server <- function(input, output, session) {
           layout(scene = list(xaxis = list(title = xlabel), yaxis = list(title = ylabel), zaxis = list(title = zlabel)), showlegend = FALSE)
       }
     }
-    shinyjs::show("downloadpca3d")
   }
  
   
@@ -3839,7 +4347,7 @@ server <- function(input, output, session) {
       res.df.filt <- de_filt(res.df, p_val, fc, rep_number)
       res.df.filt
     }
-    shinyjs::show("download_de_table")
+   
     hide("help_text_DE_anal")
   })
   
@@ -3885,7 +4393,7 @@ server <- function(input, output, session) {
     volcano.end.time <- Sys.time()
     print("volcano time")
     print(volcano.end.time - volcano.start.time)
-    shinyjs::show("download_volcano")
+    
   })
   
   output$volcano_plot <- renderPlot({
@@ -3915,7 +4423,7 @@ server <- function(input, output, session) {
     dispersion.end.time <- Sys.time()
     print("dispersion time")
     print(dispersion.end.time - dispersion.start.time)
-    shinyjs::show("download_dispersion")
+    
     
   })
   
@@ -4179,7 +4687,7 @@ server <- function(input, output, session) {
   mapPlot <- function() {
     myHeatmap <- plotHeatmap()[[1]]
     myHeatmap <- draw(myHeatmap)
-    shinyjs::show("heatmap_plot")
+    
     hide("help_text_heatmap")
   }
   
@@ -4210,7 +4718,7 @@ server <- function(input, output, session) {
         dplyr::filter(gl, cluster == clusternum)
       }
     }
-    shinyjs::show("downloadclusters")
+    
   })
   
   output$downloadclusters <- downloadHandler(
@@ -4417,7 +4925,7 @@ server <- function(input, output, session) {
     noise.end.time <- Sys.time()
     print("noise time")
     print(noise.end.time - noise.start.time)
-    shinyjs::show("downloadnoise")
+    
     hide("help_text_Noise")
     return(p)
     
@@ -4565,7 +5073,7 @@ server <- function(input, output, session) {
       print("entropy time")
       print(entropy.end.time - entropy.start.time)
       
-      shinyjs::show("downloadentropy")
+     
       hide("help_text_Entropy")
       return(p)
     }
@@ -4799,7 +5307,6 @@ server <- function(input, output, session) {
   })
   
   output$tsne2.plot <- renderPlotly({
-    shinyjs::show("download_tsne2")
     li <- tsne2plot()
     p <- li[[1]]
     tsne_table <- li[[2]]
@@ -4807,8 +5314,6 @@ server <- function(input, output, session) {
   })
   
   output$tsne_table <- DT::renderDataTable({
-    hide("download_tsne2")
-    shinyjs::show("download_tsne")
     tsne_table <- tsne2plot()[[2]] # get table
     
     tsne_table
@@ -5170,7 +5675,7 @@ server <- function(input, output, session) {
       rev(brewer.pal(n, alpha))
     }
     # use codes vectors (weight) for property plot
-    shinyjs::show("downloadProperty")
+    #shinyjs::show("downloadProperty")
     hide("help_text_SOM")
     plot(som_model, type = "property", property = getCodes(som_model), main = "Property", palette.name = colors)
   
@@ -5184,7 +5689,7 @@ server <- function(input, output, session) {
     colors <- function(n, alpha = 'Set2') {
       rev(brewer.pal(n, alpha))
     }
-    shinyjs::show("downloadCount")
+    #shinyjs::show("downloadCount")
     # show how many genes are mapped to each node
     plot(som_model, type = "count", main = "Count", palette.name = colors)
   }
@@ -5195,7 +5700,7 @@ server <- function(input, output, session) {
     
     # plot type: codes
     # shows codebook vectors of genes
-    shinyjs::show("downloadCodes")
+    #shinyjs::show("downloadCodes")
     plot(som_model, type = "codes", main = "Codes")
   }
   
@@ -5207,7 +5712,7 @@ server <- function(input, output, session) {
     colors <- function(n, alpha = 'Set3') {
       rev(brewer.pal(n, alpha))
     }
-    shinyjs::show("downloadDistance")
+    #shinyjs::show("downloadDistance")
     # show how close genes are from each other when they are mapped
     plot(som_model, type = "dist.neighbours", main = "Distance", palette.name = colors)
   }
@@ -5228,7 +5733,7 @@ server <- function(input, output, session) {
     
     # use hierarchical clustering to cluster the SOM
     som.hc <- cutree(hclust(object.distances(som_model, "codes")), cluster_size)
-    shinyjs::show("downloadCluster")
+    #shinyjs::show("downloadCluster")
     plot(som_model, type = "mapping", bgcol = col_vector[som.hc], main = "Clusters")
     add.cluster.boundaries(som_model, som.hc)
   }
