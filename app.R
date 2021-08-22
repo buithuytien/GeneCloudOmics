@@ -1363,6 +1363,9 @@ ui <- tagList(
             actionButton("addRandomGraphFromDataFramesButton_path_gene", "Add Random Graph"),br(),br(),
             actionButton("getSelectedNodes_path_gene", "Get Selected Nodes"), br(),br(),
             htmlOutput("selectedNodesDisplay_path_gene"),
+            checkboxInput("checkbox_plot", label = "Plot", value = FALSE),
+            checkboxInput("checkbox_visualization", label = "Visualizationt", value = FALSE),
+            actionButton("add_gene_path_enrich","Add to report"),
            
           ),
           mainPanel(
@@ -1415,7 +1418,9 @@ ui <- tagList(
           fileInput("file_prot_expr", "Upload UniProt accession CSV file"),
           textInput("text_prot_expr","Enter Uniprot accession numbers"),
           actionButton("submit_prot_expr", "Submit"),br(),br(),
-          downloadButton("prot_expr_download", "Download as CSV")
+          downloadButton("prot_expr_download", "Download as CSV"),
+          
+          actionButton("add_tissue_exp","Add to report")
         ),
         mainPanel(
           h3("Tissue Expression"),
@@ -1512,7 +1517,14 @@ ui <- tagList(
             condition = "input.uniprot_tabs == 'Cellular component'",
             downloadButton("download_cell_plot", "Download Plot"),br(),br(),
             downloadButton("download_cell_comp", "Download Table")
-          )
+          ),
+          checkboxInput("checkbox_bio_proc_plot", label = "Biological Process Plot", value = FALSE),
+          checkboxInput("checkbox_bio_proc_table", label = "Biological Process Table", value = FALSE),
+          checkboxInput("checkbox_mol_func_plot", label = "Molecular Function Plot", value = FALSE),
+          checkboxInput("checkbox_mol_func_table", label = "Molecular Function Table", value = FALSE),
+          checkboxInput("checkbox_cell_comp_plot", label = "Cellular Component Plot", value = FALSE),
+          checkboxInput("checkbox_cell_comp_table", label = "Cellular Component Plot", value = FALSE),
+          actionButton("add_gene_onto","Add to report"),
         ),
         mainPanel(
           h3("Gene ontology"),
@@ -1602,6 +1614,10 @@ ui <- tagList(
             actionButton("addRandomGraphFromDataFramesButton", "Add Random Graph"),br(),br(),
             actionButton("getSelectedNodes", "Get Selected Nodes"), br(),br(),
             htmlOutput("selectedNodesDisplay"),
+            checkboxInput("checkbox_pp_visu", label = "Visualization", value = FALSE),
+            checkboxInput("checkbox_pp_interact", label = "Protein Interactions", value = FALSE),
+            checkboxInput("checkbox_prot_name", label = "Protein Names", value = FALSE),
+            actionButton("add_pp_inter","Add to report"),
           ),
           mainPanel(
             h3("Protein-Protein Interactions"),
@@ -1668,7 +1684,8 @@ ui <- tagList(
           fileInput("file_prot_func", "Upload UniProt accession CSV file"),
           textInput("text_prot_func","Enter UniProt accession numbers"),
           actionButton("submit_prot_func", "Submit"),br(),br(),
-          downloadButton("prot_func_download", "Download as CSV")
+          downloadButton("prot_func_download", "Download as CSV"),
+          actionButton("add_prot_func","Add to report"),
         ),
         mainPanel(
           h3("Protein Function"),
@@ -1700,7 +1717,9 @@ ui <- tagList(
           fileInput("file_prot_local", "Upload UniProt accession CSV file"),
           textInput("text_prot_local","Enter UniProt accession numbers"),
           actionButton("submit_prot_local", "Submit"),br(),br(),
-          downloadButton("prot_local_download", "Download as CSV")
+          downloadButton("prot_local_download", "Download as CSV"),
+          actionButton("add_subcell_loc","Add to report"),
+          
         ),
         mainPanel(
           h3("Subcellular Localization"),
@@ -1731,7 +1750,8 @@ ui <- tagList(
           fileInput("file_prot_domain", "Upload UniProt accession CSV file"),
           textInput("text_prot_domain","Enter UniProt accession numbers"),
           actionButton("submit_prot_domain", "Submit"),br(),br(),
-          downloadButton("prot_domain_download", "Download as CSV")
+          downloadButton("prot_domain_download", "Download as CSV"),
+          actionButton("add_prot_dom","Add to report")
         ),
         mainPanel(
           h3("Protein Domains"),
@@ -1759,6 +1779,11 @@ ui <- tagList(
           textInput("text_prot_seq","Enter UniProt accession numbers"),
           actionButton("submit_prot_Seq", "Submit"),br(),br(),
           shinyjs::hidden(downloadButton('downloadData', 'Download Sequence FASTA')),
+          checkboxInput("checkbox_seq_charge", label = "Sequence Charge", value = FALSE),
+          checkboxInput("checkbox_seq_acid", label = "Sequence Acidity", value = FALSE),
+          checkboxInput("checkbox_seq_grav_ind", label = "Sequence Gravy Index", value = FALSE),
+          checkboxInput("checkbox_physio_prop", label = "All Physiochecmical Properties", value = FALSE),
+          actionButton("add_prot_seq","Add to report"),
           
         ),
         mainPanel(
@@ -1833,7 +1858,12 @@ ui <- tagList(
         sidebarPanel(
           fileInput("file_prot_seq_evol", "Upload UniProt accession CSV file"),
           textInput("text_prot_seq_evol","Enter UniProt accession numbers"),
-          actionButton("submit_prot_seq_evol","Submit")
+          actionButton("submit_prot_seq_evol","Submit"),
+          checkboxInput("checkbox_prot_gene", label = "Protein's genes tree", value = FALSE),
+          checkboxInput("checkbox_prot_chrom", label = "Protein's chromosomal location", value = FALSE),
+          checkboxInput("checkbox_prot_evol", label = "Evolutionary analysis", value = FALSE),
+          actionButton("add_prot_evol_analysis","Add to report"),
+          
           
         ),
         mainPanel(
@@ -1892,7 +1922,10 @@ ui <- tagList(
         sidebarPanel(
           fileInput("file_prot_seq_Patho", "Upload UniProt accession CSV file"),
           textInput("text_prot_seq_Patho","Enter UniProt accession numbers"),
-          actionButton("submit_prot_seq_Patho","Submit")
+          actionButton("submit_prot_seq_Patho","Submit"),
+          checkboxInput("checkbox_dise_role", label = "Protein's disease role", value = FALSE),
+          checkboxInput("checkbox_dise_dist", label = "Protein's disease distribution", value = FALSE),
+          actionButton("add_prot_path_analysis","Add to report"),
         ),
         mainPanel(
           h3("Protein pathological analysis"),
@@ -1944,7 +1977,8 @@ ui <- tagList(
           fileInput("file_complex_prot", "Upload UniProt accession CSV file"),
           textInput("text_complex_prot","Enter UniProt accession numbers"),
           actionButton("submit_complex_prot", "Submit"),br(),br(),
-          downloadButton("complex_download_prot", "Download as CSV")
+          downloadButton("complex_download_prot", "Download as CSV"),
+          actionButton("add_prot_comp_enrich","Add to report"),
         ),
         mainPanel(
           h3("Complex Enrichment"),
@@ -2002,7 +2036,10 @@ ui <- tagList(
             actionButton("removeGraphButton_path_prot", "Remove Graph"), br(),br(),
             actionButton("addRandomGraphFromDataFramesButton_path_prot", "Add Random Graph"),br(),br(),
             actionButton("getSelectedNodes_path_prot", "Get Selected Nodes"), br(),br(),
-            htmlOutput("selectedNodesDisplay_path_prot")
+            htmlOutput("selectedNodesDisplay_path_prot"),
+            checkboxInput("checkbox_plot_prot", label = "Plot", value = FALSE),
+            checkboxInput("checkbox_visualization_prot", label = "Visualizationt", value = FALSE),
+            actionButton("add_prot_path_enrich","Add to report"),
           ),
           mainPanel(
             h3("Pathways Enrichment"),
@@ -2516,10 +2553,719 @@ server <- function(input, output, session) {
     }
     
   })
-  
-  
-  
-
+  observeEvent(input$add_gene_path_enrich,{
+    hide("error_text_report")
+    if(input$checkbox_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Pathways Enrichment (Plot)",align = "center"), plotlyOutput("path_enr_plot_gene", height=500)))
+        )
+      )
+      output$path_enr_plot_gene <- renderPlotly({
+        df_path_enri_id_gene()
+        gene_name <- as.data.frame(df_path_enri_id_gene())
+        gene_name[,1] <- as.character(gene_name[,1])
+        
+        ggplotly(Pathway.Enr(gene_name[,1]), tooltip = c("text"))
+      })
+      
+    }
+    if(input$checkbox_visualization == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Pathways Enrichment (Visualization)",align = "center"), cyjShinyOutput('path_enri_vis', height=350)))
+        )
+      )
+      output$path_enri_vis <- renderCyjShiny({
+        
+        print("visualization")
+        df_path_enri_id_gene()
+        Enrich <- gost(df_path_enri_id_gene(),evcodes = T, sources = c('KEGG', 'REAC'))
+        Pathway <- Construct.COPathway(Enrich, input$overlap_min_gene)
+        nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
+        
+        
+        path_enri.nodes <- data.frame(id=nodes_tot,
+                                      type=nodes_tot,
+                                      stringsAsFactors=FALSE)
+        
+        path_enri.edges <- data.frame(source=Pathway[,1],
+                                      target=Pathway[,2],
+                                      interaction=Pathway[,1],
+                                      stringsAsFactors=FALSE)
+        
+        graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
+        cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
+        
+      })
+      
+      
+    }
+    
+  })
+  observeEvent(input$add_tissue_exp, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h4("Scatter Plot",align = "center"),div(tableOutput("tissue_expr_table"), style = "font-size:80%")))
+      )
+    )
+    output$tissue_expr_table <- renderTable({
+      df_expr_table()
+    })
+  })
+  observeEvent(input$add_gene_onto, {
+    hide("error_text_report")
+    if(input$checkbox_bio_proc_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Gene Ontlogy (Biological Process Plot)",align = "center"), plotOutput("gene_bio_proc", height = 500)))
+        )
+      )
+      output$gene_bio_proc <- renderPlot({
+        GO_df <- plotUniprot()
+        PlotGOBiological(GO_df,20)
+      })
+      
+    }
+    if(input$checkbox_bio_proc_table == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Gene Ontology (Biological Process Table)",align = "center"), div(tableOutput("bio_proc_table"), style = "font-size:80%")))
+        )
+      )
+      output$bio_proc_table <- renderTable({
+        GO_df <- plotUniprot()
+        BiologicalDF <- Goparse(GO_df, 3)
+        BiologicalDF <- na.omit(BiologicalDF)
+        download_bio_table <- BiologicalDF
+        BiologicalDF
+      })
+      
+    }
+    if(input$checkbox_mol_func_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Gene Ontlogy (Molecular Function Plot)",align = "center"), plotOutput("gene_mol_fun", height = 500)))
+        )
+      )
+      output$gene_mol_fun <- renderPlot({
+        GO_df <- plotUniprot()
+        Plot.GOMolecular(GO_df,20)
+      })
+      
+    }
+    if(input$checkbox_mol_func_table == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Gene Ontology (Molecular Function Table)",align = "center"), div(tableOutput("mol_func_table"), style = "font-size:80%")))
+        )
+      )
+      output$mol_func_table <- renderTable({
+        GO_df <- plotUniprot()
+        MolecularDF <- Goparse(GO_df, 4)
+        MolecularDF <- na.omit(MolecularDF)
+        download_mol_table <- MolecularDF
+        MolecularDF
+      })
+      
+    }
+    if(input$checkbox_cell_comp_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Gene Ontlogy (Cellular Component Plot)",align = "center"), plotOutput("gene_cell_comp", height = 500)))
+        )
+      )
+      output$gene_cell_comp <- renderPlot({
+        GO_df <- plotUniprot()
+        Plot.GOSubCellular(GO_df,20)
+      })
+      
+    }
+    if(input$checkbox_cell_comp_table == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Gene Ontology (Cellular Component Table)",align = "center"), div(tableOutput("cell_comp_table"), style = "font-size:80%")))
+        )
+      )
+      output$cell_comp_table <- renderTable({
+        GO_df <- plotUniprot()
+        CellularDF <- Goparse(GO_df, 5)
+        CellularDF <- na.omit(CellularDF)
+        download_cel_table <- CellularDF
+        CellularDF
+      })
+      
+    }
+  })
+  observeEvent(input$add_pp_inter,{
+    hide("error_text_report")
+    if(input$checkbox_pp_visu == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein-Protein Interactions (Visualization)",align = "center"), cyjShinyOutput("pp_visu", height=350)))
+        )
+      )
+      output$pp_visu <- renderCyjShiny({
+        
+        print(" renderCyjShiny invoked")
+        print("graph.json:")
+        
+        
+        print("running...")
+        
+        
+        # tryCatch({
+        
+        Accessions <- df_prot_int_id()
+        print("Please Wait... Fetching interaction data. It may take a while")
+        protein_interaction_df <- getInteraction(Accessions)
+        df_interaction(protein_interaction_df)
+        print("Fetched...")
+        
+        #migrating rowId to first colunm 
+        # protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+        # rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
+        
+        #making nodes
+        nodes <- as.character(protein_interaction_df[,1])
+        for (i in 1:nrow(protein_interaction_df))
+        {
+          if(!(is.na(protein_interaction_df[i,2])))
+          {
+            data_df <- strsplit(as.character(protein_interaction_df[i,2]),"; ")
+            for(j in data_df)
+            {
+              nodes <- c(nodes,j)
+            }
+          }
+        }
+        
+        print(nodes)
+        
+        print("Please Wait... Fetching Gene Names. It may take a while")
+        protein_gene_name <- getGeneNames(nodes)
+        df_names(protein_gene_name)
+        print("........................")
+        print(as.character(protein_gene_name[,1]))
+        print("Fetched...")
+        edge_source <- character()
+        edge_target <- character()
+        
+        for (i in 1:nrow(protein_interaction_df))
+        {
+          if(!(is.na(protein_interaction_df[i,2])))
+          {
+            data_df <- strsplit(as.character(protein_interaction_df[i,2]),"; ")
+            for(j in data_df)
+            {
+              edge_source <- c(edge_source,rep(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]),length(j)))
+              print(as.character(protein_gene_name[j,1]))
+              edge_target <- c(edge_target,as.character(protein_gene_name[j,1]))
+            }
+          }
+        }
+        
+        tbl.nodes <- data.frame(id=as.character(protein_gene_name[,1]),
+                                type=as.character(protein_gene_name[,1]),
+                                stringsAsFactors=FALSE)
+        
+        
+        tbl.edges <- data.frame(source=edge_source,
+                                target=edge_target,
+                                interaction=edge_target,
+                                stringsAsFactors=FALSE)
+        
+        # }, error = function(error_condition) {
+        #   print("using defauslt value")
+        # })
+        
+        graph.json <- dataFramesToJSON(tbl.edges, tbl.nodes)
+        
+        print(fromJSON(graph.json))
+        cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
+        
+        
+      })
+      
+      
+    }
+    if(input$checkbox_pp_interact == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein-Protein Interactions(Protein Interactions) ",align = "center"), div(tableOutput("pp_inter_table"), style = "font-size:80%")))
+        )
+      )
+      output$pp_inter_table <- renderTable({
+        protein_interaction_df <- df_interaction()
+        protein_gene_name <- df_names()
+        print(protein_interaction_df)
+        print("here")
+        print(class(protein_interaction_df))
+        if(df_names() == 0)
+        {
+          
+          p_int_formatted <- data.frame()
+          
+        } else {
+          
+          protein_interaction_df[,1] <- as.character(protein_interaction_df[,1])
+          
+          p_int_formatted <- data.frame()
+          count = 0
+          n = 1
+          for ( id in protein_interaction_df[,1])
+          {
+            count = count + 1
+            if(!is.null(protein_interaction_df[,2]))
+            {
+              a = strsplit(as.character(protein_interaction_df[,2]),"; ")
+              
+              for(int_with in a[[count]])
+              {
+                p_int_row <- data.frame(id = as.character(paste0(as.character(lookup(id, as.data.frame(id_to_name), missing="Not found"))," ( ", id," )")),
+                                        Interacts_With = as.character(paste0(as.character(lookup(int_with, as.data.frame(id_to_name), missing="Not found"))," ( ", int_with," )")),
+                                        row.names = n)
+                p_int_formatted <- rbind(p_int_formatted,p_int_row)
+                n = n + 1
+              }
+            }
+          }
+          
+          # for(i in 1:nrow(protein_interaction_df))
+          # {
+          #     protein_interaction_df[i,1] <- paste0(protein_interaction_df[i,1],
+          #                               ' (',
+          #                               protein_gene_name[protein_interaction_df[i,1],1],
+          #                               ')')
+          # }
+          # print(protein_interaction_df)
+          # colnames(protein_interaction_df)[2] <- "Interacts With"
+          
+        }
+        
+        p_int_formatted
+      })
+      
+    }
+    if(input$checkbox_prot_name == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein-Protein Interactions(Protein Names)",align = "center"), div(tableOutput("pp_name_table"), style = "font-size:80%")))
+        )
+      )
+      output$pp_name_table <- renderTable({
+        protein_gene_name <- df_names()
+        if(protein_gene_name == 0)
+        {
+          protein_gene_name <- data.frame()
+        } else {
+          
+          protein_gene_name <- cbind(ID = rownames(protein_gene_name),protein_gene_name)
+          rownames(protein_gene_name) <- 1:nrow(protein_gene_name)
+          colnames(protein_gene_name)[2] <- "Names"
+          
+        } 
+        protein_gene_name
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_prot_func, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h4("Protein Function",align = "center"),div(tableOutput("prot_func_table"), style = "font-size:80%")))
+      )
+    )
+    output$prot_func_table <- renderTable({
+      df_func_table()
+    })
+  })
+  observeEvent(input$add_subcell_loc, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h4("SubCellular Localization",align = "center"),div(tableOutput("sub_cell_table"), style = "font-size:80%")))
+      )
+    )
+    output$sub_cell_table <- renderTable({
+      df_local_table()
+    })
+  })
+  observeEvent(input$add_prot_dom, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h4("Protein Domain",align = "center"),div(tableOutput("prot_dom_table"), style = "font-size:80%")))
+      )
+    )
+    output$prot_dom_table <- renderTable({
+      df_domain_table()
+    })
+  })
+  observeEvent(input$add_prot_seq, {
+    hide("error_text_report")
+    if(input$checkbox_seq_charge == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein Sequences (Sequence Charge)",align = "center"), plotOutput("plot_seq_char", height = 500)))
+        )
+      )
+      output$plot_seq_char <- renderPlot({
+        if (!is.null(df_prot_seq()))
+        {
+          hide("help_text_prot_seq")
+          if(is.null(Seqdata))
+          {
+            Proteins <- df_prot_seq()
+            Seqdata <<- GetSequences(Proteins)
+          }
+          PlotCharge(Seqdata)
+        }
+      })
+      
+    }
+    if(input$checkbox_seq_acid == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein Sequences (Sequence Acidity)",align = "center"), plotOutput("plot_seq_acid", height = 500)))
+        )
+      )
+      output$plot_seq_acid <- renderPlot({
+        if (!is.null(df_prot_seq()))
+        {
+          hide("help_text_prot_seq")
+          if(is.null(Seqdata))
+          {
+            Proteins <- df_prot_seq()
+            Seqdata <<- GetSequences(Proteins)
+          }
+          PlotAcidity(Seqdata)
+        }
+      })
+      
+    }
+    if(input$checkbox_seq_grav_ind == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein Sequences (Sequence Gravy Index)",align = "center"), plotOutput("plot_seq_grav", height = 500)))
+        )
+      )
+      output$plot_seq_grav <- renderPlot({
+        if (!is.null(df_prot_seq()))
+        {
+          hide("help_text_prot_seq")
+          if(is.null(Seqdata))
+          {
+            Proteins <- df_prot_seq()
+            Seqdata <<- GetSequences(Proteins)
+          }
+          PlotGravy(Seqdata)
+        }
+      })
+      
+    }
+    if(input$checkbox_physio_prop == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein Sequences (All Physiochemical Properties)",align = "center"), plotOutput("plot_physio_prop", height = 500)))
+        )
+      )
+      output$plot_physio_prop <- renderPlot({
+        if (!is.null(df_prot_seq()))
+        {
+          hide("help_text_prot_seq")
+          if(is.null(Seqdata))
+          {
+            Proteins <- df_prot_seq()
+            Seqdata <<- GetSequences(Proteins)
+          }
+          PlotPhysicochemical(Seqdata)
+        }
+      })
+      
+    }
+  })
+  observeEvent(input$add_prot_evol_analysis, {
+    hide("error_text_report")
+    if(input$checkbox_prot_gene == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein Evolutionary analysis (Protein's Gene Trees)",align = "center"), radialNetworkOutput("prot_gene_plot", width="500px",height="500px")))
+        )
+      )
+      output$prot_gene_plot <- renderRadialNetwork(
+        {
+          if (!is.null(df_prot_seq_evol()))
+          {
+            if (is.null(GenesObj))
+            {
+              Proteins <- df_prot_seq_evol()
+              GenesObj <- GetNamesTaxa(Proteins)
+            }
+            ConstructGenes(GenesObj)
+          }
+        }
+      )
+      
+      
+    }
+    if(input$checkbox_prot_chrom == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein Evolutionary analysis (Protein's chromosomal location)",align = "center"), plotOutput("plot_prot_chrom", height = 500)))
+        )
+      )
+      output$plot_prot_chrom <- renderPlot(
+        if (!is.null(df_prot_seq_evol()))
+        {
+          if(is.null(GenesObj))
+          {
+            Proteins <- df_prot_seq_evol()
+            GenesObj <- GetNamesTaxa(Proteins)
+          }
+          PlotChromosomeInfo(GenesObj)
+        }
+      )
+      
+    }
+    if(input$checkbox_prot_evol == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein Evolutionary analysis (Evolutionary analysis)",align = "center"), plotOutput("plot_evol_ana", height = 500)))
+        )
+      )
+      output$plot_evol_ana <- renderPlot(
+        {
+          if(!is.null(df_prot_seq_evol()))
+            if(is.null(Seqdata))
+            {
+              Proteins <- df_prot_seq_evol()
+              Seqdata <<- GetSequences(Proteins)
+            }
+          ConstructPhylogeny(Seqdata)
+        }
+      )
+      
+      
+    }
+    
+  })
+  observeEvent(input$add_prot_path_analysis, {
+    hide("error_text_report")
+    
+    if(input$checkbox_dise_role == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein pathological analysis (Protein's disease role)",align = "center"), div(tableOutput("prot_dis_table"), style = "font-size:80%")))
+        )
+      )
+      output$prot_dis_table <- renderTable({
+        if(!is.null(df_prot_seq_Patho()))
+        {
+          Proteins <- df_prot_seq_Patho()
+          Pathodata <- GetPathology_Biotech(Proteins)
+          DiseaseTable <- Get.diseases(Pathodata) 
+        }
+      }, escape = F)
+      
+    }
+    if(input$checkbox_dise_dist == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Protein pathological analysis (Protein's disease distribution)",align = "center"), bubblesOutput("prot_dis_plot")))
+        )
+      )
+      output$prot_dis_plot <- renderBubbles({
+        if(!is.null(df_prot_seq_Patho()))
+        {
+          if(!is.null(DiseaseTable))
+          {
+            Plot.NDiseases(DiseaseTable)
+          }
+          else {
+            Proteins <- df_prot_seq_Patho()
+            Pathodata <- GetPathology_Biotech(Proteins)
+            DiseaseTable <- Get.diseases(Pathodata)
+            Plot.NDiseases(DiseaseTable)
+          }
+        }
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_prot_comp_enrich, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h4("Complex Enrichment",align = "center"),div(tableOutput("comp_enrich_table"), style = "font-size:80%")))
+      )
+    )
+    output$comp_enrich_table <- renderTable({
+      df_com_table()
+    })
+  })
+  observeEvent(input$add_prot_path_enrich,{
+    hide("error_text_report")
+    if(input$checkbox_plot_prot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Pathways Enrichment (Plot)",align = "center"), plotlyOutput("path_enr_plot_prot", height=500)))
+        )
+      )
+      output$path_enr_plot_prot <- renderPlotly({
+        df_path_enri_id_prot()
+        gene_name <- as.data.frame(df_path_enri_id_prot())
+        gene_name[,1] <- as.character(gene_name[,1])
+        
+        ggplotly(Pathway.Enr(gene_name[,1]), tooltip = c("text"))
+      })
+      
+    }
+    if(input$checkbox_visualization_prot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Pathways Enrichment (Visualization)",align = "center"), cyjShinyOutput('path_enri_vis_prot', height=350)))
+        )
+      )
+      
+      output$path_enri_vis_prot <- renderCyjShiny({
+        
+        print("visualization")
+        df_path_enri_id_prot()
+        Enrich <- gost(df_path_enri_id_prot(),evcodes = T, sources = c('KEGG', 'REAC'))
+        Pathway <- Construct.COPathway(Enrich, input$overlap_min_prot)
+        nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
+        
+        
+        path_enri.nodes <- data.frame(id=nodes_tot,
+                                      type=nodes_tot,
+                                      stringsAsFactors=FALSE)
+        
+        path_enri.edges <- data.frame(source=Pathway[,1],
+                                      target=Pathway[,2],
+                                      interaction=Pathway[,1],
+                                      stringsAsFactors=FALSE)
+        
+        graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
+        cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
+        
+      })
+      
+    }
+    
+  })
   
   ########################################
   ##### Increases the Upload Limit #######
@@ -7807,8 +8553,7 @@ server <- function(input, output, session) {
     }
     
   )
-  output$GravyPlot <- renderPlot(
-    {
+  output$GravyPlot <- renderPlot({
       if (!is.null(df_prot_seq()))
       {
         hide("help_text_prot_seq")
@@ -7820,10 +8565,8 @@ server <- function(input, output, session) {
         PlotGravy(Seqdata)
       }
       
-    }
-  )
-  output$ChargePlot <- renderPlot(
-    {
+    })
+  output$ChargePlot <- renderPlot({
       if (!is.null(df_prot_seq()))
       {
         hide("help_text_prot_seq")
@@ -7835,10 +8578,8 @@ server <- function(input, output, session) {
         PlotCharge(Seqdata)
       }
       
-    }
-  )
-  output$AcidityPlot <- renderPlot(
-    {
+    })
+  output$AcidityPlot <- renderPlot({
       if (!is.null(df_prot_seq()))
       {
         hide("help_text_prot_seq")
@@ -7849,8 +8590,7 @@ server <- function(input, output, session) {
         }
         PlotAcidity(Seqdata)
       }
-    }
-  )
+    })
   
   output$downloadData <- downloadHandler(
     filename = function() {
