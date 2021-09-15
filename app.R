@@ -3554,6 +3554,7 @@ server <- function(input, output, session) {
     }
     parts <- strsplit(input$file2$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -3598,6 +3599,7 @@ server <- function(input, output, session) {
     else if (!is.null(input$file1)){
     parts <- strsplit(input$file1$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -3907,6 +3909,7 @@ server <- function(input, output, session) {
     }
     parts <- strsplit(input$filego$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -3938,6 +3941,7 @@ server <- function(input, output, session) {
     }
     parts <- strsplit(input$filebg$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6615,6 +6619,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_complex_prot)){
     parts <- strsplit(input$file_complex_prot$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6743,6 +6748,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_prot_func)){
     parts <- strsplit(input$file_prot_func$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6851,6 +6857,7 @@ server <- function(input, output, session) {
     }else if(!is.null(input$file_prot_expr)){
     parts <- strsplit(input$file_prot_expr$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6963,6 +6970,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_prot_local)){
     parts <- strsplit(input$file_prot_local$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -7072,6 +7080,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_prot_domain)){
     parts <- strsplit(input$file_prot_domain$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -7184,6 +7193,7 @@ server <- function(input, output, session) {
     }else if(!is.null(input$file_path_enri_gene)){
       parts <- strsplit(input$file_path_enri_gene$datapath, ".", fixed = TRUE)
       type <- parts[[1]][length(parts[[1]])]
+      type <- tolower(type)
       if (type != "csv") {
         showModal(modalDialog(
           title = "Error",
@@ -7225,6 +7235,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_path_enri_prot)){
     parts <- strsplit(input$file_path_enri_prot$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -7675,6 +7686,7 @@ server <- function(input, output, session) {
    else if(!is.null(input$file_uniprot)){
      parts <- strsplit(input$file_uniprot$datapath, ".", fixed = TRUE)
      type <- parts[[1]][length(parts[[1]])]
+     type <- tolower(type)
      if (type != "csv") {
        showModal(modalDialog(
          title = "Error",
@@ -7895,6 +7907,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_prot_Int)){
     parts <- strsplit(input$file_prot_Int$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -8383,6 +8396,7 @@ server <- function(input, output, session) {
     }else if(!is.null(input$file_gene)){
     parts <- strsplit(input$file_gene$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -8469,6 +8483,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_prot_seq)){
     parts <- strsplit(input$file_prot_seq$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -8633,6 +8648,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_prot_seq_evol)){
     parts <- strsplit(input$file_prot_seq_evol$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -8714,6 +8730,7 @@ server <- function(input, output, session) {
     else if(!is.null(input$file_prot_seq_Patho)){
     parts <- strsplit(input$file_prot_seq_Patho$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
