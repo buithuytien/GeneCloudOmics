@@ -780,6 +780,8 @@ ui <- tagList(
                      c("Pearson correlation", "Spearman correlation")
                    ),
                    actionButton("submit_corr","Plot"),
+                   br(),
+                   br(),
                    conditionalPanel(
                      condition = "input.cor_tabs == 'Correlation heatmap'",
                      downloadButton("downloadcorrplot", "Download as PDF")
@@ -1489,6 +1491,14 @@ ui <- tagList(
     ),
     navbarMenu(
       "Protein Set Analysis",
+      tabPanel("Protein Set Data ",
+               sidebarPanel(fileInput("file_protein_set", "Upload UniProt accession CSV file"),
+                            textInput("text_protein_set", "Enter UniProt accession csv file"),
+                            actionButton("submit_protein_set", "Submit")),
+               mainPanel(
+                 h3("Protein Set Data"),
+                 uiOutput("help_text_protein_set")
+               )),
       
       ########## Gene Ontology #############
       #########################################
@@ -3783,7 +3793,7 @@ server <- function(input, output, session) {
       <center>
         <p>
           <b>
-          Its RnaSeq file. Please go to the preprocessing tab of RnaSeq and proceed with the analysis.
+          GEO Data Import Complete. Please go to the preprocessing tab of RnaSeq and proceed with the analysis.
           </b>
         </p>
       </center>
@@ -6633,7 +6643,12 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      Acessions<-strsplit(input$text_complex_prot," ")
+      
+      Acessions<-strsplit(input$text_complex_prot,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_complex_prot," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -6762,7 +6777,12 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      Acessions<-strsplit(input$text_prot_func," ")
+      
+      Acessions<-strsplit(input$text_prot_func,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_func," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -6984,7 +7004,11 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      Acessions<-strsplit(input$text_prot_local," ")
+      Acessions<-strsplit(input$text_prot_local,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_local," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -7094,7 +7118,12 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      Acessions<-strsplit(input$text_prot_domain," ")
+      
+      Acessions<-strsplit(input$text_prot_domain,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_domain," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -7250,9 +7279,11 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      print("In else")
-      Acessions<-strsplit(input$text_path_enri_prot," ")
-      print(Acessions)
+      Acessions<-strsplit(input$text_path_enri_prot,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_path_enri_prot," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         print(x)
@@ -7669,7 +7700,67 @@ server <- function(input, output, session) {
   ###################################
   ###################################
   ###################################
+  output$help_text_protein_set <- renderUI({
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Please Upload or enter the Uniprot Accession Numbers.
+          </b>
+        </p>
+      </center>
+    ")
+  })
+  observeEvent(input$submit_protein_set,{
+    if (is.null(input$file_protein_set) && is.null(input$text_protein_set)) {
+      return(NULL)
+    }else if(!is.null(input$file_protein_set)){
+      parts <- strsplit(input$file_protein_set$datapath, ".", fixed = TRUE)
+      type <- parts[[1]][length(parts[[1]])]
+      type <- tolower(type)
+      if (type != "csv") {
+        showModal(modalDialog(
+          title = "Error",
+          "Please input a csv file!"
+        ))
+        return(NULL)
+      }
+      
+      Accessions <- read.csv(input$file_protein_set$datapath)
+      Accessions <- na.omit(Accessions)[,1]
+      Accessions <- unique(Accessions)
+      Accessions <- trimws(Accessions)
+    }else{
+      Accessions<-input$text_protein_set
+      print(Accessions)
+    }
+    
+    updateTextInput(session, "text_uniprot", value = paste(Accessions))
+    updateTextInput(session, "text_prot_Int", value = paste(Accessions))
+    updateTextInput(session, "text_prot_func", value = paste(Accessions))
+    updateTextInput(session, "text_prot_local", value = paste(Accessions))
+    updateTextInput(session, "text_prot_domain", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq_evol", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq_Patho", value = paste(Accessions))
+    updateTextInput(session, "text_complex_prot", value = paste(Accessions))
   
+    output$help_text_protein_set <- renderUI({
+      HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Data Upload Complete. Please proceed with the analysis.
+          </b>
+        </p>
+      </center>
+    ")
+    })
+    })
   
   
   ###################################
@@ -7701,7 +7792,13 @@ server <- function(input, output, session) {
      Accessions <- trimws(Accessions)
      print(Accessions)
    }else{
-     Acessions<-strsplit(input$text_uniprot," ")
+     Acessions<-strsplit(input$text_uniprot,",")
+     print(length(Acessions[[1]]))
+     if(length(Acessions[[1]])==1){
+       Acessions<-strsplit(input$text_uniprot," ")
+       
+       }
+     
      Accessions <- data.frame(Acessions[[1]][1])
      for (x in 2:length(Acessions[[1]])) {
        Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -7920,7 +8017,12 @@ server <- function(input, output, session) {
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }else{
-      Acessions<-strsplit(input$text_prot_Int," ")
+      Acessions<-strsplit(input$text_prot_Int,",")
+      print(length(Acessions[[1]]))
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_Int," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -8496,7 +8598,11 @@ server <- function(input, output, session) {
     Proteins <<- protein_Id
     }
     else{
-      Acessions<-strsplit(input$text_prot_seq," ")
+      Acessions<-strsplit(input$text_prot_seq,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq," ")
+        
+      }
       Proteins <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Proteins<-rbind(Proteins,Acessions[[1]][x])
@@ -8661,7 +8767,11 @@ server <- function(input, output, session) {
     Proteins <- protein_Id
     }
     else{
-      Acessions<-strsplit(input$text_prot_seq_evol," ")
+      Acessions<-strsplit(input$text_prot_seq_evol,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq_evol," ")
+        
+      }
       Proteins <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Proteins<-rbind(Proteins,Acessions[[1]][x])
@@ -8743,7 +8853,11 @@ server <- function(input, output, session) {
     Proteins <- protein_Id
     }
     else{
-      Acessions<-strsplit(input$text_prot_seq_Patho," ")
+      Acessions<-strsplit(input$text_prot_seq_Patho,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq_Patho," ")
+        
+      }
       Proteins <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Proteins<-rbind(Proteins,Acessions[[1]][x])
