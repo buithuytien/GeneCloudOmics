@@ -87,12 +87,12 @@ if (length(find.package(package = "cluster", quiet = T)) > 0) {
 
 
 ## for t-sne
-if (length(find.package(package = "reticulate", quiet = T)) > 0) {
-  library(reticulate)
-} else {
-  install.packages("reticulate")
-  library(reticulate)
-}
+# if (length(find.package(package = "reticulate", quiet = T)) > 0) {
+#   library(reticulate)
+# } else {
+#   install.packages("reticulate")
+#   library(reticulate)
+# }
 
 if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
   library(Rtsne)
@@ -290,7 +290,7 @@ if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
 # }
 
 if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
-  library(moments)
+  library(oligoClasses)
 } else {
   print("Package oligoClasses not installed")
   install.packages("oligoClasses")
@@ -299,7 +299,7 @@ if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
 }
 
 if (length(find.package(package = "ArrayExpress", quiet = T)) > 0) {
-  library(moments)
+  library(ArrayExpress)
 } else {
   print("Package ArrayExpress not installed")
   install.packages("ArrayExpress")
@@ -308,7 +308,7 @@ if (length(find.package(package = "ArrayExpress", quiet = T)) > 0) {
 }
 
 if (length(find.package(package = "pd.hugene.1.0.st.v1", quiet = T)) > 0) {
-  library(moments)
+  library(pd.hugene.1.0.st.v1)
 } else {
   print("Package pd.hugene.1.0.st.v1 not installed")
   install.packages("pd.hugene.1.0.st.v1")
@@ -317,7 +317,7 @@ if (length(find.package(package = "pd.hugene.1.0.st.v1", quiet = T)) > 0) {
 }
 
 if (length(find.package(package = "hugene10sttranscriptcluster.db", quiet = T)) > 0) {
-  library(moments)
+  library(hugene10sttranscriptcluster.db)
 } else {
   print("Package hugene10sttranscriptcluster.db not installed")
   install.packages("hugene10sttranscriptcluster.db")
@@ -326,7 +326,7 @@ if (length(find.package(package = "hugene10sttranscriptcluster.db", quiet = T)) 
 }
 
 if (length(find.package(package = "arrayQualityMetrics", quiet = T)) > 0) {
-  library(moments)
+  library(arrayQualityMetrics)
 } else {
   print("Package arrayQualityMetrics not installed")
   install.packages("arrayQualityMetrics")
@@ -335,7 +335,7 @@ if (length(find.package(package = "arrayQualityMetrics", quiet = T)) > 0) {
 }
 
 if (length(find.package(package = "limma", quiet = T)) > 0) {
-  library(moments)
+  library(limma)
 } else {
   print("Package limma not installed")
   install.packages("limma")
@@ -344,7 +344,7 @@ if (length(find.package(package = "limma", quiet = T)) > 0) {
 }
 
 if (length(find.package(package = "topGO", quiet = T)) > 0) {
-  library(moments)
+  library(topGO)
 } else {
   print("Package topGO not installed")
   install.packages("topGO")
@@ -353,7 +353,7 @@ if (length(find.package(package = "topGO", quiet = T)) > 0) {
 }
 
 if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
-  library(moments)
+  library(ReactomePA)
 } else {
   print("Package ReactomePA not installed")
   install.packages("ReactomePA")
