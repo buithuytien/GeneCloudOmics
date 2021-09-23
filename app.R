@@ -454,21 +454,27 @@ ui <- tagList(
                          condition = "input.file_type=='raw'", # raw
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "here"))
+                               p("Example ", 
+                                 a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-raw.csv", "csv"),
+                                 a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "image"))
                            )
                          }),
                          fileInput("file1", "Choose Raw Counts"),
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-length.csv"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("length1", "Choose Gene Length"), # gene id + length
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Zebra%20fish%20microarray/zfGenes_neg_control.csv"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("spikes1", "Choose Negative Control Genes")
@@ -486,7 +492,9 @@ ui <- tagList(
                        
                        withTags({
                          div(class = "header",
-                             p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+                             p("Example ", 
+                               a("csv",   href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-Biofilm2-meta.csv"),
+                               a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
                          )
                        }),
                        fileInput("metafile1", "Choose Meta Data File"),
@@ -601,7 +609,7 @@ ui <- tagList(
                  sidebarPanel(
                    withTags({
                      div(class = "header",
-                         p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
+                         p("Example data ", a("here", href = "https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-2967/")), # ADD EXAMPLE ( have to change )
                      )
                    }),
                    fileInput("file_micro", "Choose Microarray Data"),
