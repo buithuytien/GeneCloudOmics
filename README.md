@@ -225,4 +225,4 @@ The features that communicate with UniProt Knowledgebase use UniProtR, an R pack
 Now we also have a docker image containing all the dependencies needed to run ABioTrans Plus. It also support shiny-server opensource which can be exposed in port 3838.
 
 It can be pulled using 
-```docker pull jaktab/abiotrans-webserver:latest```
+```docker pull jaktab/genecloudomics-webserver:latest```
