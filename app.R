@@ -649,7 +649,9 @@ ui <- tagList(
                  value = "active_tab_geo",
                  sidebarPanel(
                    tabsetPanel(type="tabs", id = "geo_tab",
-                               tabPanel("GEO DATA",textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
+                               tabPanel("GEO DATA",
+                                        div(class= "header","For Example: GSE153941"),
+                                        textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
                                         radioButtons("file_type_button","FILE TYPE",
                                                      c("RnaSeq","Microarray","Auto")),
                                         actionButton("submit_geo_acc_no", "Submit")),
