@@ -649,7 +649,9 @@ ui <- tagList(
                  value = "active_tab_geo",
                  sidebarPanel(
                    tabsetPanel(type="tabs", id = "geo_tab",
-                               tabPanel("GEO DATA",textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
+                               tabPanel("GEO DATA",
+                                        div(class= "header","For Example: GSE153941"),
+                                        textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
                                         radioButtons("file_type_button","FILE TYPE",
                                                      c("RnaSeq","Microarray","Auto")),
                                         actionButton("submit_geo_acc_no", "Submit")),
@@ -780,6 +782,8 @@ ui <- tagList(
                      c("Pearson correlation", "Spearman correlation")
                    ),
                    actionButton("submit_corr","Plot"),
+                   br(),
+                   br(),
                    conditionalPanel(
                      condition = "input.cor_tabs == 'Correlation heatmap'",
                      downloadButton("downloadcorrplot", "Download as PDF")
@@ -1489,6 +1493,14 @@ ui <- tagList(
     ),
     navbarMenu(
       "Protein Set Analysis",
+      tabPanel("Protein Set Data ",
+               sidebarPanel(fileInput("file_protein_set", "Upload UniProt accession CSV file"),
+                            textInput("text_protein_set", "Enter UniProt accession csv file"),
+                            actionButton("submit_protein_set", "Submit")),
+               mainPanel(
+                 h3("Protein Set Data"),
+                 uiOutput("help_text_protein_set")
+               )),
       
       ########## Gene Ontology #############
       #########################################
@@ -2079,8 +2091,9 @@ ui <- tagList(
       
     ), ####Nav bar closing 
     tabPanel('Generate Report',fluidPage(
+      
       uiOutput("error_text_report"),
-      tags$div(id = 'placeholder'),
+      tags$div( h2("GeneCloudOmics Report",align = "center"), id = 'placeholder'),
       capture_pdf(
         selector = "#placeholder",
         filename = "results",
@@ -2121,8 +2134,8 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(width=2),
-          column(width= 8,h4("Scatter Plot",align = "center"), plotOutput("scatter", height = 500)))
-      )
+          column(width= 8,h3("Scatter Plot",align = "center"), plotOutput("scatter", height = 500),br(),br()))
+      ),
     )
     output$scatter <- renderPlot({
       scatterplot()
@@ -2137,7 +2150,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Distribution Fit",align = "center"), plotOutput("dis_fit", height = 500)))
+            column(width= 8,h3("Distribution Fit",align = "center"), plotOutput("dis_fit", height = 500),br(),br()))
         )
       )
       output$dis_fit <- renderPlot({
@@ -2152,7 +2165,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("AIC Table",align = "center"), div(tableOutput("dist_aic"), style = "font-size:80%")))
+            column(width= 8,h3("AIC Table",align = "center"), div(tableOutput("dist_aic"), style = "font-size:80%"),br(),br()))
         )
       )
       output$dist_aic <- renderTable({
@@ -2171,7 +2184,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Correlation Heatmap",align = "center"), plotOutput("corr_hm", height = 500)))
+            column(width= 8,h3("Correlation Heatmap",align = "center"), plotOutput("corr_hm", height = 500),br(),br()))
         )
       )
       output$corr_hm <- renderPlot({
@@ -2186,7 +2199,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Correlation Plot",align = "center"), plotlyOutput("corr_m", height = 500)))
+            column(width= 8,h3("Correlation Plot",align = "center"), plotlyOutput("corr_m", height = 500),br(),br()))
         )
       )
       output$corr_m <- renderPlot({
@@ -2202,7 +2215,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Correlation Matrix",align = "center"), div(tableOutput("corr_mat"), style = "font-size:80%")))
+            column(width= 8,h3("Correlation Matrix",align = "center"), div(tableOutput("corr_mat"), style = "font-size:80%"),br(),br()))
         )
       )
       output$corr_mat <- renderTable({
@@ -2219,7 +2232,7 @@ server <- function(input, output, session) {
         ui = tagList(
           fluidRow(
             column(width=2),
-            column(width= 8,h4("PCA Variance",align = "center"), plotlyOutput("pca_var", height = 500)))
+            column(width= 8,h3("PCA Variance",align = "center"), plotlyOutput("pca_var", height = 500),br(),br()))
         )
       )
       output$pca_var <- renderPlotly({
@@ -2234,7 +2247,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("PCA 2D Plot",align = "center"), plotlyOutput("pca_2d", height = 500)))
+            column(width= 8,h3("PCA 2D Plot",align = "center"), plotlyOutput("pca_2d", height = 500),br(),br()))
         )
       )
       output$pca_2d <- renderPlotly({
@@ -2247,8 +2260,8 @@ server <- function(input, output, session) {
       insertUI(
         selector = '#placeholder',
         ui = tagList(
-          h4("PCA 3D Plot"),
-          fluidRow(plotlyOutput("pca_3d"))
+          h3("PCA 3D Plot"),
+          fluidRow(plotlyOutput("pca_3d"),br(),br())
         )
       )
       output$pca_3d <- renderPlotly({
@@ -2267,7 +2280,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Volcano Plot",align = "center"), plotOutput("vol_plot", height = 500)))
+            column(width= 8,h3("Volcano Plot",align = "center"), plotOutput("vol_plot", height = 500),br(),br()))
         )
       )
       output$vol_plot <- renderPlot({
@@ -2282,7 +2295,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Dispersion Plot",align = "center"), plotlyOutput("dis_plot", height = 500)))
+            column(width= 8,h3("Dispersion Plot",align = "center"), plotlyOutput("dis_plot", height = 500),br(),br()))
         )
       )
       output$dis_plot <- renderPlot({
@@ -2298,7 +2311,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("DE genes",align = "center"), div(DT::dataTableOutput("DE_gene"), style = "font-size:80%")))
+            column(width= 8,h3("DE genes",align = "center"), div(DT::dataTableOutput("DE_gene"), style = "font-size:80%"),br(),br()))
         )
       )
       output$DE_gene <- DT::renderDataTable({
@@ -2323,7 +2336,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Heatmap",align = "center"), plotOutput("heat_plot", height = 500)))
+            column(width= 8,h3("Heatmap",align = "center"), plotOutput("heat_plot", height = 500),br(),br()))
         )
       )
       output$heat_plot <- renderPlot({
@@ -2338,7 +2351,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Gene Clusters",align = "center"), div(dataTableOutput("cluster_gene"), style = "font-size:80%")))
+            column(width= 8,h3("Gene Clusters",align = "center"), div(dataTableOutput("cluster_gene"), style = "font-size:80%"),br(),br()))
         )
       )
       output$cluster_gene <- DT::renderDataTable({
@@ -2364,7 +2377,7 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(width=2),
-          column(width= 8,h4("Noise",align = "center"), plotlyOutput("noise_p", height = 500)))
+          column(width= 8,h3("Noise",align = "center"), plotlyOutput("noise_p", height = 500),br(),br()))
       )
     )
     output$noise_p <- renderPlotly({
@@ -2379,7 +2392,7 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(width=2),
-          column(width= 8,h4("Shannon Entropy",align = "center"), plotlyOutput("entropy_plot", height = 500)))
+          column(width= 8,h3("Shannon Entropy",align = "center"), plotlyOutput("entropy_plot", height = 500),br(),br()))
       )
     )
     output$entropy_plot <- renderPlotly({
@@ -2395,7 +2408,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("t-SNE Plot",align = "center"), plotlyOutput("tsne_p", height = 500)))
+            column(width= 8,h3("t-SNE Plot",align = "center"), plotlyOutput("tsne_p", height = 500),br(),br()))
         )
       )
       output$tsne_p <- renderPlotly({
@@ -2413,7 +2426,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("t-SNE Table",align = "center"), div(tableOutput("tsne_data"), style = "font-size:80%")))
+            column(width= 8,h3("t-SNE Table",align = "center"), div(tableOutput("tsne_data"), style = "font-size:80%"),br(),br()))
         )
       )
       output$tsne_data <- renderTable({
@@ -2434,7 +2447,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("RF Plot",align = "center"), plotlyOutput("rf", height = 500)))
+            column(width= 8,h3("RF Plot",align = "center"), plotlyOutput("rf", height = 500),br(),br()))
         )
       )
       output$rf <- renderPlotly({
@@ -2449,7 +2462,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("RAFSIL Plot",align = "center"), plotlyOutput("raf_sil", height = 500)))
+            column(width= 8,h3("RAFSIL Plot",align = "center"), plotlyOutput("raf_sil", height = 500),br(),br()))
         )
       )
       output$raf_sil <- renderPlotly({
@@ -2465,7 +2478,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("RF Matrix",align = "center"), div(tableOutput("rf_mat"), style = "font-size:80%")))
+            column(width= 8,h3("RF Matrix",align = "center"), div(tableOutput("rf_mat"), style = "font-size:80%"),br(),br()))
         )
       )
       output$rf_mat <- renderTable({
@@ -2483,7 +2496,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("SOM Analysis - ( Property Plot )",align = "center"), plotOutput("som_prop", height = 500)))
+            column(width= 8,h3("SOM Analysis - ( Property Plot )",align = "center"), plotOutput("som_prop", height = 500),br(),br()))
         )
       )
       output$som_prop <- renderPlot({
@@ -2498,7 +2511,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("SOM Analysis - ( Count Plot )",align = "center"), plotOutput("som_co", height = 500)))
+            column(width= 8,h3("SOM Analysis - ( Count Plot )",align = "center"), plotOutput("som_co", height = 500),br(),br()))
         )
       )
       output$som_co <- renderPlot({
@@ -2513,7 +2526,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("SOM Analysis - ( Codes Plot )",align = "center"), plotOutput("som_cod", height = 500)))
+            column(width= 8,h3("SOM Analysis - ( Codes Plot )",align = "center"), plotOutput("som_cod", height = 500),br(),br()))
         )
       )
       output$som_cod <- renderPlot({
@@ -2528,7 +2541,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("SOM Analysis - ( Distance Plot )",align = "center"), plotOutput("som_dis", height = 500)))
+            column(width= 8,h3("SOM Analysis - ( Distance Plot )",align = "center"), plotOutput("som_dis", height = 500),br(),br()))
         )
       )
       output$som_dis <- renderPlot({
@@ -2543,7 +2556,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("SOM Analysis - ( Cluster Plot )",align = "center"), plotOutput("som_clus", height = 500)))
+            column(width= 8,h3("SOM Analysis - ( Cluster Plot )",align = "center"), plotOutput("som_clus", height = 500),br(),br()))
         )
       )
       output$som_clus <- renderPlot({
@@ -2562,7 +2575,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Pathways Enrichment (Plot)",align = "center"), plotlyOutput("path_enr_plot_gene", height=500)))
+            column(width= 8,h3("Pathways Enrichment (Plot)",align = "center"), plotlyOutput("path_enr_plot_gene", height=500),br(),br()))
         )
       )
       output$path_enr_plot_gene <- renderPlotly({
@@ -2581,7 +2594,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Pathways Enrichment (Visualization)",align = "center"), cyjShinyOutput('path_enri_vis', height=350)))
+            column(width= 8,h3("Pathways Enrichment (Visualization)",align = "center"), cyjShinyOutput('path_enri_vis', height=350),br(),br()))
         )
       )
       output$path_enri_vis <- renderCyjShiny({
@@ -2619,7 +2632,7 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(width=2),
-          column(width= 8,h4("Scatter Plot",align = "center"),div(tableOutput("tissue_expr_table"), style = "font-size:80%")))
+          column(width= 8,h3("Scatter Plot",align = "center"),div(tableOutput("tissue_expr_table"), style = "font-size:80%"),br(),br()))
       )
     )
     output$tissue_expr_table <- renderTable({
@@ -2635,7 +2648,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Gene Ontlogy (Biological Process Plot)",align = "center"), plotOutput("gene_bio_proc", height = 500)))
+            column(width= 8,h3("Gene Ontlogy (Biological Process Plot)",align = "center"), plotOutput("gene_bio_proc", height = 500),br(),br()))
         )
       )
       output$gene_bio_proc <- renderPlot({
@@ -2651,7 +2664,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Gene Ontology (Biological Process Table)",align = "center"), div(tableOutput("bio_proc_table"), style = "font-size:80%")))
+            column(width= 8,h3("Gene Ontology (Biological Process Table)",align = "center"), div(tableOutput("bio_proc_table"), style = "font-size:80%"),br(),br()))
         )
       )
       output$bio_proc_table <- renderTable({
@@ -2670,7 +2683,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Gene Ontlogy (Molecular Function Plot)",align = "center"), plotOutput("gene_mol_fun", height = 500)))
+            column(width= 8,h3("Gene Ontlogy (Molecular Function Plot)",align = "center"), plotOutput("gene_mol_fun", height = 500),br(),br()))
         )
       )
       output$gene_mol_fun <- renderPlot({
@@ -2686,7 +2699,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Gene Ontology (Molecular Function Table)",align = "center"), div(tableOutput("mol_func_table"), style = "font-size:80%")))
+            column(width= 8,h3("Gene Ontology (Molecular Function Table)",align = "center"), div(tableOutput("mol_func_table"), style = "font-size:80%"),br(),br()))
         )
       )
       output$mol_func_table <- renderTable({
@@ -2705,7 +2718,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Gene Ontlogy (Cellular Component Plot)",align = "center"), plotOutput("gene_cell_comp", height = 500)))
+            column(width= 8,h3("Gene Ontlogy (Cellular Component Plot)",align = "center"), plotOutput("gene_cell_comp", height = 500),br(),br()))
         )
       )
       output$gene_cell_comp <- renderPlot({
@@ -2743,7 +2756,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein-Protein Interactions (Visualization)",align = "center"), cyjShinyOutput("pp_visu", height=350)))
+            column(width= 8,h3("Protein-Protein Interactions (Visualization)",align = "center"), cyjShinyOutput("pp_visu", height=350),br(),br()))
         )
       )
       output$pp_visu <- renderCyjShiny({
@@ -2837,7 +2850,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein-Protein Interactions(Protein Interactions) ",align = "center"), div(tableOutput("pp_inter_table"), style = "font-size:80%")))
+            column(width= 8,h3("Protein-Protein Interactions(Protein Interactions) ",align = "center"), div(tableOutput("pp_inter_table"), style = "font-size:80%"),br(),br()))
         )
       )
       output$pp_inter_table <- renderTable({
@@ -2899,7 +2912,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein-Protein Interactions(Protein Names)",align = "center"), div(tableOutput("pp_name_table"), style = "font-size:80%")))
+            column(width= 8,h3("Protein-Protein Interactions(Protein Names)",align = "center"), div(tableOutput("pp_name_table"), style = "font-size:80%"),br(),br()))
         )
       )
       output$pp_name_table <- renderTable({
@@ -2928,7 +2941,7 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(width=2),
-          column(width= 8,h4("Protein Function",align = "center"),div(tableOutput("prot_func_table"), style = "font-size:80%")))
+          column(width= 8,h3("Protein Function",align = "center"),div(tableOutput("prot_func_table"), style = "font-size:80%"),br(),br()))
       )
     )
     output$prot_func_table <- renderTable({
@@ -2943,7 +2956,7 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(width=2),
-          column(width= 8,h4("SubCellular Localization",align = "center"),div(tableOutput("sub_cell_table"), style = "font-size:80%")))
+          column(width= 8,h3("SubCellular Localization",align = "center"),div(tableOutput("sub_cell_table"), style = "font-size:80%"),br(),br()))
       )
     )
     output$sub_cell_table <- renderTable({
@@ -2958,7 +2971,7 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(width=2),
-          column(width= 8,h4("Protein Domain",align = "center"),div(tableOutput("prot_dom_table"), style = "font-size:80%")))
+          column(width= 8,h3("Protein Domain",align = "center"),div(tableOutput("prot_dom_table"), style = "font-size:80%"),br(),br()))
       )
     )
     output$prot_dom_table <- renderTable({
@@ -2974,7 +2987,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein Sequences (Sequence Charge)",align = "center"), plotOutput("plot_seq_char", height = 500)))
+            column(width= 8,h3("Protein Sequences (Sequence Charge)",align = "center"), plotOutput("plot_seq_char", height = 500),br(),br()))
         )
       )
       output$plot_seq_char <- renderPlot({
@@ -2998,7 +3011,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein Sequences (Sequence Acidity)",align = "center"), plotOutput("plot_seq_acid", height = 500)))
+            column(width= 8,h3("Protein Sequences (Sequence Acidity)",align = "center"), plotOutput("plot_seq_acid", height = 500),br(),br()))
         )
       )
       output$plot_seq_acid <- renderPlot({
@@ -3022,7 +3035,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein Sequences (Sequence Gravy Index)",align = "center"), plotOutput("plot_seq_grav", height = 500)))
+            column(width= 8,h3("Protein Sequences (Sequence Gravy Index)",align = "center"), plotOutput("plot_seq_grav", height = 500),br(),br()))
         )
       )
       output$plot_seq_grav <- renderPlot({
@@ -3046,7 +3059,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein Sequences (All Physiochemical Properties)",align = "center"), plotOutput("plot_physio_prop", height = 500)))
+            column(width= 8,h3("Protein Sequences (All Physiochemical Properties)",align = "center"), plotOutput("plot_physio_prop", height = 500),br(),br()))
         )
       )
       output$plot_physio_prop <- renderPlot({
@@ -3073,7 +3086,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein Evolutionary analysis (Protein's Gene Trees)",align = "center"), radialNetworkOutput("prot_gene_plot", width="500px",height="500px")))
+            column(width= 8,h3("Protein Evolutionary analysis (Protein's Gene Trees)",align = "center"), radialNetworkOutput("prot_gene_plot", width="500px",height="500px"),br(),br()))
         )
       )
       output$prot_gene_plot <- renderRadialNetwork(
@@ -3099,7 +3112,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein Evolutionary analysis (Protein's chromosomal location)",align = "center"), plotOutput("plot_prot_chrom", height = 500)))
+            column(width= 8,h3("Protein Evolutionary analysis (Protein's chromosomal location)",align = "center"), plotOutput("plot_prot_chrom", height = 500),br(),br()))
         )
       )
       output$plot_prot_chrom <- renderPlot(
@@ -3122,7 +3135,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein Evolutionary analysis (Evolutionary analysis)",align = "center"), plotOutput("plot_evol_ana", height = 500)))
+            column(width= 8,h3("Protein Evolutionary analysis (Evolutionary analysis)",align = "center"), plotOutput("plot_evol_ana", height = 500),br(),br()))
         )
       )
       output$plot_evol_ana <- renderPlot(
@@ -3151,7 +3164,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein pathological analysis (Protein's disease role)",align = "center"), div(tableOutput("prot_dis_table"), style = "font-size:80%")))
+            column(width= 8,h3("Protein pathological analysis (Protein's disease role)",align = "center"), div(tableOutput("prot_dis_table"), style = "font-size:80%"),br(),br()))
         )
       )
       output$prot_dis_table <- renderTable({
@@ -3171,7 +3184,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Protein pathological analysis (Protein's disease distribution)",align = "center"), bubblesOutput("prot_dis_plot")))
+            column(width= 8,h3("Protein pathological analysis (Protein's disease distribution)",align = "center"), bubblesOutput("prot_dis_plot"),br(),br()))
         )
       )
       output$prot_dis_plot <- renderBubbles({
@@ -3201,7 +3214,7 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(width=2),
-          column(width= 8,h4("Complex Enrichment",align = "center"),div(tableOutput("comp_enrich_table"), style = "font-size:80%")))
+          column(width= 8,h3("Complex Enrichment",align = "center"),div(tableOutput("comp_enrich_table"), style = "font-size:80%"),br(),br()))
       )
     )
     output$comp_enrich_table <- renderTable({
@@ -3217,7 +3230,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Pathways Enrichment (Plot)",align = "center"), plotlyOutput("path_enr_plot_prot", height=500)))
+            column(width= 8,h3("Pathways Enrichment (Plot)",align = "center"), plotlyOutput("path_enr_plot_prot", height=500),br(),br()))
         )
       )
       output$path_enr_plot_prot <- renderPlotly({
@@ -3236,7 +3249,7 @@ server <- function(input, output, session) {
           
           fluidRow(
             column(width=2),
-            column(width= 8,h4("Pathways Enrichment (Visualization)",align = "center"), cyjShinyOutput('path_enri_vis_prot', height=350)))
+            column(width= 8,h3("Pathways Enrichment (Visualization)",align = "center"), cyjShinyOutput('path_enri_vis_prot', height=350),br(),br()))
         )
       )
       
@@ -3783,7 +3796,7 @@ server <- function(input, output, session) {
       <center>
         <p>
           <b>
-          Its RnaSeq file. Please go to the preprocessing tab of RnaSeq and proceed with the analysis.
+          GEO Data Import Complete. Please go to the preprocessing tab of RnaSeq and proceed with the analysis.
           </b>
         </p>
       </center>
@@ -6633,7 +6646,12 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      Acessions<-strsplit(input$text_complex_prot," ")
+      
+      Acessions<-strsplit(input$text_complex_prot,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_complex_prot," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -6762,7 +6780,12 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      Acessions<-strsplit(input$text_prot_func," ")
+      
+      Acessions<-strsplit(input$text_prot_func,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_func," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -6984,7 +7007,11 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      Acessions<-strsplit(input$text_prot_local," ")
+      Acessions<-strsplit(input$text_prot_local,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_local," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -7094,7 +7121,12 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      Acessions<-strsplit(input$text_prot_domain," ")
+      
+      Acessions<-strsplit(input$text_prot_domain,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_domain," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -7250,9 +7282,11 @@ server <- function(input, output, session) {
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
     else{
-      print("In else")
-      Acessions<-strsplit(input$text_path_enri_prot," ")
-      print(Acessions)
+      Acessions<-strsplit(input$text_path_enri_prot,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_path_enri_prot," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         print(x)
@@ -7669,7 +7703,67 @@ server <- function(input, output, session) {
   ###################################
   ###################################
   ###################################
+  output$help_text_protein_set <- renderUI({
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Please Upload or enter the Uniprot Accession Numbers.
+          </b>
+        </p>
+      </center>
+    ")
+  })
+  observeEvent(input$submit_protein_set,{
+    if (is.null(input$file_protein_set) && is.null(input$text_protein_set)) {
+      return(NULL)
+    }else if(!is.null(input$file_protein_set)){
+      parts <- strsplit(input$file_protein_set$datapath, ".", fixed = TRUE)
+      type <- parts[[1]][length(parts[[1]])]
+      type <- tolower(type)
+      if (type != "csv") {
+        showModal(modalDialog(
+          title = "Error",
+          "Please input a csv file!"
+        ))
+        return(NULL)
+      }
+      
+      Accessions <- read.csv(input$file_protein_set$datapath)
+      Accessions <- na.omit(Accessions)[,1]
+      Accessions <- unique(Accessions)
+      Accessions <- trimws(Accessions)
+    }else{
+      Accessions<-input$text_protein_set
+      print(Accessions)
+    }
+    
+    updateTextInput(session, "text_uniprot", value = paste(Accessions))
+    updateTextInput(session, "text_prot_Int", value = paste(Accessions))
+    updateTextInput(session, "text_prot_func", value = paste(Accessions))
+    updateTextInput(session, "text_prot_local", value = paste(Accessions))
+    updateTextInput(session, "text_prot_domain", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq_evol", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq_Patho", value = paste(Accessions))
+    updateTextInput(session, "text_complex_prot", value = paste(Accessions))
   
+    output$help_text_protein_set <- renderUI({
+      HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Data Upload Complete. Please proceed with the analysis.
+          </b>
+        </p>
+      </center>
+    ")
+    })
+    })
   
   
   ###################################
@@ -7701,7 +7795,13 @@ server <- function(input, output, session) {
      Accessions <- trimws(Accessions)
      print(Accessions)
    }else{
-     Acessions<-strsplit(input$text_uniprot," ")
+     Acessions<-strsplit(input$text_uniprot,",")
+     print(length(Acessions[[1]]))
+     if(length(Acessions[[1]])==1){
+       Acessions<-strsplit(input$text_uniprot," ")
+       
+       }
+     
      Accessions <- data.frame(Acessions[[1]][1])
      for (x in 2:length(Acessions[[1]])) {
        Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -7920,7 +8020,12 @@ server <- function(input, output, session) {
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }else{
-      Acessions<-strsplit(input$text_prot_Int," ")
+      Acessions<-strsplit(input$text_prot_Int,",")
+      print(length(Acessions[[1]]))
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_Int," ")
+        
+      }
       Accessions <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Accessions<-rbind(Accessions,Acessions[[1]][x])
@@ -8496,7 +8601,11 @@ server <- function(input, output, session) {
     Proteins <<- protein_Id
     }
     else{
-      Acessions<-strsplit(input$text_prot_seq," ")
+      Acessions<-strsplit(input$text_prot_seq,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq," ")
+        
+      }
       Proteins <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Proteins<-rbind(Proteins,Acessions[[1]][x])
@@ -8661,7 +8770,11 @@ server <- function(input, output, session) {
     Proteins <- protein_Id
     }
     else{
-      Acessions<-strsplit(input$text_prot_seq_evol," ")
+      Acessions<-strsplit(input$text_prot_seq_evol,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq_evol," ")
+        
+      }
       Proteins <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Proteins<-rbind(Proteins,Acessions[[1]][x])
@@ -8743,7 +8856,11 @@ server <- function(input, output, session) {
     Proteins <- protein_Id
     }
     else{
-      Acessions<-strsplit(input$text_prot_seq_Patho," ")
+      Acessions<-strsplit(input$text_prot_seq_Patho,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq_Patho," ")
+        
+      }
       Proteins <- data.frame(Acessions[[1]][1])
       for (x in 2:length(Acessions[[1]])) {
         Proteins<-rbind(Proteins,Acessions[[1]][x])
