@@ -103,9 +103,9 @@ if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
 
 
 ####################### Dependencies For RAFSIL ###################################
-if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
-  library(RAFSIL)
-}
+# if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+#   library(RAFSIL)
+# }
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
@@ -293,7 +293,7 @@ if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
   library(oligoClasses)
 } else {
   print("Package oligoClasses not installed")
-  install.packages("oligoClasses")
+  BiocManager::install("oligoClasses")
   print("Package oligoClasses installed")
   library(oligoClasses)
 }
@@ -302,7 +302,7 @@ if (length(find.package(package = "ArrayExpress", quiet = T)) > 0) {
   library(ArrayExpress)
 } else {
   print("Package ArrayExpress not installed")
-  install.packages("ArrayExpress")
+  BiocManager::install("ArrayExpress")
   print("Package ArrayExpress installed")
   library(ArrayExpress)
 }
@@ -311,7 +311,7 @@ if (length(find.package(package = "pd.hugene.1.0.st.v1", quiet = T)) > 0) {
   library(pd.hugene.1.0.st.v1)
 } else {
   print("Package pd.hugene.1.0.st.v1 not installed")
-  install.packages("pd.hugene.1.0.st.v1")
+  BiocManager::install("pd.hugene.1.0.st.v1")
   print("Package pd.hugene.1.0.st.v1 installed")
   library(pd.hugene.1.0.st.v1)
 }
@@ -320,7 +320,7 @@ if (length(find.package(package = "hugene10sttranscriptcluster.db", quiet = T)) 
   library(hugene10sttranscriptcluster.db)
 } else {
   print("Package hugene10sttranscriptcluster.db not installed")
-  install.packages("hugene10sttranscriptcluster.db")
+  BiocManager::install("hugene10sttranscriptcluster.db")
   print("Package hugene10sttranscriptcluster.db installed")
   library(hugene10sttranscriptcluster.db)
 }
@@ -329,7 +329,7 @@ if (length(find.package(package = "arrayQualityMetrics", quiet = T)) > 0) {
   library(arrayQualityMetrics)
 } else {
   print("Package arrayQualityMetrics not installed")
-  install.packages("arrayQualityMetrics")
+  BiocManager::install("arrayQualityMetrics")
   print("Package arrayQualityMetrics installed")
   library(arrayQualityMetrics)
 }
@@ -338,7 +338,7 @@ if (length(find.package(package = "limma", quiet = T)) > 0) {
   library(limma)
 } else {
   print("Package limma not installed")
-  install.packages("limma")
+  BiocManager::install("limma")
   print("Package limma installed")
   library(limma)
 }
@@ -347,7 +347,7 @@ if (length(find.package(package = "topGO", quiet = T)) > 0) {
   library(topGO)
 } else {
   print("Package topGO not installed")
-  install.packages("topGO")
+  BiocManager::install("topGO")
   print("Package topGO installed")
   library(topGO)
 }
@@ -356,7 +356,7 @@ if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
   library(ReactomePA)
 } else {
   print("Package ReactomePA not installed")
-  install.packages("ReactomePA")
+  BiocManager::install("ReactomePA")
   print("Package ReactomePA installed")
   library(ReactomePA)
 }
@@ -1114,49 +1114,49 @@ ui <- tagList(
                    )
                  )),
                
-               tabPanel(
-                 "Random Forest",
-                 sidebarPanel(
-                   radioButtons(
-                     "analysis_type", "Choose Analysis Type",
-                     c("RF clustering" = "rf", "RAFSIL" = "rafsil")
-                   ),
-                   conditionalPanel(
-                     condition = "input.analysis_type=='rf'",  #rf
-                     splitLayout(
-                       numericInput("num_trees", "No. of trees", min = 1, value = 25),
-                       numericInput("num_clusters", "No. of clusters", min = 1, value = 2)
-                     ),
-                     radioButtons(
-                       "rf_trans", "Transformation:",
-                       c("None", "log10")
-                     ),
-                     actionButton("submit_rf", "Submit")
-                   ),
-                   conditionalPanel(
-                     condition = "input.analysis_type=='rafsil'",  #rafsil
-                     actionButton("submit_rafsil", "Submit")
-                   )
-                   # conditionalPanel(
-                   #          condition = "input.rf_tabs == 'RF plot'",
-                   #          downloadButton("downloadrfplot", "Download as PDF")
-                   #        ),
-                   #        conditionalPanel(
-                   #          condition = "input.rf_tabs == 'RF matrix'",
-                   #          downloadButton("downloadrfmatrix", "Download as PDF")
-                   #        )
-                 ),
-                 mainPanel(
-                   h3("Clustering With Random Forest"),
-                   tabsetPanel(type = "tabs",id="rf_tabs",
-                               tabPanel("RF plot", 
-                                        uiOutput("help_text_rf"),
-                                        plotlyOutput("rf.plot")),
-                               tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
-                               tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
-                   )
-                 )
-               ),
+               # tabPanel(
+               #   "Random Forest",
+               #   sidebarPanel(
+               #     radioButtons(
+               #       "analysis_type", "Choose Analysis Type",
+               #       c("RF clustering" = "rf", "RAFSIL" = "rafsil")
+               #     ),
+               #     conditionalPanel(
+               #       condition = "input.analysis_type=='rf'",  #rf
+               #       splitLayout(
+               #         numericInput("num_trees", "No. of trees", min = 1, value = 25),
+               #         numericInput("num_clusters", "No. of clusters", min = 1, value = 2)
+               #       ),
+               #       radioButtons(
+               #         "rf_trans", "Transformation:",
+               #         c("None", "log10")
+               #       ),
+               #       actionButton("submit_rf", "Submit")
+               #     ),
+               #     conditionalPanel(
+               #       condition = "input.analysis_type=='rafsil'",  #rafsil
+               #       actionButton("submit_rafsil", "Submit")
+               #     )
+               #     # conditionalPanel(
+               #     #          condition = "input.rf_tabs == 'RF plot'",
+               #     #          downloadButton("downloadrfplot", "Download as PDF")
+               #     #        ),
+               #     #        conditionalPanel(
+               #     #          condition = "input.rf_tabs == 'RF matrix'",
+               #     #          downloadButton("downloadrfmatrix", "Download as PDF")
+               #     #        )
+               #   ),
+               #   mainPanel(
+               #     h3("Clustering With Random Forest"),
+               #     tabsetPanel(type = "tabs",id="rf_tabs",
+               #                 tabPanel("RF plot", 
+               #                          uiOutput("help_text_rf"),
+               #                          plotlyOutput("rf.plot")),
+               #                 tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
+               #                 tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
+               #     )
+               #   )
+               # ),
                
                tabPanel(
                  "SOM",
@@ -3213,6 +3213,7 @@ server <- function(input, output, session) {
       kmeans.data <- data.frame(x = PR$x[, col_val_x], y = PR$x[, col_val_y])
       print(kmeans.data)
       ####################################################################################
+      set.seed(1)
       kmeans.result <- kmeans(kmeans.data, num)
       return(list(PR, PCA.var, PCA.var.per, rindex, cindex, xlabel, ylabel, cluster_flag, kmeans.result))
     }
@@ -3824,6 +3825,7 @@ server <- function(input, output, session) {
     # print(head(DS3))
     
     set.seed(110)
+    set.seed(1)
     a <- ComplexHeatmap::Heatmap(DS3,
                                  name = "Normalized expression",
                                  col = colorRamp2(c(min(DS3), 0, max(DS3)), c("red", "black", "green")),
@@ -4485,8 +4487,8 @@ server <- function(input, output, session) {
         add_trace(type = "scatter", mode = 'markers', opacity = 0.5)
 
     } else { # tsne_cluster_flag == TRUE
-      set.seed(13)
       tsne_cluster_num <- as.numeric(input$tsne_cluster_num)
+      set.seed(1)
       tsne_kmeans_result <- kmeans(tsne_df[,1:2], tsne_cluster_num)
       tsne_df$cluster <- factor(tsne_kmeans_result$cluster, levels = 1:max(tsne_kmeans_result$cluster) )
       
@@ -4840,6 +4842,7 @@ server <- function(input, output, session) {
     
     # some parameters
     som.data <- as.matrix(som.data)
+    set.seed(1)
     som_grid <- somgrid(xdim = grid_h, ydim = grid_v, topo = "hexagonal")
     som_model <- som(som.data, grid = som_grid)
     
