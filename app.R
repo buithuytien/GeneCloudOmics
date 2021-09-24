@@ -688,7 +688,7 @@ ui <- tagList(
                    actionButton("submit_scatter", "Plot"),
                    br(),
                    br(),
-                   downloadButton("downloadscatter", "Download as PNG"),
+                   downloadButton("downloadscatter", "Download as PDF"),
                    #h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
                    br(),
                    br(),
@@ -859,15 +859,15 @@ ui <- tagList(
                    actionButton("submit_pca","Plot"),
                    conditionalPanel(
                      condition = "input.pca_tabs == 'PCA variance'",
-                     downloadButton("downloadpcavar", "Download as PNG")
+                     downloadButton("downloadpcavar", "Download as PDF")
                    ),
                    conditionalPanel(
                      condition = "input.pca_tabs == 'PCA-2D plot'",
-                     downloadButton("downloadpca2d", "Download as PNG")
+                     downloadButton("downloadpca2d", "Download as PDF")
                    ),
                    conditionalPanel(
                      condition = "input.pca_tabs == 'PCA-3D plot'",
-                     downloadButton("downloadpca3d", "Download as PNG")
+                     downloadButton("downloadpca3d", "Download as PDF")
                    ),
                    checkboxInput("checkbox_pcavar", label = "PCA Variance", value = FALSE),
                    checkboxInput("checkbox_pca2d", label = "PCA-2D Plot", value = FALSE),
@@ -1096,7 +1096,7 @@ ui <- tagList(
                      c("Bar chart", "Line chart")
                    ),
                    actionButton("noise_plot", "Plot"),
-                   downloadButton("downloadnoise", "Download as PNG"),
+                   downloadButton("downloadnoise", "Download as PDF"),
                    
                    conditionalPanel(
                      condition = "input.noise_situation=='a' | input.noise_situation=='b' ",
@@ -1137,7 +1137,7 @@ ui <- tagList(
                      c("Bar chart", "Line chart")
                    ),
                    actionButton("submit_entropy","Plot"),
-                   downloadButton("downloadentropy", "Download as PNG"),
+                   downloadButton("downloadentropy", "Download as PDF"),
                    conditionalPanel(
                      condition = "input.tsflag==true",
                      h5("Specify names of the genotypes"),
@@ -1191,7 +1191,7 @@ ui <- tagList(
                    actionButton("submit_tsne2","Plot"),
                    conditionalPanel(
                      condition = "input.tsne_tabs=='t-SNE plot",
-                     downloadButton("download_tsne2", "Download as PNG")
+                     downloadButton("download_tsne2", "Download as PDF")
                    ),
                    conditionalPanel(
                      condition = "input.tsne_tabs=='t-SNE table'",
@@ -4303,7 +4303,7 @@ server <- function(input, output, session) {
     hide("help_text_scatter")
     # add interactivity w/ plotly
     p
-    #ggplotly(p, tooltip = c("text"))
+    ggplotly(p, tooltip = c("text"))
     
     
   }
@@ -4346,7 +4346,7 @@ server <- function(input, output, session) {
   
   output$downloadscatter <- downloadHandler(
     filename = function() {
-      paste("heatscatter", ".png", sep = "")
+      paste("scatter_plot", ".pdf", sep = "")
     },
     content = function(file) {
       htmlwidgets::saveWidget(widget = scatterplot(), file = "scatterplot.html")
@@ -4906,7 +4906,7 @@ server <- function(input, output, session) {
   
   output$downloadpcavar <- downloadHandler(
     filename = function() {
-      paste("pca_variance", ".png", sep = "")
+      paste("pca_variance", ".pdf", sep = "")
     },
     content = function(file) {
       htmlwidgets::saveWidget(widget = pcavarplot(), file = "pcavariance.html")
@@ -4916,7 +4916,7 @@ server <- function(input, output, session) {
   
   output$downloadpca2d <- downloadHandler(
     filename = function() {
-      paste("pca2d", ".png", sep = "")
+      paste("pca2d", ".pdf", sep = "")
     },
     content = function(file) {
       htmlwidgets::saveWidget(widget = pca2dplot(), file = "pca2d.html")
@@ -4926,7 +4926,7 @@ server <- function(input, output, session) {
   
   output$downloadpca3d <- downloadHandler(
     filename = function() {
-      paste("pca3d", ".png", sep = "")
+      paste("pca3d", ".pdf", sep = "")
     },
     content = function(file) {
       htmlwidgets::saveWidget(widget = pca3dplot(), file = "pca3d.html")
@@ -5704,7 +5704,7 @@ server <- function(input, output, session) {
   
   output$downloadnoise <- downloadHandler(
     filename = function() {
-      paste("noise", ".png", sep = "")
+      paste("noise", ".pdf", sep = "")
     },
     content = function(file) {
       htmlwidgets::saveWidget(widget = noisePlot(), file = "noise.html")
@@ -5852,7 +5852,7 @@ server <- function(input, output, session) {
   
   output$downloadentropy <- downloadHandler(
     filename = function() {
-      paste("entropy", ".png", sep = "")
+      paste("entropy", ".pdf", sep = "")
     },
     content = function(file) {
       htmlwidgets::saveWidget(widget = entropyPlot(), file = "entropy.html")
@@ -6097,7 +6097,7 @@ server <- function(input, output, session) {
   
   output$download_tsne2 <- downloadHandler(
     filename = function() {
-      paste("tsne_plot", ".png", sep = "")
+      paste("tsne_plot", ".pdf", sep = "")
     },
     content = function(file) {
       htmlwidgets::saveWidget(widget = tsneplothtml(), file = "tsneplot.html")
