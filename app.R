@@ -1236,10 +1236,10 @@ ui <- tagList(
             actionButton("submit_path_enri_gene", "Submit"),br(),br(),
             selectInput("loadStyleFile_path_gene", "Select Style: ", choices=styles),
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
-            sliderInput("overlap_min_gene", "Minimum Overlap",
+            hidden(sliderInput("overlap_min_gene", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 15),
-            selectInput("doLayout_path_gene", "Select Layout:",
+                        value = 15)),
+            hidden(selectInput("doLayout_path_gene", "Select Layout:",
                         choices=c("",
                                   "cose",
                                   "cola",
@@ -1249,16 +1249,16 @@ ui <- tagList(
                                   "grid",
                                   "random",
                                   "dagre",
-                                  "cose-bilkent")),
-            actionButton("sfn_path_gene", "Select First Neighbor"),
+                                  "cose-bilkent"))),
+            hidden(actionButton("sfn_path_gene", "Select First Neighbor")),
             br(),br(),
-            actionButton("fit_path_gene", "Fit Graph"),br(),br(),
-            actionButton("fitSelected_path_gene", "Fit Selected"),br(),br(),
-            actionButton("clearSelection_path_gene", "Clear Selection"), br(),br(),
-            actionButton("removeGraphButton_path_gene", "Remove Graph"), br(),br(),
-            actionButton("addRandomGraphFromDataFramesButton_path_gene", "Add Random Graph"),br(),br(),
-            actionButton("getSelectedNodes_path_gene", "Get Selected Nodes"), br(),br(),
-            htmlOutput("selectedNodesDisplay_path_gene"),
+            hidden(actionButton("fit_path_gene", "Fit Graph")),br(),br(),
+            hidden(actionButton("fitSelected_path_gene", "Fit Selected")),br(),br(),
+            hidden(actionButton("clearSelection_path_gene", "Clear Selection")), br(),br(),
+            hidden(actionButton("removeGraphButton_path_gene", "Remove Graph")), br(),br(),
+            hidden(actionButton("addRandomGraphFromDataFramesButton_path_gene", "Add Random Graph")),br(),br(),
+            hidden(actionButton("getSelectedNodes_path_gene", "Get Selected Nodes")), br(),br(),
+            hidden(htmlOutput("selectedNodesDisplay_path_gene")),
             width=2
           ),
           mainPanel(
@@ -1276,7 +1276,7 @@ ui <- tagList(
                        ),
                        conditionalPanel(
                          condition = "!$('html').hasClass('shiny-busy')",
-                         plotlyOutput("path_enri.plot_gene")
+                         plotlyOutput("path_enri.plot_gene", width = "100%", height = "100%")
                        ), 
               ),
               tabPanel(
@@ -1863,10 +1863,10 @@ ui <- tagList(
             actionButton("submit_path_enri_prot", "Submit"),br(),br(),
             selectInput("loadStyleFile_path_prot", "Select Style: ", choices=styles),
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
-            sliderInput("overlap_min_prot", "Minimum Overlap",
+            hidden(sliderInput("overlap_min_prot", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 15),
-            selectInput("doLayout_path_prot", "Select Layout:",
+                        value = 15)),
+            hidden(selectInput("doLayout_path_prot", "Select Layout:",
                         choices=c("",
                                   "cose",
                                   "cola",
@@ -1876,16 +1876,16 @@ ui <- tagList(
                                   "grid",
                                   "random",
                                   "dagre",
-                                  "cose-bilkent")),
-            actionButton("sfn_path_prot", "Select First Neighbor"),
+                                  "cose-bilkent"))),
+            hidden(actionButton("sfn_path_prot", "Select First Neighbor")),
             br(),br(),
-            actionButton("fit_path_prot", "Fit Graph"),br(),br(),
-            actionButton("fitSelected_path_prot", "Fit Selected"),br(),br(),
-            actionButton("clearSelection_path_prot", "Clear Selection"), br(),br(),
-            actionButton("removeGraphButton_path_prot", "Remove Graph"), br(),br(),
-            actionButton("addRandomGraphFromDataFramesButton_path_prot", "Add Random Graph"),br(),br(),
-            actionButton("getSelectedNodes_path_prot", "Get Selected Nodes"), br(),br(),
-            htmlOutput("selectedNodesDisplay_path_prot"),
+            hidden(actionButton("fit_path_prot", "Fit Graph")),br(),br(),
+            hidden(actionButton("fitSelected_path_prot", "Fit Selected")),br(),br(),
+            hidden(actionButton("clearSelection_path_prot", "Clear Selection")), br(),br(),
+            hidden(actionButton("removeGraphButton_path_prot", "Remove Graph")), br(),br(),
+            hidden(actionButton("addRandomGraphFromDataFramesButton_path_prot", "Add Random Graph")),br(),br(),
+            hidden(actionButton("getSelectedNodes_path_prot", "Get Selected Nodes")), br(),br(),
+            hidden(htmlOutput("selectedNodesDisplay_path_prot")),
             width=2
           ),
           mainPanel(
@@ -5429,6 +5429,33 @@ server <- function(input, output, session) {
       </center>
     ")
   })
+  
+  #############Enrichment area################
+  showGraphNodes.Enrch <- function(gene = "_gene")
+  {
+    shinyjs::show(id = paste0("loadStyleFile_path", gene))
+    shinyjs::show(id = paste0("overlap_min", gene))
+    shinyjs::show(id = paste0("doLayout_path", gene))
+    shinyjs::show(id = paste0("sfn_path", gene))
+    shinyjs::show(id = paste0("fit_path", gene))
+    shinyjs::show(id = paste0("fitSelected_path", gene))
+    shinyjs::show(id = paste0("clearSelection_path", gene))
+    shinyjs::show(id = paste0("removeGraphButton_path", gene))
+    shinyjs::show(id = paste0("addRandomGraphFromDataFramesButton_path", gene))
+    shinyjs::show(id = paste0("getSelectedNodes_path", gene))
+    shinyjs::show(id = paste0("selectedNodesDisplay_path", gene))
+  }
+  
+  
+  observe(
+    if (input$path_enri_tab_prot == "Visualization")
+      showGraphNodes.Enrch(gene = "_prot")
+)
+  observe(
+    if (input$path_enri_tab_gene == "Visualization")
+      showGraphNodes.Enrch(gene = "_gene")
+  )
+  ############################################
   
   ###################################
   ###################################
