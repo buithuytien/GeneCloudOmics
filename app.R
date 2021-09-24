@@ -459,7 +459,7 @@ ui <- tagList(
                                  a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "image"))
                            )
                          }),
-                         fileInput("file1", "Choose Raw Counts"),
+                         fileInput("file1", "Choose Raw Counts (required)"),
                          
                          withTags({
                            div(class="header", checked=NA,
@@ -468,7 +468,7 @@ ui <- tagList(
                                  a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("length1", "Choose Gene Length"), # gene id + length
+                         fileInput("length1", "Choose Gene Length (optional)"), # gene id + length
                          
                          withTags({
                            div(class="header", checked=NA,
@@ -477,16 +477,18 @@ ui <- tagList(
                                  a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("spikes1", "Choose Negative Control Genes")
+                         fileInput("spikes1", "Choose ERCC Spike-in controls (optional)")
                        ),
                        conditionalPanel(
                          condition = "input.file_type=='norm'", # normalized
                          withTags({
                            div(class = "header",
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-normalized-tpm.csv"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("file2", "Choose Normalized Expression")
+                         fileInput("file2", "Choose Normalized Expression (required)")
                          # helpText("* Format requirement: CSV file. Gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database.")
                        ),
                        
@@ -497,7 +499,7 @@ ui <- tagList(
                                a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
                          )
                        }),
-                       fileInput("metafile1", "Choose Meta Data File"),
+                       fileInput("metafile1", "Choose Meta Data File (required)"),
                        actionButton("submit_input", "Submit")
                      ),
                      mainPanel(
