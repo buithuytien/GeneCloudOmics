@@ -1116,6 +1116,8 @@ ui <- tagList(
                    )
                  )),
                
+               # Random forest tab is temporarily hidden.
+               # to activate the RF panel: uncomment the below lines
                # tabPanel(
                #   "Random Forest",
                #   sidebarPanel(
@@ -1151,7 +1153,7 @@ ui <- tagList(
                #   mainPanel(
                #     h3("Clustering With Random Forest"),
                #     tabsetPanel(type = "tabs",id="rf_tabs",
-               #                 tabPanel("RF plot", 
+               #                 tabPanel("RF plot",
                #                          uiOutput("help_text_rf"),
                #                          plotlyOutput("rf.plot")),
                #                 tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
@@ -1932,8 +1934,7 @@ ui <- tagList(
 ####################################################
 
 server <- function(input, output, session) {
-  
-  
+
   gene_mania_link <- reactiveVal("https://genemania.org")
   count_fasta <- reactiveVal(0)
   count_id <- reactiveVal(0)
@@ -3134,7 +3135,7 @@ server <- function(input, output, session) {
           test does not carry any assumptions about the distribution of the data and is the appropriate correlation 
           analysis when the variables are measured on a scale that is at least ordinal.
           The following formula is used to calculate the Spearman rank correlation:<br>
-          <img src='https://i.ibb.co/rkjbg1d/Spearman-correlation.png' alt='Spearman-correlation' border='0'><br>
+          <img src='https://www.dataanalytics.org.uk/wp-content/uploads/2019/06/Figure-8.5.png' alt='Spearman-correlation' border='0'><br>
           ρ = Spearman rank correlation<br>
           r<sub>x,i</sub>, r<sub>y,i</sub> = ranks of corresponding variables (or gene)<br>
           n = number of observations
