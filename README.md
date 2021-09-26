@@ -1,13 +1,9 @@
-# ABioTransPlus
-A Biostatistical tool for Transcriptomics Analysis
+# GeneCloudOmics
 
-[ABioTransPlus](http://combio-sifbi.org/ABioTrans/) is a web server for transcriptome data analysis and visualization. It supports the analysis of microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets.
+[GeneCloudOmics](http://combio-sifbi.org/GeneCloudOmics/) is a web server for transcriptome data analysis and visualization. It supports the analysis of microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets.
+GeneCloudOmics is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical user interface (GUI) that waves the hassle of coding, installing tools, packages or libraries and dealing with operating systems compatibility and versioning issues, some of the complications that make data analysis tasks more challenging for biologists. GeneCloudOmics is an open-source tool and the website is free and open to all users and there is no login requirement.
 
-ABioTransPlus is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical user interface (GUI) that waves the hassle of coding, installing tools, packages or libraries and dealing with operating systems compatibility and versioning issues, some of the complications that make data analysis tasks more challenging for biologists. ABioTrans Plus is an open-source tool and the website is free and open to all users and there is no login requirement.
-
-ABioTransPlus  is available at http://combio-sifbi.org/ABioTrans/
-
-If you find ABioTrans useful, please cite our paper:  
+If you find GeneCloudOmics useful, please cite our paper:  
 Zou Y, Bui TT and Selvarajoo K (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Front. Genet. 10:499. doi: 10.3389/fgene.2019.00499
 
 Full text (free access) can be found at https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full 
@@ -15,13 +11,15 @@ Full text (free access) can be found at https://www.frontiersin.org/articles/10.
 ## Transcriptomic analysis
 ### Import data and pre-processing
 
-ABioTransPlus supports two types of common data formats for gene expression analysis: RNA-Seq count matrix and Microarray CEL files.
+GeneCloudOmics supports two types of common data formats for gene expression analysis: RNA-Seq count matrix and Microarray CEL files.
 
 #### RNA-Seq gene expression matrix format
 
 ##### Import data
 
-Choose an RNA-Seq data file in comma-separated value (.csv) format. 
+GeneCloudOmics requires all input files in comma-separated value (.csv) format. The data file in .csv should contain the gene names in rows and genotypes (e.g. wild type – mutants or control - treatments, …) in columns, which is similar to the standard transcriptome data file format in GEO database. Supporting files (if applicable) include gene length, list of negative control genes, and metadata file. 
+A number of normalization options are  provided in the preprocessing tab depending on the availability of supporting files: RPKM, FPKM, TPM(requiring gene length), RUV (requiring negative control genes), and Upper Quartile (no supporting file needed). The metadata file is required for differential expression analysis, and should specify experimental conditions (e.g. Control/Treated, time 1/time 2/ time3,.) for each genotype listed in the data file. Otherwise, the user can move to the next option to perform analyses (e.g. scatter plot, distribution fitting, Pearson correlation, …) once the data file is loaded (whether normalized or in raw count).
+Once data files and supporting files are loaded into ABioTrans, user can press Submit button and ABioTrans will automatically proceed to the next tab Preprocessing. In case user accidentally upload wrong data file or supporting files, user can overwrite each of them by uploading new files, or press the browser Reset button (shortcut: F5 key on windows) to erase all uploaded files and reset the whole program.
 
 * If you input raw data (read counts), please make sure that the first column contains gene names, and the read counts of each genotype (conditions: wildtype, mutants, replicates, etc.) are in the following columns. Each genotype column should have a column name.
 
@@ -44,11 +42,10 @@ Finally, a metadata table matching column names of data file to experimental con
 ##### Pre-processing
 
 Preprocessing involves two steps: removing lowly expressed genes and normalizing the remaining gene expression. 
-
-- For removing lowly expressed genes, the user need to specify threshold expression values (which must be in same unit to the input data file - either raw read counts or normalized expression), and the minimum number of data columns that must exceed the threshold value. 
-- Normalization methods are available upon the availability of supporting data files: normalization for sequencing depth, including TPM and RPKM, requires gene length and normalization for sample variation, including RUV, requires negative control genes. User can download the filtered, normalized data in the `Data` tab.
-
+First, the user need to specify threshold expression values (which must be in same unit to the input data file - either raw read counts or normalized expression), and the minimum number of data columns that must exceed the threshold value. Normalization methods are available upon the availability of supporting data files: normalization for sequencing depth, including TPM and RPKM, requires gene length and normalization for sample variation, including RUV, requires negative control genes. 
+User can download the filtered, normalized data in the Data tab.
 Relative Log Expression (RLE) plots of raw and processed data are displayed to visualize the effects of normalization. Distribution of gene expression in each data column is visualized by violin plot.
+
 
 ![Figure 2: Preprocessing panel with RLE plots of raw data (upper figure) and filtered, RUV-normalized data (lower figure). Gene expression with minimum five counts in at least two columns are retained.](![1b_preprocess(2).PNG](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/1b_preprocess(2).PNG)
 
@@ -63,17 +60,16 @@ Once the processing is complete, the user can download the output in ```csv``` f
 ### Scatter plot
 
 Scatter plot compares any 2 samples (or 2 replicates) by displaying the respective expression of all genes in 2D space. It is recommended to preform normalization for sequencing depth (TPM, RPKM, FPKM) for this step (and so does distribution fitting, correlation, hierarchical clustering, noise and entropy).
+As gene expression data is naturally skewed towards very high expression level region, we recommend applying log-transformation to capture the whole data range. User can choose between log base 2, natural log, or log base 10. An option to add linear regression line is also available.
+Gene expression data is densely distributed in the lowly expressed region, making the dots usually indistinguishable in regular scatter plot. GeneCloudOmics overlay a 2D kernel density estimation on the scatter plot to visualize the density of expression level.
+The user can choose to download each single scatter plot, or to download all pairs of samples scatter plot in one PDF file, which may take some time to run.
 
-As gene expression data is naturally skewed towards very high expression level region, we recommend applying log-transformation to capture the whole data range. User can choose between log base 2, natural log, or log base 10. An option to add linear regression line is also available. Gene expression data is densely distributed in the lowly expressed region, making the dots usually indistinguishable in regular scatter plot. 
-
-ABioTransPlus overlay a 2D kernel density estimation on the scatter plot to visualize the density of expression level. The user can choose to download each single scatter plot, or to download all pairs of samples scatter plot in one PDF file, which may take some time to run.
 
 ![Figure 3: Scatter plot](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2a_scatter.PNG) 
 
 ### Distribution fitting
-Choose the column you want to fit and compare with any combinations of the six statistical distributions. You can adjust the slider or input the range for x-axis to zoom in to see the fitted curve.
+Distribution fitting compares the gene expression to a number of statistical continuous distributions, which can be used to validate the data. To visualize the comparison, GeneCloudOmics displays the Cumulative Distribution Function of the preprocessed gene expression data with the user-selected theoretical distributions. Once it is confirmed that the gene set follow a distribution, it would be safe conclude the validity of the gene expression data. AIC table is also provided in AIC table tab to show the best fitted distribution in each sample
 
-Distribution fitting compares the gene expression to a number of statistical continuous distributions, which can be used to validate the data. To visualize the comparison, ABioTransPlus displays the Cumulative Distribution Function of the preprocessed gene expression data with the user-selected theoretical distributions. Once it is confirmed that the gene set follow a distribution, it would be safe conclude the validity of the gene expression data. `AIC table` is also provided in `AIC table` tab to show the best fitted distribution in each sample
 
 ![Figure 3: Distribution fitting - Cumulative Distribution Function](https://github.com/buithuytien/ABioTrans/blob/online-version/Screenshots/2b_distfit.PNG) 
 
@@ -99,7 +95,7 @@ DE analysis identifies the genes that are statistically different in expression 
 
 - The upper bound of hypothesis test p-value
 
-AbioTransPlus implements 3 popular methods to identify DE genes:
+GeneCloudOmics implements 3 popular methods to identify DE genes:
 
 - [DESeq2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8)
 
@@ -149,12 +145,12 @@ Shannon entropy ([Shannon, 1948](https://onlinelibrary.wiley.com/doi/10.1002/j.1
 ### t-distributed stochastic neighbor embedding (t-SNE)  (new feature)
 t-SNE is a dimensionality-reduction approach that reduces the complexity of highly complex data such as the transcriptomic data. It visualizes the sample interrelations in a 2- or 3-dimensional visualization. This allows the identification of the close similarities between samples through the relative location of mapped points. Since t-SNE is nonlinear and able to control the trade-off between local and global relationships among points, its visualization of the clusters is usually more compelling when compared with the other methods [[Cieslak 2020](https://pubmed.ncbi.nlm.nih.gov/31784353/)]. 
 
-ABioTrans Plus introduces an intuitive interface that allows performing t-SNE analysis on the processed untransformed transcriptomic data through entering three inputs perplexity value, the number of principal components (PC) and the number of clusters. The user can also choose to log transform the data before submission. 
+GeneCloudOmics introduces an intuitive interface that allows performing t-SNE analysis on the processed untransformed transcriptomic data through entering three inputs perplexity value, the number of principal components (PC) and the number of clusters. The user can also choose to log transform the data before submission. 
 
 ### Clustering with random forest (new feature)
 Random forest clustering is an unsupervised learning approach, where each sample is clustered into different classes, based on their similarity (usually based on Euclidean distance). 
 
-ABioTrans Plus uses the random forest algorithm to generate a proximity matrix, a rough estimate of the distance between samples based on the proportion of times the samples end up in the same leaf node of the decision tree. The proximity matrix is converted to a dist matrix which is then inputted to the hierarchical clustering algorithm [[Chen 2012](https://pubmed.ncbi.nlm.nih.gov/22546560/)].
+GeneCloudOmics uses the random forest algorithm to generate a proximity matrix, a rough estimate of the distance between samples based on the proportion of times the samples end up in the same leaf node of the decision tree. The proximity matrix is converted to a dist matrix which is then inputted to the hierarchical clustering algorithm [[Chen 2012](https://pubmed.ncbi.nlm.nih.gov/22546560/)].
 
 The ```diff_genes.csv``` file will be generated after each run, containing names of differential genes.
 ![alt text](https://github.com/SnowMelody/ABioTrans/blob/master/ABT_updated/screenshots/Random%20forest.png)
@@ -162,7 +158,7 @@ The ```diff_genes.csv``` file will be generated after each run, containing names
 ### Self-Organizing Map (SOM) (new feature)
 SOM is a dimensionality reduction technique that produces a two-dimensional, discretized representation of the high-dimensional gene expression matrix. It uses a neighbourhood function to preserve the topological properties of the input gene expression matrix. Each data point (e.g. 1 sample) in the input gene expression matrix recognizes itself by competing for representation. SOM mapping steps start from initializing the weight vectors. From there, a sample vector is selected randomly and the map of weight vectors is searched to find which weight best represents that sample. Each weight vector has neighbouring weights that are close to it. The weight that is chosen is rewarded by being able to become more like that randomly selected sample vector. The neighbours of that weight are also rewarded by being able to become more like the chosen sample vector. This allows the map to grow and form different shapes. Most generally, they form square/rectangular/hexagonal/L shapes in 2D feature space [[Yin 2020](https://link.springer.com/chapter/10.1007%2F978-3-540-78293-3_17)].
 
-ABioTrans Plus provides 5 types of SOM plots: </br>
+GeneCloudOmics provides 5 types of SOM plots: </br>
 ```Property```: Uses values of codebook vectors (weight of gene vectors) and output as coloured nodes </br>
 ```Count```: Shows how many genes are mapped to each node </br>
 ```Codes```: Displays codebook vectors </br>
@@ -176,11 +172,11 @@ There are 4 parameters to control the SOM plots. ```Samples used``` determines t
 
 Differentially expressed gene (DGE) analysis usually outputs a list of genes that are statistically determined as differentially expressed. Then, the list of DEGs is analyzed, interpreting and annotated to learn more about the functions, pathways and cellular processes that these genes are involved in. Most of the gene differential expression analysis tools do not include bioinformatics features for gene set analysis or include few basic analyses such as GO and pathways enrichment. 
 
-In ABioTrans Plus, we designed the GO feature to be dynamic by reading the GO terms associated with the genes/proteins directly from UniProt Knowledgebase [[UniProt Consortium 2019](https://pubmed.ncbi.nlm.nih.gov/30395287/)] then visualize each of the three GO domains (cellular component, molecular function and biological process) in an independent tab in a bar chart and on a downloadable tabular format (Figure YY). Furthermore, we introduced 11 new bioinformatics analyses that can be performed on a given gene/protein dataset. 
+In GeneCloudOmics, we designed the GO feature to be dynamic by reading the GO terms associated with the genes/proteins directly from UniProt Knowledgebase [[UniProt Consortium 2019](https://pubmed.ncbi.nlm.nih.gov/30395287/)] then visualize each of the three GO domains (cellular component, molecular function and biological process) in an independent tab in a bar chart and on a downloadable tabular format (Figure YY). Furthermore, we introduced 11 new bioinformatics analyses that can be performed on a given gene/protein dataset. 
 
 ### Pathways Enrichment Analysis
 
-For a given gene or protein set, ABioTrans Plus uses g:Profiler [[Raudvere 2019](https://doi.org/10.1093/nar/gkz369)] to perform a pathway enrichment analysis and displays the results as a network where the nodes are the pathways and the edges are the overlap between the pathways (Figure X). We use Cytoscape.JS for the network visualization [[Franz 2016](https://academic.oup.com/bioinformatics/article/32/2/309/1744007)] and, therefore, the network properties such as the colour and layout can be changed from the left panel. 
+For a given gene or protein set, GeneCloudOmics uses g:Profiler [[Raudvere 2019](https://doi.org/10.1093/nar/gkz369)] to perform a pathway enrichment analysis and displays the results as a network where the nodes are the pathways and the edges are the overlap between the pathways (Figure X). We use Cytoscape.JS for the network visualization [[Franz 2016](https://academic.oup.com/bioinformatics/article/32/2/309/1744007)] and, therefore, the network properties such as the colour and layout can be changed from the left panel. 
 
 The users can choose from nine different network layouts and five different network colour schemes. The overlap between the pathways can be also changed from the provided controllers so that the user can choose an overlap cutoff or overlap range. The enrichment results can also be downloaded as a CSV file.      
 
@@ -223,16 +219,10 @@ The features that communicate with UniProt Knowledgebase use UniProtR, an R pack
 ## Download instructions
 1. Scatter plot, distribution fit, correlation plot and heatmap can be saved as PDF by clicking `Download as PDF`. You can name the file before saving it. Also, you can directly drag the plot from the GUI to a folder on the computer.
 
-2. PCA, noise, entropy and gene ontology pie chart are supported by Plotly. If you are using the GUI in R window or Safari, click `Download as PNG` and it may take 5 seconds to save the graph. You cannot name the file yourself, so please be aware of overwriting issues. Even if the plot is saved successfully, there may be a 404 Not found message after downloading. Please go to your working directory and check. If you cannot save the graph successfully, please try the following code the Rstudio command line. You only need to run this code once. (You can also simply take a screenshot of the graph.)
-```R
-webshot::install_phantomjs()
-```
-If you are using R window or Safari, and you cannot save PCA-3D graph successfully, please create a plotly account (free). Please go to this website on the instructions of creating a new account and Find your authentication API keys in your online settings (https://plot.ly/r/getting-started/). After that please go to the first two lines in ABioTrans.R file, remove both of the "#" signs, and replace the username and api key with your own. Save the file before you run. However, please be reminded that this  `Download as PNG` button only downloads the PCA-3D plot from the default angle.
-
-3. For Chrome users, the `Download as PNG` button may be disabled. Please put your mouse over the graph region and click the left most camera sign to save the plot. It will be saved in the download folder on your computer. You are suggested to use Chrome because it saves you trouble from creating an account and changing the code. More importantly, you can download the PCA-3D plot from any angle.
+2. PCA, noise, entropy and gene ontology pie chart are supported by Plotly. Please put your mouse over the graph region and click the left most camera sign to save the plot. It will be saved in the download folder on your computer. You are suggested to use Chrome because it saves you trouble from creating an account and changing the code. More importantly, you can download the PCA-3D plot from any angle.
 
 ## Docker Support
 Now we also have a docker image containing all the dependencies needed to run ABioTrans Plus. It also support shiny-server opensource which can be exposed in port 3838.
 
 It can be pulled using 
-```docker pull jaktab/abiotrans-webserver:latest```
+```docker pull jaktab/genecloudomics-webserver:latest```
