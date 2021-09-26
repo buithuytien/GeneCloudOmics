@@ -461,6 +461,12 @@ ui <- tagList(
       the users with multiple bioinformatics tools to investigate their 
       gene/protein list including gene ontology (GO), pathway enrichment analysis, PPI, co-expression, gene/protein function, subcellular localization, complex enrichment, protein domains, tissue expression, sequence properties (acidity, hydrophobicity and charge),
        evolutionary analysis (gene tree, phylogenetic tree and species/chromosome location)  and pathological analysis (diseases that these genes/proteins are involved in). The analyses include proper high-resolution visualization, when applicable."),
+          withTags({
+            div(class="header", checked=NA,
+                h4("User manual can be downloaded ", 
+                  a("here", href="https://github.com/buithuytien/GeneCloudOmics/blob/master/GeneCloudOmics_ReadMe_2021_update.pdf", target="_blank")
+            ))
+          }),
         )
       )
     ),
@@ -482,8 +488,8 @@ ui <- tagList(
                          withTags({
                            div(class="header", checked=NA,
                                p("Example ", 
-                                 a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-raw.csv", "csv"),
-                                 a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "image"))
+                                 a(target="_blank", href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-raw.csv", "csv"),
+                                 a(target="_blank", href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "image"))
                            )
                          }),
                          fileInput("file1", "Choose Raw Counts (required)"),
@@ -500,8 +506,8 @@ ui <- tagList(
                          withTags({
                            div(class="header", checked=NA,
                                p("Example ", 
-                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Zebra%20fish%20microarray/zfGenes_neg_control.csv"),
-                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Zebra%20fish%20microarray/zfGenes_neg_control.csv", target="_blank"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png", target="_blank")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("spikes1", "Choose negative controls (eg. ERCC Spike-in) (optional)")
@@ -511,8 +517,8 @@ ui <- tagList(
                          withTags({
                            div(class = "header",
                                p("Example ", 
-                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-normalized-tpm.csv"),
-                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-normalized-tpm.csv", target="_blank"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png", target="_blank")), # ADD EXAMPLE
                            )
                          }),
                          fileInput("file2", "Choose Normalized Expression (required)")
@@ -522,8 +528,8 @@ ui <- tagList(
                        withTags({
                          div(class = "header",
                              p("Example ", 
-                               a("csv",   href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-Biofilm2-meta.csv"),
-                               a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+                               a("csv",   href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-Biofilm2-meta.csv", target="_blank"),
+                               a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png", target="_blank")), # ADD EXAMPLE
                          )
                        }),
                        fileInput("metafile1", "Choose Meta Data File (required)"),
@@ -643,7 +649,7 @@ ui <- tagList(
                  sidebarPanel(
                    withTags({
                      div(class = "header",
-                         p("Example data ", a("here", href = "https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-2967/")), # ADD EXAMPLE ( have to change )
+                         p("Example data ", a("here", href = "https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-2967/", target="_blank")), # ADD EXAMPLE ( have to change )
                      )
                    }),
                    fileInput("file_micro", "Choose Microarray Data"),
@@ -1361,7 +1367,7 @@ ui <- tagList(
           sidebarPanel(
               withTags({
                 div(class = "header",
-                    p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv")),
+                    p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv", target="_blank")),
                 )
               }),
             fileInput("file_path_enri_gene", "Upload genes CSV file"),
@@ -1452,7 +1458,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_prot_expr", "Upload UniProt accession CSV file"),
@@ -1498,7 +1504,7 @@ ui <- tagList(
                       )),
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_names.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_names.csv", target="_blank")),
             )
           }),
           fileInput("file_gene", "Upload genes CSV file"),
@@ -1545,7 +1551,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_uniprot", "Upload UniProt accession CSV file"),
@@ -1633,7 +1639,7 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
               )
             }),
             fileInput("file_prot_Int", "Upload UniProt accession CSV file"),
@@ -1726,7 +1732,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_prot_func", "Upload UniProt accession CSV file"),
@@ -1759,7 +1765,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_prot_local", "Upload UniProt accession CSV file"),
@@ -1792,7 +1798,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_prot_domain", "Upload UniProt accession CSV file"),
@@ -2019,7 +2025,7 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_complex_prot", "Upload UniProt accession CSV file"),
@@ -2054,7 +2060,7 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv", target="_blank")),
               )
             }),
             fileInput("file_path_enri_prot", "Upload genes CSV file"),
