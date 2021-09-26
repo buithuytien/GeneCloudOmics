@@ -87,12 +87,12 @@ if (length(find.package(package = "cluster", quiet = T)) > 0) {
 
 
 ## for t-sne
-if (length(find.package(package = "reticulate", quiet = T)) > 0) {
-  library(reticulate)
-} else {
-  install.packages("reticulate")
-  library(reticulate)
-}
+# if (length(find.package(package = "reticulate", quiet = T)) > 0) {
+#   library(reticulate)
+# } else {
+#   install.packages("reticulate")
+#   library(reticulate)
+# }
 
 if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
   library(Rtsne)
@@ -113,9 +113,9 @@ library(capture)
 library(xml2)
 library(GEOquery)
 ####################### Dependencies For RAFSIL ###################################
-if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
-  library(RAFSIL)
-}
+# if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+#   library(RAFSIL)
+# }
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
@@ -300,73 +300,73 @@ if (length(find.package(package = "maEndToEnd", quiet = T)) > 0) {
 # }
 
 if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
-  library(moments)
+  library(oligoClasses)
 } else {
   print("Package oligoClasses not installed")
-  install.packages("oligoClasses")
+  BiocManager::install("oligoClasses")
   print("Package oligoClasses installed")
   library(oligoClasses)
 }
 
 if (length(find.package(package = "ArrayExpress", quiet = T)) > 0) {
-  library(moments)
+  library(ArrayExpress)
 } else {
   print("Package ArrayExpress not installed")
-  install.packages("ArrayExpress")
+  BiocManager::install("ArrayExpress")
   print("Package ArrayExpress installed")
   library(ArrayExpress)
 }
 
 if (length(find.package(package = "pd.hugene.1.0.st.v1", quiet = T)) > 0) {
-  library(moments)
+  library(pd.hugene.1.0.st.v1)
 } else {
   print("Package pd.hugene.1.0.st.v1 not installed")
-  install.packages("pd.hugene.1.0.st.v1")
+  BiocManager::install("pd.hugene.1.0.st.v1")
   print("Package pd.hugene.1.0.st.v1 installed")
   library(pd.hugene.1.0.st.v1)
 }
 
 if (length(find.package(package = "hugene10sttranscriptcluster.db", quiet = T)) > 0) {
-  library(moments)
+  library(hugene10sttranscriptcluster.db)
 } else {
   print("Package hugene10sttranscriptcluster.db not installed")
-  install.packages("hugene10sttranscriptcluster.db")
+  BiocManager::install("hugene10sttranscriptcluster.db")
   print("Package hugene10sttranscriptcluster.db installed")
   library(hugene10sttranscriptcluster.db)
 }
 
 if (length(find.package(package = "arrayQualityMetrics", quiet = T)) > 0) {
-  library(moments)
+  library(arrayQualityMetrics)
 } else {
   print("Package arrayQualityMetrics not installed")
-  install.packages("arrayQualityMetrics")
+  BiocManager::install("arrayQualityMetrics")
   print("Package arrayQualityMetrics installed")
   library(arrayQualityMetrics)
 }
 
 if (length(find.package(package = "limma", quiet = T)) > 0) {
-  library(moments)
+  library(limma)
 } else {
   print("Package limma not installed")
-  install.packages("limma")
+  BiocManager::install("limma")
   print("Package limma installed")
   library(limma)
 }
 
 if (length(find.package(package = "topGO", quiet = T)) > 0) {
-  library(moments)
+  library(topGO)
 } else {
   print("Package topGO not installed")
-  install.packages("topGO")
+  BiocManager::install("topGO")
   print("Package topGO installed")
   library(topGO)
 }
 
 if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
-  library(moments)
+  library(ReactomePA)
 } else {
   print("Package ReactomePA not installed")
-  install.packages("ReactomePA")
+  BiocManager::install("ReactomePA")
   print("Package ReactomePA installed")
   library(ReactomePA)
 }
@@ -464,52 +464,53 @@ ui <- tagList(
                          condition = "input.file_type=='raw'", # raw
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "here"))
+                               p("Example ", 
+                                 a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-raw.csv", "csv"),
+                                 a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "image"))
                            )
                          }),
-                         fileInput("file1", "Choose Raw Counts"),
+                         fileInput("file1", "Choose Raw Counts (required)"),
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-length.csv"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("length1", "Choose Gene Length"), # gene id + length
+                         fileInput("length1", "Choose Gene Length (optional)"), # gene id + length
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Zebra%20fish%20microarray/zfGenes_neg_control.csv"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("spikes1", "Choose Negative Control Genes"),
-                         withTags({
-                           div(class = "header",
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
-                           )
-                         }),
-                         fileInput("metafile1", "Choose Meta Data File"),
-                         actionButton("submit_input", "Submit"),
-                         
+                         fileInput("spikes1", "Choose ERCC Spike-in controls (optional)")
                        ),
                        conditionalPanel(
                          condition = "input.file_type=='norm'", # normalized
                          withTags({
                            div(class = "header",
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-normalized-tpm.csv"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("file2", "Choose Normalized Expression"),
+                         fileInput("file2", "Choose Normalized Expression (required)")
                          # helpText("* Format requirement: CSV file. Gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database.")
-                         withTags({
-                           div(class = "header",
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
-                           )
-                         }),
-                         fileInput("metafile1", "Choose Meta Data File"),
-                         actionButton("submit_input", "Submit"),
-                         
-                         ),
-                      
+                       ),
+                       
+                       withTags({
+                         div(class = "header",
+                             p("Example ", 
+                               a("csv",   href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-Biofilm2-meta.csv"),
+                               a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+                         )
+                       }),
+                       fileInput("metafile1", "Choose Meta Data File (required)"),
+                       actionButton("submit_input", "Submit")
                      ),
                      
                      
@@ -624,7 +625,7 @@ ui <- tagList(
                  sidebarPanel(
                    withTags({
                      div(class = "header",
-                         p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
+                         p("Example data ", a("here", href = "https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-2967/")), # ADD EXAMPLE ( have to change )
                      )
                    }),
                    fileInput("file_micro", "Choose Microarray Data"),
@@ -1215,47 +1216,53 @@ ui <- tagList(
                    )
                  )),
                
-               tabPanel(
-                 "Random Forest",
-                 sidebarPanel(
-                   radioButtons(
-                     "analysis_type", "Choose Analysis Type",
-                     c("RF clustering" = "rf", "RAFSIL" = "rafsil")
-                   ),
-                   conditionalPanel(
-                     condition = "input.analysis_type=='rf'",  #rf
-                     splitLayout(
-                       numericInput("num_trees", "No. of trees", min = 1, value = 25),
-                       numericInput("num_clusters", "No. of clusters", min = 1, value = 2)
-                     ),
-                     radioButtons(
-                       "rf_trans", "Transformation:",
-                       c("None", "log10")
-                     ),
-                     actionButton("submit_rf", "Plot")
-                     
-                   ),
-                   conditionalPanel(
-                     condition = "input.analysis_type=='rafsil'",  #rafsil
-                     actionButton("submit_rafsil", "Plot")
-                   ),
-                   checkboxInput("checkbox_rf_plot", label = "RF plot", value = FALSE),
-                   checkboxInput("checkbox_rafsil_plot", label = "RAFSIL plot", value = FALSE),
-                   checkboxInput("checkbox_rf_matrix", label = "RF Matrix", value = FALSE),
-                   actionButton("add_rf","Add to report")
-                  
-                 ),
-                 mainPanel(
-                   h3("Clustering With Random Forest"),
-                   tabsetPanel(type = "tabs",id="rf_tabs",
-                               tabPanel("RF plot", 
-                                        uiOutput("help_text_rf"),
-                                        plotlyOutput("rf.plot")),
-                               tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
-                               tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
-                   )
-                 )
-               ),
+
+               # Random forest tab is temporarily hidden.
+               # to activate the RF panel: uncomment the below lines
+               # tabPanel(
+               #   "Random Forest",
+               #   sidebarPanel(
+               #     radioButtons(
+               #       "analysis_type", "Choose Analysis Type",
+               #       c("RF clustering" = "rf", "RAFSIL" = "rafsil")
+               #     ),
+               #     conditionalPanel(
+               #       condition = "input.analysis_type=='rf'",  #rf
+               #       splitLayout(
+               #         numericInput("num_trees", "No. of trees", min = 1, value = 25),
+               #         numericInput("num_clusters", "No. of clusters", min = 1, value = 2)
+               #       ),
+               #       radioButtons(
+               #         "rf_trans", "Transformation:",
+               #         c("None", "log10")
+               #       ),
+               #       actionButton("submit_rf", "Submit")
+               #     ),
+               #     conditionalPanel(
+               #       condition = "input.analysis_type=='rafsil'",  #rafsil
+               #       actionButton("submit_rafsil", "Submit")
+               #     )
+               #     # conditionalPanel(
+               #     #          condition = "input.rf_tabs == 'RF plot'",
+               #     #          downloadButton("downloadrfplot", "Download as PDF")
+               #     #        ),
+               #     #        conditionalPanel(
+               #     #          condition = "input.rf_tabs == 'RF matrix'",
+               #     #          downloadButton("downloadrfmatrix", "Download as PDF")
+               #     #        )
+               #   ),
+               #   mainPanel(
+               #     h3("Clustering With Random Forest"),
+               #     tabsetPanel(type = "tabs",id="rf_tabs",
+               #                 tabPanel("RF plot",
+               #                          uiOutput("help_text_rf"),
+               #                          plotlyOutput("rf.plot")),
+               #                 tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
+               #                 tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
+               #     )
+               #   )
+               # ),
+
                
                tabPanel(
                  "SOM",
@@ -1344,10 +1351,10 @@ ui <- tagList(
             actionButton("submit_path_enri_gene", "Submit"),br(),br(),
             selectInput("loadStyleFile_path_gene", "Select Style: ", choices=styles),
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
-            sliderInput("overlap_min_gene", "Minimum Overlap",
+            hidden(sliderInput("overlap_min_gene", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 15),
-            selectInput("doLayout_path_gene", "Select Layout:",
+                        value = 15)),
+            hidden(selectInput("doLayout_path_gene", "Select Layout:",
                         choices=c("",
                                   "cose",
                                   "cola",
@@ -1357,20 +1364,31 @@ ui <- tagList(
                                   "grid",
                                   "random",
                                   "dagre",
-                                  "cose-bilkent")),
-            actionButton("sfn_path_gene", "Select First Neighbor"),
+                                  "cose-bilkent"))),
+            hidden(actionButton("sfn_path_gene", "Select First Neighbor")),
             br(),br(),
-            actionButton("fit_path_gene", "Fit Graph"),br(),br(),
-            actionButton("fitSelected_path_gene", "Fit Selected"),br(),br(),
-            actionButton("clearSelection_path_gene", "Clear Selection"), br(),br(),
-            actionButton("removeGraphButton_path_gene", "Remove Graph"), br(),br(),
-            actionButton("addRandomGraphFromDataFramesButton_path_gene", "Add Random Graph"),br(),br(),
-            actionButton("getSelectedNodes_path_gene", "Get Selected Nodes"), br(),br(),
-            htmlOutput("selectedNodesDisplay_path_gene"),
-            checkboxInput("checkbox_plot", label = "Plot", value = FALSE),
-            checkboxInput("checkbox_visualization", label = "Visualizationt", value = FALSE),
-            actionButton("add_gene_path_enrich","Add to report"),
+
+#             actionButton("fit_path_gene", "Fit Graph"),br(),br(),
+#             actionButton("fitSelected_path_gene", "Fit Selected"),br(),br(),
+#             actionButton("clearSelection_path_gene", "Clear Selection"), br(),br(),
+#             actionButton("removeGraphButton_path_gene", "Remove Graph"), br(),br(),
+#             actionButton("addRandomGraphFromDataFramesButton_path_gene", "Add Random Graph"),br(),br(),
+#             actionButton("getSelectedNodes_path_gene", "Get Selected Nodes"), br(),br(),
+#             htmlOutput("selectedNodesDisplay_path_gene"),
+#             checkboxInput("checkbox_plot", label = "Plot", value = FALSE),
+#             checkboxInput("checkbox_visualization", label = "Visualizationt", value = FALSE),
+#             actionButton("add_gene_path_enrich","Add to report"),
            
+
+            hidden(actionButton("fit_path_gene", "Fit Graph")),br(),br(),
+            hidden(actionButton("fitSelected_path_gene", "Fit Selected")),br(),br(),
+            hidden(actionButton("clearSelection_path_gene", "Clear Selection")), br(),br(),
+            hidden(actionButton("removeGraphButton_path_gene", "Remove Graph")), br(),br(),
+            hidden(actionButton("addRandomGraphFromDataFramesButton_path_gene", "Add Random Graph")),br(),br(),
+            hidden(actionButton("getSelectedNodes_path_gene", "Get Selected Nodes")), br(),br(),
+            hidden(htmlOutput("selectedNodesDisplay_path_gene")),
+            width=2
+
           ),
           mainPanel(
             h3("Pathways Enrichment"),
@@ -1387,7 +1405,7 @@ ui <- tagList(
                        ),
                        conditionalPanel(
                          condition = "!$('html').hasClass('shiny-busy')",
-                         plotlyOutput("path_enri.plot_gene")
+                         plotlyOutput("path_enri.plot_gene", width = "100%", height = "100%")
                        ), 
               ),
               tabPanel(
@@ -2026,10 +2044,10 @@ ui <- tagList(
             actionButton("submit_path_enri_prot", "Submit"),br(),br(),
             selectInput("loadStyleFile_path_prot", "Select Style: ", choices=styles),
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
-            sliderInput("overlap_min_prot", "Minimum Overlap",
+            hidden(sliderInput("overlap_min_prot", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 15),
-            selectInput("doLayout_path_prot", "Select Layout:",
+                        value = 15)),
+            hidden(selectInput("doLayout_path_prot", "Select Layout:",
                         choices=c("",
                                   "cose",
                                   "cola",
@@ -2039,19 +2057,30 @@ ui <- tagList(
                                   "grid",
                                   "random",
                                   "dagre",
-                                  "cose-bilkent")),
-            actionButton("sfn_path_prot", "Select First Neighbor"),
+                                  "cose-bilkent"))),
+            hidden(actionButton("sfn_path_prot", "Select First Neighbor")),
             br(),br(),
-            actionButton("fit_path_prot", "Fit Graph"),br(),br(),
-            actionButton("fitSelected_path_prot", "Fit Selected"),br(),br(),
-            actionButton("clearSelection_path_prot", "Clear Selection"), br(),br(),
-            actionButton("removeGraphButton_path_prot", "Remove Graph"), br(),br(),
-            actionButton("addRandomGraphFromDataFramesButton_path_prot", "Add Random Graph"),br(),br(),
-            actionButton("getSelectedNodes_path_prot", "Get Selected Nodes"), br(),br(),
-            htmlOutput("selectedNodesDisplay_path_prot"),
-            checkboxInput("checkbox_plot_prot", label = "Plot", value = FALSE),
-            checkboxInput("checkbox_visualization_prot", label = "Visualizationt", value = FALSE),
-            actionButton("add_prot_path_enrich","Add to report"),
+
+#             actionButton("fit_path_prot", "Fit Graph"),br(),br(),
+#             actionButton("fitSelected_path_prot", "Fit Selected"),br(),br(),
+#             actionButton("clearSelection_path_prot", "Clear Selection"), br(),br(),
+#             actionButton("removeGraphButton_path_prot", "Remove Graph"), br(),br(),
+#             actionButton("addRandomGraphFromDataFramesButton_path_prot", "Add Random Graph"),br(),br(),
+#             actionButton("getSelectedNodes_path_prot", "Get Selected Nodes"), br(),br(),
+#             htmlOutput("selectedNodesDisplay_path_prot"),
+#             checkboxInput("checkbox_plot_prot", label = "Plot", value = FALSE),
+#             checkboxInput("checkbox_visualization_prot", label = "Visualizationt", value = FALSE),
+#             actionButton("add_prot_path_enrich","Add to report"),
+
+            hidden(actionButton("fit_path_prot", "Fit Graph")),br(),br(),
+            hidden(actionButton("fitSelected_path_prot", "Fit Selected")),br(),br(),
+            hidden(actionButton("clearSelection_path_prot", "Clear Selection")), br(),br(),
+            hidden(actionButton("removeGraphButton_path_prot", "Remove Graph")), br(),br(),
+            hidden(actionButton("addRandomGraphFromDataFramesButton_path_prot", "Add Random Graph")),br(),br(),
+            hidden(actionButton("getSelectedNodes_path_prot", "Get Selected Nodes")), br(),br(),
+            hidden(htmlOutput("selectedNodesDisplay_path_prot")),
+            width=2
+
           ),
           mainPanel(
             h3("Pathways Enrichment"),
@@ -2105,9 +2134,13 @@ ui <- tagList(
 ####################################################
 
 server <- function(input, output, session) {
+# <<<<<<< develop
   
   value_var<- reactiveValues()
   value_var$geo_file_type<-"none"
+=======
+
+# >>>>>>> master
   gene_mania_link <- reactiveVal("https://genemania.org")
   count_fasta <- reactiveVal(0)
   count_id <- reactiveVal(0)
@@ -4667,7 +4700,7 @@ server <- function(input, output, session) {
           test does not carry any assumptions about the distribution of the data and is the appropriate correlation 
           analysis when the variables are measured on a scale that is at least ordinal.
           The following formula is used to calculate the Spearman rank correlation:<br>
-          <img src='https://i.ibb.co/rkjbg1d/Spearman-correlation.png' alt='Spearman-correlation' border='0'><br>
+          <img src='https://www.dataanalytics.org.uk/wp-content/uploads/2019/06/Figure-8.5.png' alt='Spearman-correlation' border='0'><br>
           ρ = Spearman rank correlation<br>
           r<sub>x,i</sub>, r<sub>y,i</sub> = ranks of corresponding variables (or gene)<br>
           n = number of observations
@@ -4748,6 +4781,7 @@ server <- function(input, output, session) {
       kmeans.data <- data.frame(x = PR$x[, col_val_x], y = PR$x[, col_val_y])
       print(kmeans.data)
       ####################################################################################
+      set.seed(1)
       kmeans.result <- kmeans(kmeans.data, num)
       return(list(PR, PCA.var, PCA.var.per, rindex, cindex, xlabel, ylabel, cluster_flag, kmeans.result))
     }
@@ -5370,6 +5404,7 @@ server <- function(input, output, session) {
     # print(head(DS3))
     
     set.seed(110)
+    set.seed(1)
     a <- ComplexHeatmap::Heatmap(DS3,
                                  name = "Normalized expression",
                                  col = colorRamp2(c(min(DS3), 0, max(DS3)), c("red", "black", "green")),
@@ -6047,8 +6082,8 @@ server <- function(input, output, session) {
         add_trace(type = "scatter", mode = 'markers', opacity = 0.5)
 
     } else { # tsne_cluster_flag == TRUE
-      set.seed(13)
       tsne_cluster_num <- as.numeric(input$tsne_cluster_num)
+      set.seed(1)
       tsne_kmeans_result <- kmeans(tsne_df[,1:2], tsne_cluster_num)
       tsne_df$cluster <- factor(tsne_kmeans_result$cluster, levels = 1:max(tsne_kmeans_result$cluster) )
       
@@ -6418,6 +6453,7 @@ server <- function(input, output, session) {
     
     # some parameters
     som.data <- as.matrix(som.data)
+    set.seed(1)
     som_grid <- somgrid(xdim = grid_h, ydim = grid_v, topo = "hexagonal")
     som_model <- som(som.data, grid = som_grid)
     
@@ -7084,6 +7120,33 @@ server <- function(input, output, session) {
       </center>
     ")
   })
+  
+  #############Enrichment area################
+  showGraphNodes.Enrch <- function(gene = "_gene")
+  {
+    shinyjs::show(id = paste0("loadStyleFile_path", gene))
+    shinyjs::show(id = paste0("overlap_min", gene))
+    shinyjs::show(id = paste0("doLayout_path", gene))
+    shinyjs::show(id = paste0("sfn_path", gene))
+    shinyjs::show(id = paste0("fit_path", gene))
+    shinyjs::show(id = paste0("fitSelected_path", gene))
+    shinyjs::show(id = paste0("clearSelection_path", gene))
+    shinyjs::show(id = paste0("removeGraphButton_path", gene))
+    shinyjs::show(id = paste0("addRandomGraphFromDataFramesButton_path", gene))
+    shinyjs::show(id = paste0("getSelectedNodes_path", gene))
+    shinyjs::show(id = paste0("selectedNodesDisplay_path", gene))
+  }
+  
+  
+  observe(
+    if (input$path_enri_tab_prot == "Visualization")
+      showGraphNodes.Enrch(gene = "_prot")
+)
+  observe(
+    if (input$path_enri_tab_gene == "Visualization")
+      showGraphNodes.Enrch(gene = "_gene")
+  )
+  ############################################
   
   ###################################
   ###################################
