@@ -120,10 +120,6 @@ if (length(find.package(package = "capture", quiet = T)) > 0) {
   library(capture)
 }
 
-
-###################################For GEO import###############################
-library(xml2)
-library(GEOquery)
 ####################### Dependencies For RAFSIL ###################################
 # if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
 #   library(RAFSIL)
@@ -381,6 +377,15 @@ if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
   BiocManager::install("ReactomePA")
   print("Package ReactomePA installed")
   library(ReactomePA)
+}
+
+###################################For GEO import###############################
+library(xml2)
+if (length(find.package(package = "GEOquery", quiet = T)) > 0) {
+  library(GEOquery)
+} else {
+  BiocManager::install("GEOquery")
+  library(GEOquery)
 }
 
 ###################################################################################
