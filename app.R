@@ -102,12 +102,24 @@ if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
 }
 
 ######################################For Report Generation#################
-library(webshot2)
+if (length(find.package(package = "webshot2", quiet = T)) > 0) {
+  library(webshot2)
+} else {
+  remotes::install_github("rstudio/webshot2")
+  library(webshot2)
+}
 library(gridExtra)
 library(plotly)
 if (!require("processx")) install.packages("processx")
 library(png)
-library(capture)
+
+if (length(find.package(package = "capture", quiet = T)) > 0) {
+  library(capture)
+} else {
+  remotes::install_github("dreamRs/capture")
+  library(capture)
+}
+
 
 ###################################For GEO import###############################
 library(xml2)
@@ -487,7 +499,7 @@ ui <- tagList(
                                  a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("spikes1", "Choose ERCC Spike-in controls (optional)")
+                         fileInput("spikes1", "Choose negative controls (eg. ERCC Spike-in) (optional)")
                        ),
                        conditionalPanel(
                          condition = "input.file_type=='norm'", # normalized
@@ -539,9 +551,10 @@ ui <- tagList(
                            "norm_method", "Normalisation method",
                            c(
                              "None (Black)" = "None",
-                             "RPKM (Blue)" = "RPKM", "FPKM (Dark cyan)" = "FPKM",
-                             "TPM (Dark green)" = "TPM",
-                             "RUV (Brown)" = "RUV"
+                             "RPKM (Gene length input required)" = "RPKM", 
+                             "FPKM (Gene length input required)" = "FPKM",
+                             "TPM (Gene length input required)" = "TPM",
+                             "RUV (Negative control genes input required)" = "RUV"
                            )
                          )
                        ),
@@ -657,7 +670,7 @@ ui <- tagList(
                                                      c("RnaSeq","Microarray","Auto")),
                                         actionButton("submit_geo_acc_no", "Submit")),
                                tabPanel("PREPROCESSING",value="geo_pre",radioButtons("file_name_button","SELECT FILE",
-                                                                     c("a")),
+                                                                                     c("a")),
                                         actionButton("submit_geo_preprocessing", "Submit"),
                                )
                                
@@ -2131,6 +2144,7 @@ ui <- tagList(
       ))
   )
 )
+
 ####################################################
 
 server <- function(input, output, session) {
@@ -2138,7 +2152,7 @@ server <- function(input, output, session) {
   
   value_var<- reactiveValues()
   value_var$geo_file_type<-"none"
-=======
+
 
 # >>>>>>> master
   gene_mania_link <- reactiveVal("https://genemania.org")
