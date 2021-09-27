@@ -472,7 +472,7 @@ ui <- tagList(
     ),
     navbarMenu('Preprocessing',
                tabPanel(
-                 "RnaSeq Data",
+                 "RNASeq Data",
                  value = "active_tab_rnaseq",
                  tabsetPanel(
                    id = "Rnaseq_pre",
@@ -1535,12 +1535,12 @@ ui <- tagList(
     ),
     navbarMenu(
       "Protein Set Analysis",
-      tabPanel("Protein Set Data ",
+      tabPanel("Upload a Protein Set",
                sidebarPanel(fileInput("file_protein_set", "Upload UniProt accession CSV file"),
                             textInput("text_protein_set", "Enter UniProt accession csv file"),
                             actionButton("submit_protein_set", "Submit")),
                mainPanel(
-                 h3("Protein Set Data"),
+                 h3("Upload a Protein Set"),
                  uiOutput("help_text_protein_set")
                )),
       
@@ -1633,7 +1633,7 @@ ui <- tagList(
       ###### Protein Interaction #############
       #########################################
       tabPanel(
-        "P-P Interactions",
+        "Protein Interactions",
         tags$head(tags$style("#cyjShiny{height:95vh !important;}")),
         sidebarLayout(
           sidebarPanel(
