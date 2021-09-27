@@ -3,10 +3,6 @@
 [GeneCloudOmics](http://combio-sifbi.org/GeneCloudOmics/) is a web server for transcriptome data analysis and visualization. It supports the analysis of microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets.
 GeneCloudOmics is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical user interface (GUI) that waves the hassle of coding, installing tools, packages or libraries and dealing with operating systems compatibility and versioning issues, some of the complications that make data analysis tasks more challenging for biologists. GeneCloudOmics is an open-source tool and the website is free and open to all users and there is no login requirement.
 
-If you find GeneCloudOmics useful, please cite our paper:  
-Zou Y, Bui TT and Selvarajoo K (2019) ABioTrans: A Biostatistical Tool for Transcriptomics Analysis. Front. Genet. 10:499. doi: 10.3389/fgene.2019.00499
-
-Full text (free access) can be found at https://www.frontiersin.org/articles/10.3389/fgene.2019.00499/full 
 
 ## Transcriptomic analysis
 ### Import data and pre-processing
