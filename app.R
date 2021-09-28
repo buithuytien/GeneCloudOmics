@@ -85,6 +85,13 @@ if (length(find.package(package = "cluster", quiet = T)) > 0) {
   library(cluster)
 }
 
+# ComplexHeatmap
+if (length(find.package(package = "ComplexHeatmap", quiet = T)) > 0) {
+  library(ComplexHeatmap)
+} else {
+  install.packages("ComplexHeatmap")
+  library(ComplexHeatmap)
+}
 
 ## for t-sne
 # if (length(find.package(package = "reticulate", quiet = T)) > 0) {
@@ -5439,7 +5446,7 @@ server <- function(input, output, session) {
                                  heatmap_legend_param = list(title = "Normalized expression")
     )
     set.seed(110)
-    rcl.list <- row_order(a)
+    rcl.list <- ComplexHeatmap::row_order(a)
     DS3.1 <- as.matrix(rownames(DS3))
     
     # Cluster <- NULL
@@ -5486,7 +5493,7 @@ server <- function(input, output, session) {
     ll <- plotHeatmap()
     a <- ll[[1]]
     DS3 <- ll[[2]]
-    rcl.list <- row_order(a)
+    rcl.list <- ComplexHeatmap::row_order(a)
     DS3.1 <- as.matrix(rownames(DS3))
     
     Cluster <- NULL
