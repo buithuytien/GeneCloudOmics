@@ -85,13 +85,13 @@ if (length(find.package(package = "cluster", quiet = T)) > 0) {
   library(cluster)
 }
 
-# ComplexHeatmap
-# if (length(find.package(package = "ComplexHeatmap", quiet = T)) > 0) {
-#   library(ComplexHeatmap)
-# } else {
-#   install.packages("ComplexHeatmap")
-#   library(ComplexHeatmap)
-# }
+ComplexHeatmap
+if (length(find.package(package = "ComplexHeatmap", quiet = T)) > 0) {
+  library(ComplexHeatmap)
+} else {
+  install.packages("ComplexHeatmap")
+  library(ComplexHeatmap)
+}
 
 ## for t-sne
 # if (length(find.package(package = "reticulate", quiet = T)) > 0) {
@@ -467,7 +467,7 @@ ui <- tagList(
           withTags({
             div(class="header", checked=NA,
                 h4("User manual can be found ", 
-                  a("here", href="GeneCloudOmics_Help_1.0.pdf", target="_blank")),
+                  a("here", href= "https://github.com/buithuytien/GeneCloudOmics/blob/master/GeneCloudOmics_Help_1.0.pdf", target="_blank")), # "GeneCloudOmics_Help_1.0.pdf"
                 h4(span("For questions and bug reporting, please write to", 
                         a("Mohamed Helmy", href="mailto:mohamed_helmy@bii.a-star.edu.sg", target="_blank"), "or ", 
                         a("Kumar Selvarajoo", href="mailto:kumar_selvarajoo@bii.a-star.edu.sg", target="_blank")),
