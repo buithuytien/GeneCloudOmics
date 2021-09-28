@@ -85,6 +85,13 @@ if (length(find.package(package = "cluster", quiet = T)) > 0) {
   library(cluster)
 }
 
+# ComplexHeatmap
+if (length(find.package(package = "ComplexHeatmap", quiet = T)) > 0) {
+  library(ComplexHeatmap)
+} else {
+  install.packages("ComplexHeatmap")
+  library(ComplexHeatmap)
+}
 
 ## for t-sne
 # if (length(find.package(package = "reticulate", quiet = T)) > 0) {
@@ -443,17 +450,12 @@ ui <- tagList(
         mainPanel(
           h2("Welcome to GeneCloudOmics", align = "center",style = "color:#73C6B6;font-weight: bold;"),
           p("The Biostatistical Tool for Gene Expression Data Analysis", align = "center"),
-          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;")," is a web server for transcriptome data analysis and visualization. It supports the analysis of 
-      microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, 
-      it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets."),
-          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;"),"  is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical 
-      user interface (GUI) that waves the hassle of coding, installing tools,  packages or libraries and dealing with operating systems compatibility and versioning issues, some of 
-      the complications that make data analysis tasks more challenging for biologists. GeneCloudOmics is an open-source tool and the website is free and open to all users 
-      and there is no login requirement."),
+          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;")," an easy-to-use web server for high-throughput gene expression analysis a comprehensive range of data analytics tools in one package that no other current standalone software or web-based tool can do currently"),
+          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;"),"  provides the user access to 23 different data analytical and bioinformatics tasks including reads normalization, scatter plots, linear/non-linear correlations, PCA, clustering (hierarchical, k-means, t-SNE, SOM), differential expression analyses, pathway enrichments, evolutionary analyses, pathological analyses, and protein-protein interaction (PPI) identifications."),
           h4(span("Supported Transcriptome data:", style = "color:#73C6B6;font-weight: bold;"), " RNA-Seq and Microarray "),
           h4(span("Data Preprocessing:", style = "color:#73C6B6;font-weight: bold;"), " GeneCloudOmics performs raw data normalization using four normalization methods RPKM, 
       FPKM, TPM and RUV. The raw vs. normalized data are visualized as boxplots and violin plots."),
-          h4(span("Differential Gene Expression (DGE) Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GDE using five methods EdgeR, DESeq2, NOISeq, and LIMMA."),
+          h4(span("Differential Gene Expression (DGE) Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GDE using five methods EdgeR, DESeq2 and NOISeq."),
           h4(span("Bio-statistical Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GeneCloudOmics provides the user with the following bio-statistical analyses: 
       Pearson and Spearman rank correlations, PCA, k-means and hierarchical clustering, 
       Shannon entropy and noise (square of the coefficient of variation), t-SNE, random forest and SOM analyses. All analyses include proper high-resolution visualization."),
@@ -463,8 +465,8 @@ ui <- tagList(
        evolutionary analysis (gene tree, phylogenetic tree and species/chromosome location)  and pathological analysis (diseases that these genes/proteins are involved in). The analyses include proper high-resolution visualization, when applicable."),
           withTags({
             div(class="header", checked=NA,
-                h4("User manual can be downloaded ", 
-                  a("here", href="https://github.com/buithuytien/GeneCloudOmics/blob/master/GeneCloudOmics_ReadMe_2021_update.pdf", target="_blank")
+                h4("User manual can be found ", 
+                  a("here", href="https://github.com/buithuytien/GeneCloudOmics#readme", target="_blank")
             ))
           }),
         )
@@ -472,7 +474,7 @@ ui <- tagList(
     ),
     navbarMenu('Preprocessing',
                tabPanel(
-                 "RnaSeq Data",
+                 "RNASeq Data",
                  value = "active_tab_rnaseq",
                  tabsetPanel(
                    id = "Rnaseq_pre",
@@ -1535,12 +1537,12 @@ ui <- tagList(
     ),
     navbarMenu(
       "Protein Set Analysis",
-      tabPanel("Protein Set Data ",
+      tabPanel("Upload a Protein Set",
                sidebarPanel(fileInput("file_protein_set", "Upload UniProt accession CSV file"),
                             textInput("text_protein_set", "Enter UniProt accession csv file"),
                             actionButton("submit_protein_set", "Submit")),
                mainPanel(
-                 h3("Protein Set Data"),
+                 h3("Upload a Protein Set"),
                  uiOutput("help_text_protein_set")
                )),
       
@@ -1633,7 +1635,7 @@ ui <- tagList(
       ###### Protein Interaction #############
       #########################################
       tabPanel(
-        "P-P Interactions",
+        "Protein Interactions",
         tags$head(tags$style("#cyjShiny{height:95vh !important;}")),
         sidebarLayout(
           sidebarPanel(
@@ -5453,7 +5455,7 @@ server <- function(input, output, session) {
                                  heatmap_legend_param = list(title = "Normalized expression")
     )
     set.seed(110)
-    rcl.list <- row_order(a)
+    rcl.list <- ComplexHeatmap::row_order(a)
     DS3.1 <- as.matrix(rownames(DS3))
     
     # Cluster <- NULL
@@ -5500,7 +5502,7 @@ server <- function(input, output, session) {
     ll <- plotHeatmap()
     a <- ll[[1]]
     DS3 <- ll[[2]]
-    rcl.list <- row_order(a)
+    rcl.list <- ComplexHeatmap::row_order(a)
     DS3.1 <- as.matrix(rownames(DS3))
     
     Cluster <- NULL
