@@ -85,7 +85,6 @@ if (length(find.package(package = "cluster", quiet = T)) > 0) {
   library(cluster)
 }
 
-ComplexHeatmap
 if (length(find.package(package = "ComplexHeatmap", quiet = T)) > 0) {
   library(ComplexHeatmap)
 } else {
