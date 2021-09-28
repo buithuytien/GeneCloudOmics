@@ -463,10 +463,11 @@ ui <- tagList(
       the users with multiple bioinformatics tools to investigate their 
       gene/protein list including gene ontology (GO), pathway enrichment analysis, PPI, co-expression, gene/protein function, subcellular localization, complex enrichment, protein domains, tissue expression, sequence properties (acidity, hydrophobicity and charge),
        evolutionary analysis (gene tree, phylogenetic tree and species/chromosome location)  and pathological analysis (diseases that these genes/proteins are involved in). The analyses include proper high-resolution visualization, when applicable."),
+              h4(span("For questions and bug reporting, please write to", a("Mohamed Helmy", href="mailto:mohamed_helmy@bii.a-star.edu.sg", target="_blank"), "or ", a("Kumar Selvarajoo", href="mailto:kumar_selvarajoo@bii.a-star.edu.sg", target="_blank")),
           withTags({
             div(class="header", checked=NA,
                 h4("User manual can be found ", 
-                  a("here", href="https://github.com/buithuytien/GeneCloudOmics#readme", target="_blank")
+                  a("here", href="GeneCloudOmics_Help_1.0.pdf", target="_blank")
             ))
           }),
         )
