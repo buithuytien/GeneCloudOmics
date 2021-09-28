@@ -469,7 +469,7 @@ ui <- tagList(
                 h4("User manual can be found ", 
                   a("here", href="GeneCloudOmics_Help_1.0.pdf", target="_blank")
             ))
-          }),
+          })
         )
       )
     ),
@@ -2156,6 +2156,7 @@ ui <- tagList(
         icon("camera"), "Download as PDF"
       )
       ))
+)
   )
 )
 
