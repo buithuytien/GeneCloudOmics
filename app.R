@@ -3684,12 +3684,19 @@ server <- function(input, output, session) {
     }
     else if(value_var$geo_file_type == "rnaseq"){
       
-      print((file.exists(file.path(getwd(),input$file_name_button))))
+      if(file.exists(file.path(getwd(),input$file_name_button))){
+        print("Reading geo_file")
         
-      print("Reading geo_file")
+        raw_ds <- read.table(file.path(getwd(),input$file_name_button) ,header=TRUE, stringsAsFactors = FALSE)
+        print(raw_ds)
+        #value_var$geo_file_type<-"none"
+        
+        
+      }else{
+        return(NULL)
+      }
+        
       
-      raw_ds <- read.table(file.path(getwd(),input$file_name_button) ,header=TRUE, stringsAsFactors = FALSE)
-      print(raw_ds)
     } # remove duplicated gene names
     else{
       return(NULL)
@@ -3890,6 +3897,7 @@ server <- function(input, output, session) {
   }
   
   observeEvent(input$submit_geo_acc_no, {
+    
     url<-getFileUrl(input$geo_acc_no,"suppl")
     fname <- getFiles(url)
     updateRadioButtons(session, "file_name_button",
@@ -3903,6 +3911,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$submit_geo_preprocessing,{
+    value_var$geo_file_type<-"none"
     url<-getFileUrl(input$geo_acc_no,"suppl")
     print(input$file_name_button)
     downloadFile(url,input$file_name_button)
