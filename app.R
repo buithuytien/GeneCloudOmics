@@ -394,6 +394,20 @@ if (length(find.package(package = "GEOquery", quiet = T)) > 0) {
   BiocManager::install("GEOquery")
   library(GEOquery)
 }
+if (length(find.package(package = "umap", quiet = T)) > 0) {
+  library(umap)
+} else {
+  install.packages("umap")
+  library(umap)
+}
+if (length(find.package(package = "maptools", quiet = T)) > 0) {
+  library(maptools)
+} else {
+  install.packages("maptools", repos="http://R-Forge.R-project.org")
+  library(maptools)
+}
+
+
 
 ###################################################################################
 ########################### Style files for Cytoscape.js ################
@@ -684,6 +698,24 @@ ui <- tagList(
                                         actionButton("submit_geo_acc_no", "Submit")),
                                tabPanel("PREPROCESSING",value="geo_pre",radioButtons("file_name_button","SELECT FILE",
                                                                                      c("a")),
+                                      
+                                        withTags({
+                                          div(class="header", checked=NA,
+                                              p("Example ", 
+                                                a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-length.csv"),
+                                                a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+                                          )
+                                        }),
+                                        fileInput("length2", "Choose Gene Length (optional)"), # gene id + length
+                                        
+                                        withTags({
+                                          div(class="header", checked=NA,
+                                              p("Example ", 
+                                                a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Zebra%20fish%20microarray/zfGenes_neg_control.csv", target="_blank"),
+                                                a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png", target="_blank")), # ADD EXAMPLE
+                                          )
+                                        }),
+                                        fileInput("spikes2", "Choose negative controls (eg. ERCC Spike-in) (optional)"),
                                         actionButton("submit_geo_preprocessing", "Submit"),
                                )
                                
@@ -696,7 +728,12 @@ ui <- tagList(
                    tabsetPanel(type ="tabs", 
                                tabPanel(
                                  uiOutput("help_text_geo")
-                               ))
+                               )),
+                   h4("Overview of GEO Imported Data"),
+                   tabsetPanel(type ="tabs",  tabPanel("Box Plot",plotOutput("geo_box_plot")),
+                               tabPanel("Expression Density", plotOutput("geo_expr_plot")),
+                               tabPanel("Mean variance", plotOutput("geo_mean_plot")),
+                               tabPanel("UMAP", plotOutput("geo_umap_plot")))
                  )
                )
                
@@ -3839,10 +3876,12 @@ server <- function(input, output, session) {
   downloadFile <- function(url,fname){
     storedir <- getwd()
     #suppressWarnings(dir.create(storedir <- file.path(getwd(),GEO)))
+    if(!file.exists(file.path(getwd(),input$file_name_button))){
     download.file(paste(file.path(url,fname),'tool=geoquery',sep="?"),
                   destfile=file.path(storedir,fname),
                   mode='wb',
                   method=getOption('download.file.method.GEOquery'))
+    }
     #acc_data <- read.table(file.path(storedir,fname))
     #return(acc_data)
     
@@ -3918,6 +3957,38 @@ server <- function(input, output, session) {
     print(input$file_name_button)
     downloadFile(url,input$file_name_button)
     check_file_type()
+    df_geo <- read.table(file.path(getwd(),input$file_name_button) ,header=TRUE, stringsAsFactors = TRUE)
+    output$geo_box_plot <- renderPlot({# load series and platform data from GEO
+      
+      # box-and-whisker plot
+      par(mar=c(7,4,2,1))
+      title <- paste (input$geo_acc_no, "/",input$file_name_button , sep ="")
+      boxplot(df_geo, boxwex=0.7, notch=FALSE, main=title, outline=FALSE, las=2)})
+    
+    output$geo_expr_plot <- renderPlot({
+
+      par(mar=c(4,4,2,1))
+      title <- paste (input$geo_acc_no, "/", input$file_name_button, " value distribution", sep ="")
+      plotDensities(df_geo, main=title, legend=F)
+
+    })
+    output$geo_mean_plot <- renderPlot({
+      
+      # mean-variance trend
+      ex <- na.omit(df_geo) # eliminate rows with NAs
+      plotSA(lmFit(ex), main="Mean variance trend")
+      
+    })
+   
+    output$geo_umap_plot <- renderPlot({
+      
+      ex <- df_geo[!duplicated(df_geo), ]  # remove duplicates
+      ump <- umap(t(ex), n_neighbors = 5, random_state = 123)
+      plot(ump$layout, main="UMAP plot, nbrs=5", xlab="", ylab="", pch=20, cex=1.5)
+        # point labels without overlaps
+      pointLabel(ump$layout, labels = rownames(ump$layout), method="SANN", cex=0.6)
+        
+    })
   })
   
  
@@ -3925,10 +3996,14 @@ server <- function(input, output, session) {
   
   # get gene length
   gene_length <- reactive({
-    if (is.null(input$length1)) {
+    if (is.null(input$length1)&&is.null(input$length2)) {
       return(NULL)
     }
+    else if (!is.null(input$length1)){
     lengths_df <- read.csv(input$length1$datapath)
+    }else{
+      lengths_df <- read.csv(input$length2$datapath)
+    }
     lengths_df2 <- data.frame("len" = lengths_df[, 2])
     rownames(lengths_df2) <- as.character(lengths_df[, 1])
     return(lengths_df2)
@@ -3936,10 +4011,13 @@ server <- function(input, output, session) {
   
   # get spikes / negative control genes
   neg_control <- reactive({
-    if (is.null(input$spikes1)) {
+    if (is.null(input$spikes1)&&is.null(input$spikes2)) {
       return(NULL)
-    }
+    }else if (!is.null(input$spikes1)){
     spikes <- read.csv(input$spikes1$datapath, header = F)
+    }else{
+      spikes <- read.csv(input$spikes2$datapath, header = F)
+    }
     spikes <- as.character(spikes[, 1])
     # print(spikes[1:10])
     return(spikes)
@@ -4079,6 +4157,13 @@ server <- function(input, output, session) {
     method <- input$norm_method
     
     if (method %in% c("TPM", "RPKM", "FPKM")) {
+      if (is.null(input$length1)&&is.null(input$length2)) {
+        showModal(modalDialog(
+          title = "Error",
+          "Please Enter a Gene Length File first!"
+        ))
+      }
+      
       lengths_df <- gene_length()
       merge_DS <- merge(raw_DS, lengths_df, by = "row.names")
       rownames(merge_DS) <- merge_DS[, 1]
@@ -4110,6 +4195,12 @@ server <- function(input, output, session) {
     } else if (method == "None") {
       return(raw_DS)
     } else if (method == "RUV") {
+      if (is.null(input$spikes1)&&is.null(input$spikes2)) {
+        showModal(modalDialog(
+          title = "Error",
+          "Please Enter a Negative Control File first!"
+        ))
+      }
       spikes <- neg_control()
       if (!is.null(spikes)) {
         spikes <- intersect(spikes, rownames(raw_DS))
