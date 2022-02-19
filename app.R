@@ -1422,7 +1422,7 @@ ui <- tagList(
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
             hidden(sliderInput("overlap_min_gene", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 15)),
+                        value = 1)),
             hidden(selectInput("doLayout_path_gene", "Select Layout:",
                         choices=c("",
                                   "cose",
@@ -2115,7 +2115,7 @@ ui <- tagList(
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
             hidden(sliderInput("overlap_min_prot", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 15)),
+                        value = 1)),
             hidden(selectInput("doLayout_path_prot", "Select Layout:",
                         choices=c("",
                                   "cose",
@@ -3362,8 +3362,13 @@ server <- function(input, output, session) {
         
         print("visualization")
         df_path_enri_id_prot()
-        Enrich <- gost(df_path_enri_id_prot(),evcodes = T, sources = c('KEGG', 'REAC'))
+        
+        print(df_path_enri_id_prot()[,1])
+        
+        Enrich <- gost(df_path_enri_id_prot()[,1],evcodes = T, sources = c('KEGG', 'REAC'))
+        
         Pathway <- Construct.COPathway(Enrich, input$overlap_min_prot)
+        
         nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
         
         
@@ -7639,7 +7644,6 @@ server <- function(input, output, session) {
     fit(session, 80)
   })
   
-  
   observeEvent(input$fit_path_prot, ignoreInit=TRUE, {
     fit(session, 80)
   })
@@ -7807,8 +7811,12 @@ server <- function(input, output, session) {
     
     print("visualization")
     df_path_enri_id_gene()
-    Enrich <- gost(df_path_enri_id_gene(),evcodes = T, sources = c('KEGG', 'REAC'))
+    
+    Enrich <- gost(df_path_enri_id_gene()[,1],evcodes = T, sources = c('KEGG', 'REAC'))
+    
     Pathway <- Construct.COPathway(Enrich, input$overlap_min_gene)
+    
+
     nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
     
     
@@ -7840,9 +7848,12 @@ server <- function(input, output, session) {
     {
       inx <- which(grepl(accession, PathwayDF$intersection) == T)
       inx <- inx[-i] 
-      Source <- rep(PathwayDF$term_name[i], length(inx))
-      Target <- PathwayDF$term_name[c(inx)]
-      PathwayNetwork <- rbind(PathwayNetwork , cbind(Source, Target, accession))
+      if (length(inx) > 1)
+      {
+        Source <- rep(PathwayDF$term_name[i], length(inx))
+        Target <- PathwayDF$term_name[c(inx)]
+        PathwayNetwork <- rbind(PathwayNetwork , cbind(Source, Target, accession))
+      }
     }
     PathwayDF <- PathwayDF[-i,]
     CoEnrichment <- setNames(aggregate(PathwayNetwork$accession, by = list(PathwayNetwork$Source, PathwayNetwork$Target),
@@ -7858,7 +7869,7 @@ server <- function(input, output, session) {
     
     print("visualization")
     df_path_enri_id_prot()
-    Enrich <- gost(df_path_enri_id_prot(),evcodes = T, sources = c('KEGG', 'REAC'))
+    Enrich <- gost(df_path_enri_id_prot()[,1],evcodes = T, sources = c('KEGG', 'REAC'))
     Pathway <- Construct.COPathway(Enrich, input$overlap_min_prot)
     nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
     
