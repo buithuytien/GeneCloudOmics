@@ -85,6 +85,12 @@ if (length(find.package(package = "cluster", quiet = T)) > 0) {
   library(cluster)
 }
 
+if (length(find.package(package = "ComplexHeatmap", quiet = T)) > 0) {
+  library(ComplexHeatmap)
+} else {
+  install.packages("ComplexHeatmap")
+  library(ComplexHeatmap)
+}
 
 ## for t-sne
 # if (length(find.package(package = "reticulate", quiet = T)) > 0) {
@@ -101,11 +107,29 @@ if (length(find.package(package = "Rtsne", quiet = T)) > 0) {
   library(Rtsne)
 }
 
+######################################For Report Generation#################
+if (length(find.package(package = "webshot2", quiet = T)) > 0) {
+  library(webshot2)
+} else {
+  remotes::install_github("rstudio/webshot2")
+  library(webshot2)
+}
+library(gridExtra)
+library(plotly)
+if (!require("processx")) install.packages("processx")
+library(png)
+
+if (length(find.package(package = "capture", quiet = T)) > 0) {
+  library(capture)
+} else {
+  remotes::install_github("dreamRs/capture")
+  library(capture)
+}
 
 ####################### Dependencies For RAFSIL ###################################
-if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
-  library(RAFSIL)
-}
+# if (length(find.package(package = "RAFSIL", quiet = T)) > 0) {
+#   library(RAFSIL)
+# }
 
 if (length(find.package(package = "gridGraphics", quiet = T)) > 0) {
   library(gridGraphics)
@@ -293,7 +317,7 @@ if (length(find.package(package = "oligoClasses", quiet = T)) > 0) {
   library(oligoClasses)
 } else {
   print("Package oligoClasses not installed")
-  install.packages("oligoClasses")
+  BiocManager::install("oligoClasses")
   print("Package oligoClasses installed")
   library(oligoClasses)
 }
@@ -302,7 +326,7 @@ if (length(find.package(package = "ArrayExpress", quiet = T)) > 0) {
   library(ArrayExpress)
 } else {
   print("Package ArrayExpress not installed")
-  install.packages("ArrayExpress")
+  BiocManager::install("ArrayExpress")
   print("Package ArrayExpress installed")
   library(ArrayExpress)
 }
@@ -311,7 +335,7 @@ if (length(find.package(package = "pd.hugene.1.0.st.v1", quiet = T)) > 0) {
   library(pd.hugene.1.0.st.v1)
 } else {
   print("Package pd.hugene.1.0.st.v1 not installed")
-  install.packages("pd.hugene.1.0.st.v1")
+  BiocManager::install("pd.hugene.1.0.st.v1")
   print("Package pd.hugene.1.0.st.v1 installed")
   library(pd.hugene.1.0.st.v1)
 }
@@ -320,7 +344,7 @@ if (length(find.package(package = "hugene10sttranscriptcluster.db", quiet = T)) 
   library(hugene10sttranscriptcluster.db)
 } else {
   print("Package hugene10sttranscriptcluster.db not installed")
-  install.packages("hugene10sttranscriptcluster.db")
+  BiocManager::install("hugene10sttranscriptcluster.db")
   print("Package hugene10sttranscriptcluster.db installed")
   library(hugene10sttranscriptcluster.db)
 }
@@ -329,7 +353,7 @@ if (length(find.package(package = "arrayQualityMetrics", quiet = T)) > 0) {
   library(arrayQualityMetrics)
 } else {
   print("Package arrayQualityMetrics not installed")
-  install.packages("arrayQualityMetrics")
+  BiocManager::install("arrayQualityMetrics")
   print("Package arrayQualityMetrics installed")
   library(arrayQualityMetrics)
 }
@@ -338,7 +362,7 @@ if (length(find.package(package = "limma", quiet = T)) > 0) {
   library(limma)
 } else {
   print("Package limma not installed")
-  install.packages("limma")
+  BiocManager::install("limma")
   print("Package limma installed")
   library(limma)
 }
@@ -347,7 +371,7 @@ if (length(find.package(package = "topGO", quiet = T)) > 0) {
   library(topGO)
 } else {
   print("Package topGO not installed")
-  install.packages("topGO")
+  BiocManager::install("topGO")
   print("Package topGO installed")
   library(topGO)
 }
@@ -356,10 +380,33 @@ if (length(find.package(package = "ReactomePA", quiet = T)) > 0) {
   library(ReactomePA)
 } else {
   print("Package ReactomePA not installed")
-  install.packages("ReactomePA")
+  BiocManager::install("ReactomePA")
   print("Package ReactomePA installed")
   library(ReactomePA)
 }
+
+###################################For GEO import###############################
+library(xml2)
+if (length(find.package(package = "GEOquery", quiet = T)) > 0) {
+  library(GEOquery)
+} else {
+  BiocManager::install("GEOquery")
+  library(GEOquery)
+}
+if (length(find.package(package = "umap", quiet = T)) > 0) {
+  library(umap)
+} else {
+  install.packages("umap")
+  library(umap)
+}
+if (length(find.package(package = "maptools", quiet = T)) > 0) {
+  library(maptools)
+} else {
+  install.packages("maptools", repos="http://R-Forge.R-project.org")
+  library(maptools)
+}
+
+
 
 ###################################################################################
 ########################### Style files for Cytoscape.js ################
@@ -416,17 +463,12 @@ ui <- tagList(
         mainPanel(
           h2("Welcome to GeneCloudOmics", align = "center",style = "color:#73C6B6;font-weight: bold;"),
           p("The Biostatistical Tool for Gene Expression Data Analysis", align = "center"),
-          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;")," is a web server for transcriptome data analysis and visualization. It supports the analysis of 
-      microarray and RNASeq data and performs ten different bio-statistical analyses that cover the common analytics for gene expression data. Furthermore, 
-      it gives the users access to several bioinformatics tools to perform 12 different bioinformatics analyses on gene/protein datasets."),
-          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;"),"  is designed as a one-stop server that helps the users perform all tasks through an intuitive graphical 
-      user interface (GUI) that waves the hassle of coding, installing tools,  packages or libraries and dealing with operating systems compatibility and versioning issues, some of 
-      the complications that make data analysis tasks more challenging for biologists. GeneCloudOmics is an open-source tool and the website is free and open to all users 
-      and there is no login requirement."),
+          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;")," an easy-to-use web server for high-throughput gene expression analysis a comprehensive range of data analytics tools in one package that no other current standalone software or web-based tool can do currently"),
+          h4(span("GeneCloudOmics", style = "color:#73C6B6;font-weight: bold;"),"  provides the user access to 23 different data analytical and bioinformatics tasks including reads normalization, scatter plots, linear/non-linear correlations, PCA, clustering (hierarchical, k-means, t-SNE, SOM), differential expression analyses, pathway enrichments, evolutionary analyses, pathological analyses, and protein-protein interaction (PPI) identifications."),
           h4(span("Supported Transcriptome data:", style = "color:#73C6B6;font-weight: bold;"), " RNA-Seq and Microarray "),
           h4(span("Data Preprocessing:", style = "color:#73C6B6;font-weight: bold;"), " GeneCloudOmics performs raw data normalization using four normalization methods RPKM, 
       FPKM, TPM and RUV. The raw vs. normalized data are visualized as boxplots and violin plots."),
-          h4(span("Differential Gene Expression (DGE) Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GDE using five methods EdgeR, DESeq2, NOISeq, and LIMMA."),
+          h4(span("Differential Gene Expression (DGE) Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GDE using five methods EdgeR, DESeq2 and NOISeq."),
           h4(span("Bio-statistical Analysis:", style = "color:#73C6B6;font-weight: bold;"), " GeneCloudOmics provides the user with the following bio-statistical analyses: 
       Pearson and Spearman rank correlations, PCA, k-means and hierarchical clustering, 
       Shannon entropy and noise (square of the coefficient of variation), t-SNE, random forest and SOM analyses. All analyses include proper high-resolution visualization."),
@@ -434,12 +476,25 @@ ui <- tagList(
       the users with multiple bioinformatics tools to investigate their 
       gene/protein list including gene ontology (GO), pathway enrichment analysis, PPI, co-expression, gene/protein function, subcellular localization, complex enrichment, protein domains, tissue expression, sequence properties (acidity, hydrophobicity and charge),
        evolutionary analysis (gene tree, phylogenetic tree and species/chromosome location)  and pathological analysis (diseases that these genes/proteins are involved in). The analyses include proper high-resolution visualization, when applicable."),
+              h4( #span("For questions and bug reporting, please write to", a("Mohamed Helmy", href="mailto:mohamed_helmy@bii.a-star.edu.sg", target="_blank"), "or ", a("Kumar Selvarajoo", href="mailto:kumar_selvarajoo@bii.a-star.edu.sg", target="_blank")),
+          withTags({
+            div(class="header", checked=NA,
+                h4("User manual can be found ", 
+                  a("here", href= "https://github.com/buithuytien/GeneCloudOmics/blob/master/GeneCloudOmics_Help_1.0.pdf", target="_blank")), # "GeneCloudOmics_Help_1.0.pdf"
+                h4(span("For questions and bug reporting, please write to", 
+                        a("Mohamed Helmy", href="mailto:mohamed_helmy@bii.a-star.edu.sg", target="_blank"), "or ", 
+                        a("Kumar Selvarajoo", href="mailto:kumar_selvarajoo@bii.a-star.edu.sg", target="_blank")),
+                   )
+            
+            )
+          })
         )
+      )
       )
     ),
     navbarMenu('Preprocessing',
                tabPanel(
-                 "RnaSeq Data",
+                 "RNASeq Data",
                  value = "active_tab_rnaseq",
                  tabsetPanel(
                    id = "Rnaseq_pre",
@@ -454,44 +509,57 @@ ui <- tagList(
                          condition = "input.file_type=='raw'", # raw
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a(href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "here"))
+                               p("Example ", 
+                                 a(target="_blank", href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-raw.csv", "csv"),
+                                 a(target="_blank", href="https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png", "image"))
                            )
                          }),
-                         fileInput("file1", "Choose Raw Counts"),
+                         fileInput("file1", "Choose Raw Counts (required)"),
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-length.csv"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("length1", "Choose Gene Length"), # gene id + length
+                         fileInput("length1", "Choose Gene Length (optional)"), # gene id + length
                          
                          withTags({
                            div(class="header", checked=NA,
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Zebra%20fish%20microarray/zfGenes_neg_control.csv", target="_blank"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png", target="_blank")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("spikes1", "Choose Negative Control Genes")
+                         fileInput("spikes1", "Choose negative controls (eg. ERCC Spike-in) (optional)")
                        ),
                        conditionalPanel(
                          condition = "input.file_type=='norm'", # normalized
                          withTags({
                            div(class = "header",
-                               p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png")), # ADD EXAMPLE
+                               p("Example ", 
+                                 a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-normalized-tpm.csv", target="_blank"),
+                                 a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_normalised.png", target="_blank")), # ADD EXAMPLE
                            )
                          }),
-                         fileInput("file2", "Choose Normalized Expression")
+                         fileInput("file2", "Choose Normalized Expression (required)")
                          # helpText("* Format requirement: CSV file. Gene names in rows and genotypes in columns, following the usual format of files deposited in the GEO database.")
                        ),
                        
                        withTags({
                          div(class = "header",
-                             p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png")), # ADD EXAMPLE
+                             p("Example ", 
+                               a("csv",   href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-Biofilm2-meta.csv", target="_blank"),
+                               a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_metadata.png", target="_blank")), # ADD EXAMPLE
                          )
                        }),
-                       fileInput("metafile1", "Choose Meta Data File"),
+                       fileInput("metafile1", "Choose Meta Data File (required)"),
                        actionButton("submit_input", "Submit")
                      ),
+                     
+                     
+                     
                      mainPanel(
                        # h3("Welcome to GeneCloudOmics --"),
                        # h3("A Biostatistical tool for Transcriptomics Analysis"),
@@ -503,6 +571,7 @@ ui <- tagList(
                    ),
                    tabPanel(
                      "Preprocessing",
+                     value="active_tab_preprocessing_rnaseq",
                      sidebarPanel(
                        h4("Filtering"),
                        splitLayout(
@@ -515,9 +584,10 @@ ui <- tagList(
                            "norm_method", "Normalisation method",
                            c(
                              "None (Black)" = "None",
-                             "RPKM (Blue)" = "RPKM", "FPKM (Dark cyan)" = "FPKM",
-                             "TPM (Dark green)" = "TPM",
-                             "RUV (Brown)" = "RUV"
+                             "RPKM (Gene length input required)" = "RPKM", 
+                             "FPKM (Gene length input required)" = "FPKM",
+                             "TPM (Gene length input required)" = "TPM",
+                             "RUV (Negative control genes input required)" = "RUV"
                            )
                          )
                        ),
@@ -601,7 +671,7 @@ ui <- tagList(
                  sidebarPanel(
                    withTags({
                      div(class = "header",
-                         p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_raw.png")), # ADD EXAMPLE ( have to change )
+                         p("Example data ", a("here", href = "https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-2967/", target="_blank")), # ADD EXAMPLE ( have to change )
                      )
                    }),
                    fileInput("file_micro", "Choose Microarray Data"),
@@ -620,7 +690,59 @@ ui <- tagList(
                      )
                    )
                  )
+               ),
+               tabPanel(
+                 "GEO Data Import",
+                 value = "active_tab_geo",
+                 sidebarPanel(
+                   tabsetPanel(type="tabs", id = "geo_tab",
+                               tabPanel("GEO DATA",
+                                        div(class= "header","For Example: GSE153941"),
+                                        textInput("geo_acc_no", "Enter Accession Number", value = "", width = NULL, placeholder = NULL),
+                                        radioButtons("file_type_button","FILE TYPE",
+                                                     c("RnaSeq","Microarray","Auto")),
+                                        actionButton("submit_geo_acc_no", "Submit")),
+                               tabPanel("PREPROCESSING",value="geo_pre",radioButtons("file_name_button","SELECT FILE",
+                                                                                     c("a")),
+                                      
+                                        withTags({
+                                          div(class="header", checked=NA,
+                                              p("Example ", 
+                                                a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Yeast%20Biofilm%202%20-%205%20genotypes/Yeast-biofilm2-length.csv"),
+                                                a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_gene_length.png")), # ADD EXAMPLE
+                                          )
+                                        }),
+                                        fileInput("length2", "Choose Gene Length (optional)"), # gene id + length
+                                        
+                                        withTags({
+                                          div(class="header", checked=NA,
+                                              p("Example ", 
+                                                a("csv", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Zebra%20fish%20microarray/zfGenes_neg_control.csv", target="_blank"),
+                                                a("image", href = "https://github.com/buithuytien/GeneCloudOmics/blob/master/Test%20data/Eg_negative_control_genes.png", target="_blank")), # ADD EXAMPLE
+                                          )
+                                        }),
+                                        fileInput("spikes2", "Choose negative controls (eg. ERCC Spike-in) (optional)"),
+                                        actionButton("submit_geo_preprocessing", "Submit"),
+                               )
+                               
+                   )),
+                 
+                 
+                 mainPanel(
+                   h3("GEO DATA IMPORT"),
+                   
+                   tabsetPanel(type ="tabs", 
+                               tabPanel(
+                                 uiOutput("help_text_geo")
+                               )),
+                   h4("Overview of GEO Imported Data"),
+                   tabsetPanel(type ="tabs",  tabPanel("Box Plot",plotOutput("geo_box_plot")),
+                               tabPanel("Expression Density", plotOutput("geo_expr_plot")),
+                               tabPanel("Mean variance", plotOutput("geo_mean_plot")),
+                               tabPanel("UMAP", plotOutput("geo_umap_plot")))
+                 )
                )
+               
     ),
     navbarMenu('Transcriptome Analysis',
                tabPanel(
@@ -633,14 +755,34 @@ ui <- tagList(
                      c("None", "Natural log", "log2", "log10")
                    ),
                    checkboxInput("regline", "Display regression line", value = FALSE),
-                   downloadButton("downloadscatter", "Download as PNG"),
-                   h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
+                   actionButton("submit_scatter", "Plot"),
+                   br(),
+                   br(),
+                   downloadButton("downloadscatter", "Download as PDF"),
+                   #h6("Download all pairs of samples in one PDF (this may take some time to run) :"),
+                   br(),
+                   br(),
+                   actionButton("add_scatter","Add to report"),
                    downloadButton("downloadscatter_collage", "Download collage")
                  ),
                  mainPanel(
                    h3("Heatscatter"),
                    uiOutput("help_text_scatter"),
-                   plotlyOutput("scatter.plot")
+                   plotlyOutput("scatter.plot"),
+              #      tags$script('
+              # document.getElementById("downloadscatter").onclick = function() {
+              # var gd = document.getElementById("scatter.plot");
+              # Plotly.Snapshot.toImage(gd, {format: "png"}).once("success", function(url) {
+              #   var a = window.document.createElement("a");
+              #   a.href = url; 
+              #   a.type = "image/png";
+              #   a.download = "plot.png";
+              #   document.body.appendChild(a);
+              #   a.click();
+              #   document.body.removeChild(a);                      
+              # });
+              # }
+              # ')
                  )
                ),
                tabPanel(
@@ -660,6 +802,7 @@ ui <- tagList(
                                    value = c(0.1, 1000)
                        )
                      ),
+                     actionButton("submit_distfit","Plot"),
                      conditionalPanel(
                        condition = "input.dist_zoom=='text input'",
                        textOutput("dist_range_allowed"),
@@ -671,7 +814,10 @@ ui <- tagList(
                    conditionalPanel(
                      condition = "input.dist_tabs=='AIC table'",
                      downloadButton("downloaddistaic", "Download as CSV")
-                   )
+                   ),
+                   checkboxInput("checkbox_distfit", label = "Distribution Fit", value = FALSE),
+                   checkboxInput("checkbox_aic", label = "AIC table", value = FALSE),
+                   actionButton("add_distfit","Add to report")
                  ),
                  mainPanel(
                    h3("Distribution Fit"),
@@ -705,6 +851,9 @@ ui <- tagList(
                      "cor_method", "Method:",
                      c("Pearson correlation", "Spearman correlation")
                    ),
+                   actionButton("submit_corr","Plot"),
+                   br(),
+                   br(),
                    conditionalPanel(
                      condition = "input.cor_tabs == 'Correlation heatmap'",
                      downloadButton("downloadcorrplot", "Download as PDF")
@@ -716,7 +865,12 @@ ui <- tagList(
                    conditionalPanel(
                      condition = "input.cor_tabs == 'Correlation matrix'",
                      downloadButton("downloadcorrmat", "Download as CSV")
-                   )
+                   ),
+                   checkboxInput("checkbox_corrheatmap", label = "Correlation Heatmap", value = FALSE),
+                   checkboxInput("checkbox_corrplot", label = "Correlation Plot", value = FALSE),
+                   checkboxInput("checkbox_corrmat", label = "Correlation Matrix", value = FALSE),
+                   actionButton("add_correlation","Add to report"),
+                   
                  ),
                  mainPanel(
                    conditionalPanel(
@@ -772,18 +926,23 @@ ui <- tagList(
                      actionButton("pca_refresh", "Resample", style = "background-color: #337ab7;border-color:#337ab7"),
                      br(), br()
                    ),
+                   actionButton("submit_pca","Plot"),
                    conditionalPanel(
                      condition = "input.pca_tabs == 'PCA variance'",
-                     downloadButton("downloadpcavar", "Download as PNG")
+                     downloadButton("downloadpcavar", "Download as PDF")
                    ),
                    conditionalPanel(
                      condition = "input.pca_tabs == 'PCA-2D plot'",
-                     downloadButton("downloadpca2d", "Download as PNG")
+                     downloadButton("downloadpca2d", "Download as PDF")
                    ),
                    conditionalPanel(
                      condition = "input.pca_tabs == 'PCA-3D plot'",
-                     downloadButton("downloadpca3d", "Download as PNG")
-                   )
+                     downloadButton("downloadpca3d", "Download as PDF")
+                   ),
+                   checkboxInput("checkbox_pcavar", label = "PCA Variance", value = FALSE),
+                   checkboxInput("checkbox_pca2d", label = "PCA-2D Plot", value = FALSE),
+                   checkboxInput("checkbox_pca3d", label = "PCA3D Plot", value = FALSE),
+                   actionButton("add_pca","Add to report")
                  ),
                  mainPanel(
                    h3("PCA"),
@@ -821,7 +980,7 @@ ui <- tagList(
                    fluidRow(
                      column(
                        4,
-                       actionButton("submit_DE", "Submit")
+                       actionButton("submit_DE", "Plot")
                      ),
                      column(
                        6,
@@ -836,11 +995,14 @@ ui <- tagList(
                        conditionalPanel(
                          condition = "input.DE_tabs=='Dispersion plot' ",
                          downloadButton("download_dispersion", "Download plot (PDF)")
-                       )
-                       # conditionalPanel(
-                       #   condition = "input.DE_tabs=='Heatmap plot' ",
-                       #   downloadButton("download_heatmap","Download plot")
-                       # )
+                       ),
+                       br(),
+                       br(),
+                       checkboxInput("checkbox_degenes", label = "DE genes", value = FALSE),
+                       checkboxInput("checkbox_volcano", label = "Volcano plot", value = FALSE),
+                       checkboxInput("checkbox_dispersion", label = "Dispersion plot", value = FALSE),
+                       actionButton("add_de_analysis","Add to report")
+                  
                      )
                    )
                  ),
@@ -932,9 +1094,9 @@ ui <- tagList(
                        # radioButtons('heatmap_value',"Values",
                        #              c('Fold change','Log fold change'))
                      ),
+                     actionButton("heatmap_plot", "Plot"),
                      
-                     downloadButton("downloadheatmap", "Download as PDF"),
-                     actionButton("heatmap_plot", "Plot", width = "65px", style = "color: #fff; background-color: #337ab7; border-color: #337ab7;float:right")
+                     downloadButton("downloadheatmap", "Download as PDF")
                      
                      # conditionalPanel(
                      #   condition = "input.heatmap_de_ind == 'ind' ",
@@ -950,7 +1112,11 @@ ui <- tagList(
                        condition = "input.display_cluster=='ALL'",
                        downloadButton("downloadclusters", "Download as CSV")
                      )
-                   )
+                   ),
+                   checkboxInput("checkbox_heatmap", label = "Heatmap", value = FALSE),
+                   checkboxInput("checkbox_gene_cluster", label = "Gene Clusters", value = FALSE),
+                   actionButton("add_heatmap","Add to report")
+                   
                  ),
                  mainPanel(
                    h3("Heatmap"),
@@ -999,13 +1165,16 @@ ui <- tagList(
                      "noise_graph_type", "Graph type:",
                      c("Bar chart", "Line chart")
                    ),
-                   downloadButton("downloadnoise", "Download as PNG"),
-                   actionButton("noise_plot", "Plot", width = "65px", style = "color: #fff; background-color: #337ab7; border-color:#337ab7;float:right"),
+                   actionButton("noise_plot", "Plot"),
+                   downloadButton("downloadnoise", "Download as PDF"),
+                   
                    conditionalPanel(
                      condition = "input.noise_situation=='a' | input.noise_situation=='b' ",
                      h5("Specify names of the genotypes"),
                      uiOutput("expand_genonames_noise")
-                   )
+                   ),
+                   
+                   actionButton("add_noise","Add to report")
                  ),
                  mainPanel(
                    h3("Noise"),
@@ -1037,12 +1206,15 @@ ui <- tagList(
                      "entropy_graph_type", "Graph type:",
                      c("Bar chart", "Line chart")
                    ),
-                   downloadButton("downloadentropy", "Download as PNG"),
+                   actionButton("submit_entropy","Plot"),
+                   downloadButton("downloadentropy", "Download as PDF"),
                    conditionalPanel(
                      condition = "input.tsflag==true",
                      h5("Specify names of the genotypes"),
                      uiOutput("expand_genonames_entropy")
-                   )
+                   ),
+                   
+                   actionButton("add_entropy","Add to report")
                  ),
                  mainPanel(
                    h3("Shannon entropy"),
@@ -1082,15 +1254,22 @@ ui <- tagList(
                    checkboxInput("tsne_cluster", strong("Kmeans clustering on columns"), FALSE),
                    conditionalPanel(
                      condition = "input.tsne_cluster == true",
-                     numericInput("tsne_cluster_num", "Number of clusters:", min = 1, value = 2)
+                     numericInput("tsne_cluster_num", "Number of clusters:", min = 1, value = 2),
+                     
                    ),
                    checkboxInput("tsne_text", strong("Display sample name"), FALSE),
-                   actionButton("submit_tsne2","Submit"),
-                   
+                   actionButton("submit_tsne2","Plot"),
+                   conditionalPanel(
+                     condition = "input.tsne_tabs=='t-SNE plot",
+                     downloadButton("download_tsne2", "Download as PDF")
+                   ),
                    conditionalPanel(
                      condition = "input.tsne_tabs=='t-SNE table'",
                      downloadButton("download_tsne", "Download as CSV")
-                   )
+                   ),
+                   checkboxInput("checkbox_tsne_plot", label = "t-SNE Plot", value = FALSE),
+                   checkboxInput("checkbox_tsne_table", label = "t-SNE table", value = FALSE),
+                   actionButton("add_tsne","Add to report")
                    
                  ),
                  mainPanel(
@@ -1106,49 +1285,53 @@ ui <- tagList(
                    )
                  )),
                
-               tabPanel(
-                 "Random Forest",
-                 sidebarPanel(
-                   radioButtons(
-                     "analysis_type", "Choose Analysis Type",
-                     c("RF clustering" = "rf", "RAFSIL" = "rafsil")
-                   ),
-                   conditionalPanel(
-                     condition = "input.analysis_type=='rf'",  #rf
-                     splitLayout(
-                       numericInput("num_trees", "No. of trees", min = 1, value = 25),
-                       numericInput("num_clusters", "No. of clusters", min = 1, value = 2)
-                     ),
-                     radioButtons(
-                       "rf_trans", "Transformation:",
-                       c("None", "log10")
-                     ),
-                     actionButton("submit_rf", "Submit")
-                   ),
-                   conditionalPanel(
-                     condition = "input.analysis_type=='rafsil'",  #rafsil
-                     actionButton("submit_rafsil", "Submit")
-                   )
-                   # conditionalPanel(
-                   #          condition = "input.rf_tabs == 'RF plot'",
-                   #          downloadButton("downloadrfplot", "Download as PDF")
-                   #        ),
-                   #        conditionalPanel(
-                   #          condition = "input.rf_tabs == 'RF matrix'",
-                   #          downloadButton("downloadrfmatrix", "Download as PDF")
-                   #        )
-                 ),
-                 mainPanel(
-                   h3("Clustering With Random Forest"),
-                   tabsetPanel(type = "tabs",id="rf_tabs",
-                               tabPanel("RF plot", 
-                                        uiOutput("help_text_rf"),
-                                        plotlyOutput("rf.plot")),
-                               tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
-                               tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
-                   )
-                 )
-               ),
+
+               # Random forest tab is temporarily hidden.
+               # to activate the RF panel: uncomment the below lines
+               # tabPanel(
+               #   "Random Forest",
+               #   sidebarPanel(
+               #     radioButtons(
+               #       "analysis_type", "Choose Analysis Type",
+               #       c("RF clustering" = "rf", "RAFSIL" = "rafsil")
+               #     ),
+               #     conditionalPanel(
+               #       condition = "input.analysis_type=='rf'",  #rf
+               #       splitLayout(
+               #         numericInput("num_trees", "No. of trees", min = 1, value = 25),
+               #         numericInput("num_clusters", "No. of clusters", min = 1, value = 2)
+               #       ),
+               #       radioButtons(
+               #         "rf_trans", "Transformation:",
+               #         c("None", "log10")
+               #       ),
+               #       actionButton("submit_rf", "Submit")
+               #     ),
+               #     conditionalPanel(
+               #       condition = "input.analysis_type=='rafsil'",  #rafsil
+               #       actionButton("submit_rafsil", "Submit")
+               #     )
+               #     # conditionalPanel(
+               #     #          condition = "input.rf_tabs == 'RF plot'",
+               #     #          downloadButton("downloadrfplot", "Download as PDF")
+               #     #        ),
+               #     #        conditionalPanel(
+               #     #          condition = "input.rf_tabs == 'RF matrix'",
+               #     #          downloadButton("downloadrfmatrix", "Download as PDF")
+               #     #        )
+               #   ),
+               #   mainPanel(
+               #     h3("Clustering With Random Forest"),
+               #     tabsetPanel(type = "tabs",id="rf_tabs",
+               #                 tabPanel("RF plot",
+               #                          uiOutput("help_text_rf"),
+               #                          plotlyOutput("rf.plot")),
+               #                 tabPanel("RAFSIL plot", plotOutput("RAFSIL.plot")),
+               #                 tabPanel("RF matrix", div(tableOutput('rf.matrix'), style = "font-size:80%"))
+               #     )
+               #   )
+               # ),
+
                
                tabPanel(
                  "SOM",
@@ -1163,7 +1346,7 @@ ui <- tagList(
                      "som_trans", "Transformation:",
                      c("None", "log10")
                    ),
-                   actionButton("submit_som", "Submit"),
+                   actionButton("submit_som", "Plot"),
                    br(),
                    br(),
                    conditionalPanel(
@@ -1185,7 +1368,14 @@ ui <- tagList(
                    conditionalPanel(
                      condition = "input.som_tabs == 'Cluster plot'",
                      downloadButton("downloadCluster","Download as PDF")
-                   )
+                   ),
+                   checkboxInput("checkbox_property", label = "Property plot", value = FALSE),
+                   checkboxInput("checkbox_count", label = "Count plot", value = FALSE),
+                   checkboxInput("checkbox_codes", label = "Codes plot", value = FALSE),
+                   checkboxInput("checkbox_distance", label = "Distance plot", value = FALSE),
+                   checkboxInput("checkbox_cluster", label = "Cluster plot", value = FALSE),
+                   actionButton("add_som","Add to report"),
+                   
                  ),
                  mainPanel(
                    h3("SOM Analysis"),
@@ -1204,6 +1394,7 @@ ui <- tagList(
                             '.navbar { font-size: 17px;}'
                  )
                )
+              
     ),
     ###############################################
     ###############################################
@@ -1219,18 +1410,19 @@ ui <- tagList(
         tags$head(tags$style("#path_enri_visu{height:95vh !important;}")),
         sidebarLayout(
           sidebarPanel(
-            withTags({
-              div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv")),
-              )
-            }),
+              withTags({
+                div(class = "header",
+                    p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv", target="_blank")),
+                )
+              }),
             fileInput("file_path_enri_gene", "Upload genes CSV file"),
+            textInput("text_path_enri_gene", "Enter gene id"),
             actionButton("submit_path_enri_gene", "Submit"),br(),br(),
             selectInput("loadStyleFile_path_gene", "Select Style: ", choices=styles),
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
             hidden(sliderInput("overlap_min_gene", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 15)),
+                        value = 1)),
             hidden(selectInput("doLayout_path_gene", "Select Layout:",
                         choices=c("",
                                   "cose",
@@ -1244,6 +1436,19 @@ ui <- tagList(
                                   "cose-bilkent"))),
             hidden(actionButton("sfn_path_gene", "Select First Neighbor")),
             br(),br(),
+
+#             actionButton("fit_path_gene", "Fit Graph"),br(),br(),
+#             actionButton("fitSelected_path_gene", "Fit Selected"),br(),br(),
+#             actionButton("clearSelection_path_gene", "Clear Selection"), br(),br(),
+#             actionButton("removeGraphButton_path_gene", "Remove Graph"), br(),br(),
+#             actionButton("addRandomGraphFromDataFramesButton_path_gene", "Add Random Graph"),br(),br(),
+#             actionButton("getSelectedNodes_path_gene", "Get Selected Nodes"), br(),br(),
+#             htmlOutput("selectedNodesDisplay_path_gene"),
+#             checkboxInput("checkbox_plot", label = "Plot", value = FALSE),
+#             checkboxInput("checkbox_visualization", label = "Visualizationt", value = FALSE),
+#             actionButton("add_gene_path_enrich","Add to report"),
+           
+
             hidden(actionButton("fit_path_gene", "Fit Graph")),br(),br(),
             hidden(actionButton("fitSelected_path_gene", "Fit Selected")),br(),br(),
             hidden(actionButton("clearSelection_path_gene", "Clear Selection")), br(),br(),
@@ -1252,6 +1457,7 @@ ui <- tagList(
             hidden(actionButton("getSelectedNodes_path_gene", "Get Selected Nodes")), br(),br(),
             hidden(htmlOutput("selectedNodesDisplay_path_gene")),
             width=2
+
           ),
           mainPanel(
             h3("Pathways Enrichment"),
@@ -1297,12 +1503,15 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_prot_expr", "Upload UniProt accession CSV file"),
+          textInput("text_prot_expr","Enter Uniprot accession numbers"),
           actionButton("submit_prot_expr", "Submit"),br(),br(),
-          downloadButton("prot_expr_download", "Download as CSV")
+          downloadButton("prot_expr_download", "Download as CSV"),
+          
+          actionButton("add_tissue_exp","Add to report")
         ),
         mainPanel(
           h3("Tissue Expression"),
@@ -1340,10 +1549,11 @@ ui <- tagList(
                       )),
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_names.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_names.csv", target="_blank")),
             )
           }),
           fileInput("file_gene", "Upload genes CSV file"),
+          textInput("text_gene","Enter gene ids"),
           actionButton("genemania_submit", "Submit")
         ),
         mainPanel(
@@ -1370,6 +1580,14 @@ ui <- tagList(
     ),
     navbarMenu(
       "Protein Set Analysis",
+      tabPanel("Upload a Protein Set",
+               sidebarPanel(fileInput("file_protein_set", "Upload UniProt accession CSV file"),
+                            textInput("text_protein_set", "Enter UniProt accession csv file"),
+                            actionButton("submit_protein_set", "Submit")),
+               mainPanel(
+                 h3("Upload a Protein Set"),
+                 uiOutput("help_text_protein_set")
+               )),
       
       ########## Gene Ontology #############
       #########################################
@@ -1378,10 +1596,11 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_uniprot", "Upload UniProt accession CSV file"),
+          textInput("text_uniprot", "Enter UniProt accession csv file"),
           actionButton("submit_uniprot", "Submit"),br(),br(),
           conditionalPanel(
             condition = "input.uniprot_tabs == 'Biological process'",
@@ -1397,7 +1616,14 @@ ui <- tagList(
             condition = "input.uniprot_tabs == 'Cellular component'",
             downloadButton("download_cell_plot", "Download Plot"),br(),br(),
             downloadButton("download_cell_comp", "Download Table")
-          )
+          ),
+          checkboxInput("checkbox_bio_proc_plot", label = "Biological Process Plot", value = FALSE),
+          checkboxInput("checkbox_bio_proc_table", label = "Biological Process Table", value = FALSE),
+          checkboxInput("checkbox_mol_func_plot", label = "Molecular Function Plot", value = FALSE),
+          checkboxInput("checkbox_mol_func_table", label = "Molecular Function Table", value = FALSE),
+          checkboxInput("checkbox_cell_comp_plot", label = "Cellular Component Plot", value = FALSE),
+          checkboxInput("checkbox_cell_comp_table", label = "Cellular Component Plot", value = FALSE),
+          actionButton("add_gene_onto","Add to report"),
         ),
         mainPanel(
           h3("Gene ontology"),
@@ -1452,16 +1678,17 @@ ui <- tagList(
       ###### Protein Interaction #############
       #########################################
       tabPanel(
-        "P-P Interactions",
+        "Protein Interactions",
         tags$head(tags$style("#cyjShiny{height:95vh !important;}")),
         sidebarLayout(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
               )
             }),
             fileInput("file_prot_Int", "Upload UniProt accession CSV file"),
+            textInput("text_prot_Int","Enter UniProt accession numbers"),
             actionButton("submit_prot_Int", "Submit"),br(),br(),
             selectInput("loadStyleFile", "Select Style: ", choices=styles),
             selectInput("doLayout", "Select Layout:",
@@ -1486,7 +1713,10 @@ ui <- tagList(
             actionButton("addRandomGraphFromDataFramesButton", "Add Random Graph"),br(),br(),
             actionButton("getSelectedNodes", "Get Selected Nodes"), br(),br(),
             htmlOutput("selectedNodesDisplay"),
-            width=2
+            checkboxInput("checkbox_pp_visu", label = "Visualization", value = FALSE),
+            checkboxInput("checkbox_pp_interact", label = "Protein Interactions", value = FALSE),
+            checkboxInput("checkbox_prot_name", label = "Protein Names", value = FALSE),
+            actionButton("add_pp_inter","Add to report"),
           ),
           mainPanel(
             h3("Protein-Protein Interactions"),
@@ -1530,7 +1760,7 @@ ui <- tagList(
                          DT::dataTableOutput("prot_name_table")
                        ))
             ),
-            width=10
+           
           )
           #  mainPanel(cyjShinyOutput('cyjShiny', height=400),
           #           width=10,
@@ -1547,12 +1777,14 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_prot_func", "Upload UniProt accession CSV file"),
+          textInput("text_prot_func","Enter UniProt accession numbers"),
           actionButton("submit_prot_func", "Submit"),br(),br(),
-          downloadButton("prot_func_download", "Download as CSV")
+          downloadButton("prot_func_download", "Download as CSV"),
+          actionButton("add_prot_func","Add to report"),
         ),
         mainPanel(
           h3("Protein Function"),
@@ -1578,12 +1810,15 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_prot_local", "Upload UniProt accession CSV file"),
+          textInput("text_prot_local","Enter UniProt accession numbers"),
           actionButton("submit_prot_local", "Submit"),br(),br(),
-          downloadButton("prot_local_download", "Download as CSV")
+          downloadButton("prot_local_download", "Download as CSV"),
+          actionButton("add_subcell_loc","Add to report"),
+          
         ),
         mainPanel(
           h3("Subcellular Localization"),
@@ -1608,12 +1843,14 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_prot_domain", "Upload UniProt accession CSV file"),
+          textInput("text_prot_domain","Enter UniProt accession numbers"),
           actionButton("submit_prot_domain", "Submit"),br(),br(),
-          downloadButton("prot_domain_download", "Download as CSV")
+          downloadButton("prot_domain_download", "Download as CSV"),
+          actionButton("add_prot_dom","Add to report")
         ),
         mainPanel(
           h3("Protein Domains"),
@@ -1638,7 +1875,14 @@ ui <- tagList(
         "Protein properties",
         sidebarPanel(
           fileInput("file_prot_seq", "Upload UniProt accession CSV file"),
+          textInput("text_prot_seq","Enter UniProt accession numbers"),
+          actionButton("submit_prot_Seq", "Submit"),br(),br(),
           shinyjs::hidden(downloadButton('downloadData', 'Download Sequence FASTA')),
+          checkboxInput("checkbox_seq_charge", label = "Sequence Charge", value = FALSE),
+          checkboxInput("checkbox_seq_acid", label = "Sequence Acidity", value = FALSE),
+          checkboxInput("checkbox_seq_grav_ind", label = "Sequence Gravy Index", value = FALSE),
+          checkboxInput("checkbox_physio_prop", label = "All Physiochecmical Properties", value = FALSE),
+          actionButton("add_prot_seq","Add to report"),
           
         ),
         mainPanel(
@@ -1712,6 +1956,13 @@ ui <- tagList(
         "Evolutionary Analysis",
         sidebarPanel(
           fileInput("file_prot_seq_evol", "Upload UniProt accession CSV file"),
+          textInput("text_prot_seq_evol","Enter UniProt accession numbers"),
+          actionButton("submit_prot_seq_evol","Submit"),
+          checkboxInput("checkbox_prot_gene", label = "Protein's genes tree", value = FALSE),
+          checkboxInput("checkbox_prot_chrom", label = "Protein's chromosomal location", value = FALSE),
+          checkboxInput("checkbox_prot_evol", label = "Evolutionary analysis", value = FALSE),
+          actionButton("add_prot_evol_analysis","Add to report"),
+          
           
         ),
         mainPanel(
@@ -1769,7 +2020,11 @@ ui <- tagList(
         "Pathological Analysis",
         sidebarPanel(
           fileInput("file_prot_seq_Patho", "Upload UniProt accession CSV file"),
-          
+          textInput("text_prot_seq_Patho","Enter UniProt accession numbers"),
+          actionButton("submit_prot_seq_Patho","Submit"),
+          checkboxInput("checkbox_dise_role", label = "Protein's disease role", value = FALSE),
+          checkboxInput("checkbox_dise_dist", label = "Protein's disease distribution", value = FALSE),
+          actionButton("add_prot_path_analysis","Add to report"),
         ),
         mainPanel(
           h3("Protein pathological analysis"),
@@ -1815,12 +2070,14 @@ ui <- tagList(
         sidebarPanel(
           withTags({
             div(class = "header",
-                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv")),
+                p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gene_id.csv", target="_blank")),
             )
           }),
           fileInput("file_complex_prot", "Upload UniProt accession CSV file"),
+          textInput("text_complex_prot","Enter UniProt accession numbers"),
           actionButton("submit_complex_prot", "Submit"),br(),br(),
-          downloadButton("complex_download_prot", "Download as CSV")
+          downloadButton("complex_download_prot", "Download as CSV"),
+          actionButton("add_prot_comp_enrich","Add to report"),
         ),
         mainPanel(
           h3("Complex Enrichment"),
@@ -1848,16 +2105,17 @@ ui <- tagList(
           sidebarPanel(
             withTags({
               div(class = "header",
-                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv")),
+                  p("Example ", a("here", href = "https://github.com/buithuytien/GeneCloudOmics/blob/online-version/Test%20data/gPro_gene_names.csv", target="_blank")),
               )
             }),
             fileInput("file_path_enri_prot", "Upload genes CSV file"),
+            textInput("text_path_enri_prot", "Enter gene id"),
             actionButton("submit_path_enri_prot", "Submit"),br(),br(),
             selectInput("loadStyleFile_path_prot", "Select Style: ", choices=styles),
             # selectInput(inputId = "overlap_min", label = "Minimum Overlap", choices = ""),
             hidden(sliderInput("overlap_min_prot", "Minimum Overlap",
                         min = 0, max = 100,
-                        value = 15)),
+                        value = 1)),
             hidden(selectInput("doLayout_path_prot", "Select Layout:",
                         choices=c("",
                                   "cose",
@@ -1871,6 +2129,18 @@ ui <- tagList(
                                   "cose-bilkent"))),
             hidden(actionButton("sfn_path_prot", "Select First Neighbor")),
             br(),br(),
+
+#             actionButton("fit_path_prot", "Fit Graph"),br(),br(),
+#             actionButton("fitSelected_path_prot", "Fit Selected"),br(),br(),
+#             actionButton("clearSelection_path_prot", "Clear Selection"), br(),br(),
+#             actionButton("removeGraphButton_path_prot", "Remove Graph"), br(),br(),
+#             actionButton("addRandomGraphFromDataFramesButton_path_prot", "Add Random Graph"),br(),br(),
+#             actionButton("getSelectedNodes_path_prot", "Get Selected Nodes"), br(),br(),
+#             htmlOutput("selectedNodesDisplay_path_prot"),
+#             checkboxInput("checkbox_plot_prot", label = "Plot", value = FALSE),
+#             checkboxInput("checkbox_visualization_prot", label = "Visualizationt", value = FALSE),
+#             actionButton("add_prot_path_enrich","Add to report"),
+
             hidden(actionButton("fit_path_prot", "Fit Graph")),br(),br(),
             hidden(actionButton("fitSelected_path_prot", "Fit Selected")),br(),br(),
             hidden(actionButton("clearSelection_path_prot", "Clear Selection")), br(),br(),
@@ -1879,6 +2149,7 @@ ui <- tagList(
             hidden(actionButton("getSelectedNodes_path_prot", "Get Selected Nodes")), br(),br(),
             hidden(htmlOutput("selectedNodesDisplay_path_prot")),
             width=2
+
           ),
           mainPanel(
             h3("Pathways Enrichment"),
@@ -1916,17 +2187,1208 @@ ui <- tagList(
           )
         )) #Pathway enrichemnt analysis 
       
-    ) ####Nav bar closing 
-  )
+    ), ####Nav bar closing 
+    tabPanel('Generate Report',fluidPage(
+      
+      uiOutput("error_text_report"),
+      tags$div( h2("GeneCloudOmics Report",align = "center"), id = 'placeholder'),
+      capture_pdf(
+        selector = "#placeholder",
+        filename = "results",
+        icon("camera"), "Download as PDF"
+      )
+      ))
+
+    )
+  
 )
+
 ####################################################
 
 server <- function(input, output, session) {
+# <<<<<<< develop
   
-  
+  value_var<- reactiveValues()
+  value_var$geo_file_type<-"none"
+
+
+# >>>>>>> master
   gene_mania_link <- reactiveVal("https://genemania.org")
   count_fasta <- reactiveVal(0)
   count_id <- reactiveVal(0)
+  ####################download report#############
+  output$error_text_report <- renderUI({
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          You have not added anything to the report. Please perform the analysis first.
+          </b>
+        </p>
+      </center>
+    ")
+  })
+  
+  observeEvent(input$add_scatter, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h3("Scatter Plot",align = "center"), plotOutput("scatter", height = 500),br(),br()))
+      ),
+    )
+    output$scatter <- renderPlot({
+      scatterplot()
+    })
+  })
+  observeEvent(input$add_distfit,{
+    hide("error_text_report")
+    if(input$checkbox_distfit == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Distribution Fit",align = "center"), plotOutput("dis_fit", height = 500),br(),br()))
+        )
+      )
+      output$dis_fit <- renderPlot({
+        distplot()
+      })
+      
+    }
+    if(input$checkbox_aic == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("AIC Table",align = "center"), div(tableOutput("dist_aic"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$dist_aic <- renderTable({
+        distaic()
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_correlation, {
+    hide("error_text_report")
+    if(input$checkbox_corrheatmap == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Correlation Heatmap",align = "center"), plotOutput("corr_hm", height = 500),br(),br()))
+        )
+      )
+      output$corr_hm <- renderPlot({
+        corrplot1()
+      })
+      
+    }
+    if(input$checkbox_corrplot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Correlation Plot",align = "center"), plotlyOutput("corr_m", height = 500),br(),br()))
+        )
+      )
+      output$corr_m <- renderPlot({
+        corrplot2()
+      })
+      
+      
+    }
+    if(input$checkbox_corrmat == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Correlation Matrix",align = "center"), div(tableOutput("corr_mat"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$corr_mat <- renderTable({
+        cor_df()
+      })
+      
+    }
+  })
+  observeEvent(input$add_pca, {
+    hide("error_text_report")
+    if(input$checkbox_pcavar == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("PCA Variance",align = "center"), plotlyOutput("pca_var", height = 500),br(),br()))
+        )
+      )
+      output$pca_var <- renderPlotly({
+        pcavarplot()
+      })
+      
+    }
+    if(input$checkbox_pca2d == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("PCA 2D Plot",align = "center"), plotlyOutput("pca_2d", height = 500),br(),br()))
+        )
+      )
+      output$pca_2d <- renderPlotly({
+        pca2dplot()
+      })
+      
+      
+    }
+    if(input$checkbox_pca3d == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          h3("PCA 3D Plot"),
+          fluidRow(plotlyOutput("pca_3d"),br(),br())
+        )
+      )
+      output$pca_3d <- renderPlotly({
+        pca3dplot()
+      })
+      
+      
+    }
+  })
+  observeEvent(input$add_de_analysis, {
+    hide("error_text_report")
+    if(input$checkbox_volcano == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Volcano Plot",align = "center"), plotOutput("vol_plot", height = 500),br(),br()))
+        )
+      )
+      output$vol_plot <- renderPlot({
+        volcano_plot()
+      })
+      
+    }
+    if(input$checkbox_dispersion == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Dispersion Plot",align = "center"), plotlyOutput("dis_plot", height = 500),br(),br()))
+        )
+      )
+      output$dis_plot <- renderPlot({
+        dispersion_plot()
+      })
+      
+      
+    }
+    if(input$checkbox_corrmat == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("DE genes",align = "center"), div(DT::dataTableOutput("DE_gene"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$DE_gene <- DT::renderDataTable({
+        res.df <- de_no_filt()
+        p_val <- input$p_val
+        fc <- input$fc
+        rep_number <- input$n_rep
+        if (input$submit_DE > 0) {
+          res.df.filt <- de_filt(res.df, p_val, fc, rep_number)
+          res.df.filt
+        }
+      })
+      
+    }
+  })
+  observeEvent(input$add_heatmap,{
+    hide("error_text_report")
+    if(input$checkbox_heatmap == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Heatmap",align = "center"), plotOutput("heat_plot", height = 500),br(),br()))
+        )
+      )
+      output$heat_plot <- renderPlot({
+        mapplot()
+      })
+      
+    }
+    if(input$checkbox_gene_cluster == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Gene Clusters",align = "center"), div(dataTableOutput("cluster_gene"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$cluster_gene <- DT::renderDataTable({
+        clusternum <- input$display_cluster
+        gl <- plotHeatmap()[[3]] # getCluster()
+        if (!is.null(gl)) {
+          if (clusternum == "ALL") {
+            gl
+          } else {
+            clusternum <- as.numeric(clusternum)
+            dplyr::filter(gl, cluster == clusternum)
+          }
+        }
+        
+      })
+    }
+  })
+  observeEvent(input$add_noise, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h3("Noise",align = "center"), plotlyOutput("noise_p", height = 500),br(),br()))
+      )
+    )
+    output$noise_p <- renderPlotly({
+      noisePlot()
+    })
+  })
+  observeEvent(input$add_entropy, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h3("Shannon Entropy",align = "center"), plotlyOutput("entropy_plot", height = 500),br(),br()))
+      )
+    )
+    output$entropy_plot <- renderPlotly({
+      entropyPlot()
+    })
+  })
+  observeEvent(input$add_tsne,{
+    hide("error_text_report")
+    if(input$checkbox_tsne_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("t-SNE Plot",align = "center"), plotlyOutput("tsne_p", height = 500),br(),br()))
+        )
+      )
+      output$tsne_p <- renderPlotly({
+        li <- tsne2plot()
+        p <- li[[1]]
+        tsne_table <- li[[2]]
+        p
+      })
+      
+    }
+    if(input$checkbox_tsne_table == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("t-SNE Table",align = "center"), div(tableOutput("tsne_data"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$tsne_data <- renderTable({
+        tsne_table <- tsne2plot()[[2]] # get table
+        
+        tsne_table
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_rf, {
+    hide("error_text_report")
+    if(input$checkbox_rf_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("RF Plot",align = "center"), plotlyOutput("rf", height = 500),br(),br()))
+        )
+      )
+      output$rf <- renderPlotly({
+        rfplot()
+      })
+      
+    }
+    if(input$checkbox_rafsil_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("RAFSIL Plot",align = "center"), plotlyOutput("raf_sil", height = 500),br(),br()))
+        )
+      )
+      output$raf_sil <- renderPlotly({
+        rafsilplot()
+      })
+      
+      
+    }
+    if(input$checkbox_rf_matrix == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("RF Matrix",align = "center"), div(tableOutput("rf_mat"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$rf_mat <- renderTable({
+        rf_matrix()
+      })
+      
+    }
+  })
+  observeEvent(input$add_som, {
+    hide("error_text_report")
+    if(input$checkbox_property == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("SOM Analysis - ( Property Plot )",align = "center"), plotOutput("som_prop", height = 500),br(),br()))
+        )
+      )
+      output$som_prop <- renderPlot({
+        sompropertyplot()
+      })
+      
+    }
+    if(input$checkbox_count == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("SOM Analysis - ( Count Plot )",align = "center"), plotOutput("som_co", height = 500),br(),br()))
+        )
+      )
+      output$som_co <- renderPlot({
+        somcountplot()
+      })
+      
+    }
+    if(input$checkbox_codes == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("SOM Analysis - ( Codes Plot )",align = "center"), plotOutput("som_cod", height = 500),br(),br()))
+        )
+      )
+      output$som_cod <- renderPlot({
+        somcodesplot()
+      })
+      
+    }
+    if(input$checkbox_distance == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("SOM Analysis - ( Distance Plot )",align = "center"), plotOutput("som_dis", height = 500),br(),br()))
+        )
+      )
+      output$som_dis <- renderPlot({
+        somdistplot()
+      })
+      
+    }
+    if(input$checkbox_cluster == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("SOM Analysis - ( Cluster Plot )",align = "center"), plotOutput("som_clus", height = 500),br(),br()))
+        )
+      )
+      output$som_clus <- renderPlot({
+        somclusterplot()
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_gene_path_enrich,{
+    hide("error_text_report")
+    if(input$checkbox_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Pathways Enrichment (Plot)",align = "center"), plotlyOutput("path_enr_plot_gene", height=500),br(),br()))
+        )
+      )
+      output$path_enr_plot_gene <- renderPlotly({
+        df_path_enri_id_gene()
+        gene_name <- as.data.frame(df_path_enri_id_gene())
+        gene_name[,1] <- as.character(gene_name[,1])
+        
+        ggplotly(Pathway.Enr(gene_name[,1]), tooltip = c("text"))
+      })
+      
+    }
+    if(input$checkbox_visualization == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Pathways Enrichment (Visualization)",align = "center"), cyjShinyOutput('path_enri_vis', height=350),br(),br()))
+        )
+      )
+      output$path_enri_vis <- renderCyjShiny({
+        
+        print("visualization")
+        df_path_enri_id_gene()
+        Enrich <- gost(df_path_enri_id_gene(),evcodes = T, sources = c('KEGG', 'REAC'))
+        Pathway <- Construct.COPathway(Enrich, input$overlap_min_gene)
+        nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
+        
+        
+        path_enri.nodes <- data.frame(id=nodes_tot,
+                                      type=nodes_tot,
+                                      stringsAsFactors=FALSE)
+        
+        path_enri.edges <- data.frame(source=Pathway[,1],
+                                      target=Pathway[,2],
+                                      interaction=Pathway[,1],
+                                      stringsAsFactors=FALSE)
+        
+        graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
+        cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
+        
+      })
+      
+      
+    }
+    
+  })
+  observeEvent(input$add_tissue_exp, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h3("Scatter Plot",align = "center"),div(tableOutput("tissue_expr_table"), style = "font-size:80%"),br(),br()))
+      )
+    )
+    output$tissue_expr_table <- renderTable({
+      df_expr_table()
+    })
+  })
+  observeEvent(input$add_gene_onto, {
+    hide("error_text_report")
+    if(input$checkbox_bio_proc_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Gene Ontlogy (Biological Process Plot)",align = "center"), plotOutput("gene_bio_proc", height = 500),br(),br()))
+        )
+      )
+      output$gene_bio_proc <- renderPlot({
+        GO_df <- plotUniprot()
+        PlotGOBiological(GO_df,20)
+      })
+      
+    }
+    if(input$checkbox_bio_proc_table == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Gene Ontology (Biological Process Table)",align = "center"), div(tableOutput("bio_proc_table"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$bio_proc_table <- renderTable({
+        GO_df <- plotUniprot()
+        BiologicalDF <- Goparse(GO_df, 3)
+        BiologicalDF <- na.omit(BiologicalDF)
+        download_bio_table <- BiologicalDF
+        BiologicalDF
+      })
+      
+    }
+    if(input$checkbox_mol_func_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Gene Ontlogy (Molecular Function Plot)",align = "center"), plotOutput("gene_mol_fun", height = 500),br(),br()))
+        )
+      )
+      output$gene_mol_fun <- renderPlot({
+        GO_df <- plotUniprot()
+        Plot.GOMolecular(GO_df,20)
+      })
+      
+    }
+    if(input$checkbox_mol_func_table == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Gene Ontology (Molecular Function Table)",align = "center"), div(tableOutput("mol_func_table"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$mol_func_table <- renderTable({
+        GO_df <- plotUniprot()
+        MolecularDF <- Goparse(GO_df, 4)
+        MolecularDF <- na.omit(MolecularDF)
+        download_mol_table <- MolecularDF
+        MolecularDF
+      })
+      
+    }
+    if(input$checkbox_cell_comp_plot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Gene Ontlogy (Cellular Component Plot)",align = "center"), plotOutput("gene_cell_comp", height = 500),br(),br()))
+        )
+      )
+      output$gene_cell_comp <- renderPlot({
+        GO_df <- plotUniprot()
+        Plot.GOSubCellular(GO_df,20)
+      })
+      
+    }
+    if(input$checkbox_cell_comp_table == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h4("Gene Ontology (Cellular Component Table)",align = "center"), div(tableOutput("cell_comp_table"), style = "font-size:80%")))
+        )
+      )
+      output$cell_comp_table <- renderTable({
+        GO_df <- plotUniprot()
+        CellularDF <- Goparse(GO_df, 5)
+        CellularDF <- na.omit(CellularDF)
+        download_cel_table <- CellularDF
+        CellularDF
+      })
+      
+    }
+  })
+  observeEvent(input$add_pp_inter,{
+    hide("error_text_report")
+    if(input$checkbox_pp_visu == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein-Protein Interactions (Visualization)",align = "center"), cyjShinyOutput("pp_visu", height=350),br(),br()))
+        )
+      )
+      output$pp_visu <- renderCyjShiny({
+        
+        print(" renderCyjShiny invoked")
+        print("graph.json:")
+        
+        
+        print("running...")
+        
+        
+        # tryCatch({
+        
+        Accessions <- df_prot_int_id()
+        print("Please Wait... Fetching interaction data. It may take a while")
+        protein_interaction_df <- getInteraction(Accessions)
+        df_interaction(protein_interaction_df)
+        print("Fetched...")
+        
+        #migrating rowId to first colunm 
+        # protein_interaction_df <- cbind(ID = rownames(protein_interaction_df),protein_interaction_df)
+        # rownames(protein_interaction_df) <- 1:nrow(protein_interaction_df)
+        
+        #making nodes
+        nodes <- as.character(protein_interaction_df[,1])
+        for (i in 1:nrow(protein_interaction_df))
+        {
+          if(!(is.na(protein_interaction_df[i,2])))
+          {
+            data_df <- strsplit(as.character(protein_interaction_df[i,2]),"; ")
+            for(j in data_df)
+            {
+              nodes <- c(nodes,j)
+            }
+          }
+        }
+        
+        print(nodes)
+        
+        print("Please Wait... Fetching Gene Names. It may take a while")
+        protein_gene_name <- getGeneNames(nodes)
+        df_names(protein_gene_name)
+        print("........................")
+        print(as.character(protein_gene_name[,1]))
+        print("Fetched...")
+        edge_source <- character()
+        edge_target <- character()
+        
+        for (i in 1:nrow(protein_interaction_df))
+        {
+          if(!(is.na(protein_interaction_df[i,2])))
+          {
+            data_df <- strsplit(as.character(protein_interaction_df[i,2]),"; ")
+            for(j in data_df)
+            {
+              edge_source <- c(edge_source,rep(as.character(protein_gene_name[as.character(protein_interaction_df[i,1]),1]),length(j)))
+              print(as.character(protein_gene_name[j,1]))
+              edge_target <- c(edge_target,as.character(protein_gene_name[j,1]))
+            }
+          }
+        }
+        
+        tbl.nodes <- data.frame(id=as.character(protein_gene_name[,1]),
+                                type=as.character(protein_gene_name[,1]),
+                                stringsAsFactors=FALSE)
+        
+        
+        tbl.edges <- data.frame(source=edge_source,
+                                target=edge_target,
+                                interaction=edge_target,
+                                stringsAsFactors=FALSE)
+        
+        # }, error = function(error_condition) {
+        #   print("using defauslt value")
+        # })
+        
+        graph.json <- dataFramesToJSON(tbl.edges, tbl.nodes)
+        
+        print(fromJSON(graph.json))
+        cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
+        
+        
+      })
+      
+      
+    }
+    if(input$checkbox_pp_interact == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein-Protein Interactions(Protein Interactions) ",align = "center"), div(tableOutput("pp_inter_table"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$pp_inter_table <- renderTable({
+        protein_interaction_df <- df_interaction()
+        protein_gene_name <- df_names()
+        print(protein_interaction_df)
+        print("here")
+        print(class(protein_interaction_df))
+        if(df_names() == 0)
+        {
+          
+          p_int_formatted <- data.frame()
+          
+        } else {
+          
+          protein_interaction_df[,1] <- as.character(protein_interaction_df[,1])
+          
+          p_int_formatted <- data.frame()
+          count = 0
+          n = 1
+          for ( id in protein_interaction_df[,1])
+          {
+            count = count + 1
+            if(!is.null(protein_interaction_df[,2]))
+            {
+              a = strsplit(as.character(protein_interaction_df[,2]),"; ")
+              
+              for(int_with in a[[count]])
+              {
+                p_int_row <- data.frame(id = as.character(paste0(as.character(lookup(id, as.data.frame(id_to_name), missing="Not found"))," ( ", id," )")),
+                                        Interacts_With = as.character(paste0(as.character(lookup(int_with, as.data.frame(id_to_name), missing="Not found"))," ( ", int_with," )")),
+                                        row.names = n)
+                p_int_formatted <- rbind(p_int_formatted,p_int_row)
+                n = n + 1
+              }
+            }
+          }
+          
+          # for(i in 1:nrow(protein_interaction_df))
+          # {
+          #     protein_interaction_df[i,1] <- paste0(protein_interaction_df[i,1],
+          #                               ' (',
+          #                               protein_gene_name[protein_interaction_df[i,1],1],
+          #                               ')')
+          # }
+          # print(protein_interaction_df)
+          # colnames(protein_interaction_df)[2] <- "Interacts With"
+          
+        }
+        
+        p_int_formatted
+      })
+      
+    }
+    if(input$checkbox_prot_name == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein-Protein Interactions(Protein Names)",align = "center"), div(tableOutput("pp_name_table"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$pp_name_table <- renderTable({
+        protein_gene_name <- df_names()
+        if(protein_gene_name == 0)
+        {
+          protein_gene_name <- data.frame()
+        } else {
+          
+          protein_gene_name <- cbind(ID = rownames(protein_gene_name),protein_gene_name)
+          rownames(protein_gene_name) <- 1:nrow(protein_gene_name)
+          colnames(protein_gene_name)[2] <- "Names"
+          
+        } 
+        protein_gene_name
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_prot_func, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h3("Protein Function",align = "center"),div(tableOutput("prot_func_table"), style = "font-size:80%"),br(),br()))
+      )
+    )
+    output$prot_func_table <- renderTable({
+      df_func_table()
+    })
+  })
+  observeEvent(input$add_subcell_loc, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h3("SubCellular Localization",align = "center"),div(tableOutput("sub_cell_table"), style = "font-size:80%"),br(),br()))
+      )
+    )
+    output$sub_cell_table <- renderTable({
+      df_local_table()
+    })
+  })
+  observeEvent(input$add_prot_dom, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h3("Protein Domain",align = "center"),div(tableOutput("prot_dom_table"), style = "font-size:80%"),br(),br()))
+      )
+    )
+    output$prot_dom_table <- renderTable({
+      df_domain_table()
+    })
+  })
+  observeEvent(input$add_prot_seq, {
+    hide("error_text_report")
+    if(input$checkbox_seq_charge == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein Sequences (Sequence Charge)",align = "center"), plotOutput("plot_seq_char", height = 500),br(),br()))
+        )
+      )
+      output$plot_seq_char <- renderPlot({
+        if (!is.null(df_prot_seq()))
+        {
+          hide("help_text_prot_seq")
+          if(is.null(Seqdata))
+          {
+            Proteins <- df_prot_seq()
+            Seqdata <<- GetSequences(Proteins)
+          }
+          PlotCharge(Seqdata)
+        }
+      })
+      
+    }
+    if(input$checkbox_seq_acid == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein Sequences (Sequence Acidity)",align = "center"), plotOutput("plot_seq_acid", height = 500),br(),br()))
+        )
+      )
+      output$plot_seq_acid <- renderPlot({
+        if (!is.null(df_prot_seq()))
+        {
+          hide("help_text_prot_seq")
+          if(is.null(Seqdata))
+          {
+            Proteins <- df_prot_seq()
+            Seqdata <<- GetSequences(Proteins)
+          }
+          PlotAcidity(Seqdata)
+        }
+      })
+      
+    }
+    if(input$checkbox_seq_grav_ind == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein Sequences (Sequence Gravy Index)",align = "center"), plotOutput("plot_seq_grav", height = 500),br(),br()))
+        )
+      )
+      output$plot_seq_grav <- renderPlot({
+        if (!is.null(df_prot_seq()))
+        {
+          hide("help_text_prot_seq")
+          if(is.null(Seqdata))
+          {
+            Proteins <- df_prot_seq()
+            Seqdata <<- GetSequences(Proteins)
+          }
+          PlotGravy(Seqdata)
+        }
+      })
+      
+    }
+    if(input$checkbox_physio_prop == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein Sequences (All Physiochemical Properties)",align = "center"), plotOutput("plot_physio_prop", height = 500),br(),br()))
+        )
+      )
+      output$plot_physio_prop <- renderPlot({
+        if (!is.null(df_prot_seq()))
+        {
+          hide("help_text_prot_seq")
+          if(is.null(Seqdata))
+          {
+            Proteins <- df_prot_seq()
+            Seqdata <<- GetSequences(Proteins)
+          }
+          PlotPhysicochemical(Seqdata)
+        }
+      })
+      
+    }
+  })
+  observeEvent(input$add_prot_evol_analysis, {
+    hide("error_text_report")
+    if(input$checkbox_prot_gene == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein Evolutionary analysis (Protein's Gene Trees)",align = "center"), radialNetworkOutput("prot_gene_plot", width="500px",height="500px"),br(),br()))
+        )
+      )
+      output$prot_gene_plot <- renderRadialNetwork(
+        {
+          if (!is.null(df_prot_seq_evol()))
+          {
+            if (is.null(GenesObj))
+            {
+              Proteins <- df_prot_seq_evol()
+              GenesObj <- GetNamesTaxa(Proteins)
+            }
+            ConstructGenes(GenesObj)
+          }
+        }
+      )
+      
+      
+    }
+    if(input$checkbox_prot_chrom == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein Evolutionary analysis (Protein's chromosomal location)",align = "center"), plotOutput("plot_prot_chrom", height = 500),br(),br()))
+        )
+      )
+      output$plot_prot_chrom <- renderPlot(
+        if (!is.null(df_prot_seq_evol()))
+        {
+          if(is.null(GenesObj))
+          {
+            Proteins <- df_prot_seq_evol()
+            GenesObj <- GetNamesTaxa(Proteins)
+          }
+          PlotChromosomeInfo(GenesObj)
+        }
+      )
+      
+    }
+    if(input$checkbox_prot_evol == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein Evolutionary analysis (Evolutionary analysis)",align = "center"), plotOutput("plot_evol_ana", height = 500),br(),br()))
+        )
+      )
+      output$plot_evol_ana <- renderPlot(
+        {
+          if(!is.null(df_prot_seq_evol()))
+            if(is.null(Seqdata))
+            {
+              Proteins <- df_prot_seq_evol()
+              Seqdata <<- GetSequences(Proteins)
+            }
+          ConstructPhylogeny(Seqdata)
+        }
+      )
+      
+      
+    }
+    
+  })
+  observeEvent(input$add_prot_path_analysis, {
+    hide("error_text_report")
+    
+    if(input$checkbox_dise_role == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein pathological analysis (Protein's disease role)",align = "center"), div(tableOutput("prot_dis_table"), style = "font-size:80%"),br(),br()))
+        )
+      )
+      output$prot_dis_table <- renderTable({
+        if(!is.null(df_prot_seq_Patho()))
+        {
+          Proteins <- df_prot_seq_Patho()
+          Pathodata <- GetPathology_Biotech(Proteins)
+          DiseaseTable <- Get.diseases(Pathodata) 
+        }
+      }, escape = F)
+      
+    }
+    if(input$checkbox_dise_dist == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Protein pathological analysis (Protein's disease distribution)",align = "center"), bubblesOutput("prot_dis_plot"),br(),br()))
+        )
+      )
+      output$prot_dis_plot <- renderBubbles({
+        if(!is.null(df_prot_seq_Patho()))
+        {
+          if(!is.null(DiseaseTable))
+          {
+            Plot.NDiseases(DiseaseTable)
+          }
+          else {
+            Proteins <- df_prot_seq_Patho()
+            Pathodata <- GetPathology_Biotech(Proteins)
+            DiseaseTable <- Get.diseases(Pathodata)
+            Plot.NDiseases(DiseaseTable)
+          }
+        }
+      })
+      
+    }
+    
+  })
+  observeEvent(input$add_prot_comp_enrich, {
+    hide("error_text_report")
+    insertUI(
+      selector = '#placeholder',
+      ui = tagList(
+        
+        fluidRow(
+          column(width=2),
+          column(width= 8,h3("Complex Enrichment",align = "center"),div(tableOutput("comp_enrich_table"), style = "font-size:80%"),br(),br()))
+      )
+    )
+    output$comp_enrich_table <- renderTable({
+      df_com_table()
+    })
+  })
+  observeEvent(input$add_prot_path_enrich,{
+    hide("error_text_report")
+    if(input$checkbox_plot_prot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Pathways Enrichment (Plot)",align = "center"), plotlyOutput("path_enr_plot_prot", height=500),br(),br()))
+        )
+      )
+      output$path_enr_plot_prot <- renderPlotly({
+        df_path_enri_id_prot()
+        gene_name <- as.data.frame(df_path_enri_id_prot())
+        gene_name[,1] <- as.character(gene_name[,1])
+        
+        ggplotly(Pathway.Enr(gene_name[,1]), tooltip = c("text"))
+      })
+      
+    }
+    if(input$checkbox_visualization_prot == TRUE){
+      insertUI(
+        selector = '#placeholder',
+        ui = tagList(
+          
+          fluidRow(
+            column(width=2),
+            column(width= 8,h3("Pathways Enrichment (Visualization)",align = "center"), cyjShinyOutput('path_enri_vis_prot', height=350),br(),br()))
+        )
+      )
+      
+      output$path_enri_vis_prot <- renderCyjShiny({
+        
+        print("visualization")
+        df_path_enri_id_prot()
+        
+        print(df_path_enri_id_prot()[,1])
+        
+        Enrich <- gost(df_path_enri_id_prot()[,1],evcodes = T, sources = c('KEGG', 'REAC'))
+        
+        Pathway <- Construct.COPathway(Enrich, input$overlap_min_prot)
+        
+        nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
+        
+        
+        path_enri.nodes <- data.frame(id=nodes_tot,
+                                      type=nodes_tot,
+                                      stringsAsFactors=FALSE)
+        
+        path_enri.edges <- data.frame(source=Pathway[,1],
+                                      target=Pathway[,2],
+                                      interaction=Pathway[,1],
+                                      stringsAsFactors=FALSE)
+        
+        graph.json <- dataFramesToJSON(path_enri.edges, path_enri.nodes)
+        cyjShiny(graph=graph.json, layoutName="cola", styleFile = "./www/style/basicStyle.js")
+        
+      })
+      
+    }
+    
+  })
   
   ########################################
   ##### Increases the Upload Limit #######
@@ -1945,6 +3407,7 @@ server <- function(input, output, session) {
     } else if (type == "raw") {
       DS <- df_raw()
     }
+    
     nms <- colnames(DS)
     updateSelectInput(session, "scatter.x", choices = nms, selected = nms[1])
     updateSelectInput(session, "scatter.y", choices = nms, selected = nms[2])
@@ -1995,6 +3458,7 @@ server <- function(input, output, session) {
     ### gene expression range for distribution fit ###
     if (is.null(DS) == FALSE) {
       DS_dist <- distfit_df()
+      print(DS_dist)
       range_min <- min(DS_dist)
       range_max <- max(DS_dist)
       updateSliderInput(session, "dist_range", max = round(range_max), value = c(0.1, range_max))
@@ -2171,7 +3635,7 @@ server <- function(input, output, session) {
       write.csv(micro_meta_data, file, row.names = FALSE)
     }
   )
-  
+
   
   ####################################################################
   
@@ -2213,6 +3677,7 @@ server <- function(input, output, session) {
     }
     parts <- strsplit(input$file2$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -2249,11 +3714,15 @@ server <- function(input, output, session) {
   
   # get raw counts
   df_raw <- reactive({
-    if (is.null(input$file1)) {
+    print("in df_raw")
+    print(value_var$geo_file_type)
+    if (is.null(input$file1) && value_var$geo_file_type != "rnaseq") {
       return(NULL)
     }
+    else if (!is.null(input$file1)){
     parts <- strsplit(input$file1$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -2262,9 +3731,30 @@ server <- function(input, output, session) {
       return(NULL)
     }
     raw_ds <- read.csv(input$file1$datapath)
-    raw_ds <- na.omit(raw_ds)
-    raw_ds <- raw_ds[!duplicated(raw_ds[, 1]), ] # remove duplicated gene names
     
+    
+    }
+    else if(value_var$geo_file_type == "rnaseq"){
+      
+      if(file.exists(file.path(getwd(),input$file_name_button))){
+        print("Reading geo_file")
+        
+        raw_ds <- read.table(file.path(getwd(),input$file_name_button) ,header=TRUE, stringsAsFactors = FALSE)
+        print(raw_ds)
+        #value_var$geo_file_type<-"none"
+        
+        
+      }else{
+        return(NULL)
+      }
+        
+      
+    } # remove duplicated gene names
+    else{
+      return(NULL)
+    }
+    raw_ds <- na.omit(raw_ds)
+    raw_ds <- raw_ds[!duplicated(raw_ds[, 1]), ]  
     # raw_ds <- as.data.frame(raw_ds)
     if (ncol(raw_ds) <= 1) {
       showModal(modalDialog(
@@ -2277,8 +3767,8 @@ server <- function(input, output, session) {
     row_names <- raw_ds[, 1]
     rownames(raw_ds) <- row_names
     raw_DS <- raw_ds[, -1] # remove the first column, which is gene Id
-    
     for (i in 1:ncol(raw_DS)) {
+      
       if (class(raw_DS[, i]) != "numeric" & class(raw_DS[, i]) != "integer") {
         showModal(modalDialog(
           title = "Error",
@@ -2287,6 +3777,7 @@ server <- function(input, output, session) {
         return(NULL)
       }
     }
+    print(raw_DS)
     return(raw_DS)
   })
   
@@ -2295,9 +3786,12 @@ server <- function(input, output, session) {
   
   df_micro <- reactive({
     print("running")
-    if (is.null(input$file_micro)) {
+    print("In Micro array")
+    print(value_var$geo_file_type)
+    if (is.null(input$file_micro)&& value_var$geo_file_type != "microarray") {
       return(NULL)
     }
+    else if(!is.null(input$file_micro)){
     parts <- strsplit(input$file_micro$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
     
@@ -2310,6 +3804,13 @@ server <- function(input, output, session) {
     }
     
     unzip(input$file_micro$datapath,exdir = parts[[1]][1])
+    }else if( value_var$geo_file_type == "microarray"){
+      parts <- strsplit(input$file_name_button, ".", fixed = TRUE)
+      untar(file.path(getwd(),input$file_name_button),exdir = parts[[1]][1])
+      
+    }else {
+      return(NULL)
+    }
     fol_name <- print(list.files(parts[[1]][1]))
     micro_data_dir <- paste0(parts[[1]][1],"/",fol_name)
     print(micro_data_dir)
@@ -2331,14 +3832,191 @@ server <- function(input, output, session) {
   })
   
   
+  
+  ############################## GEO IMPORT###################
+  
+  output$help_text_geo <- renderUI({
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Please enter the GEO accession number to begin analysis.
+          </b>
+        </p>
+      </center>
+    ")
+  })
+  getDirListing <- function(url) {
+    # Takes a URL and returns a character vector of filenames
+    a <- xml2::read_html(url)
+    fnames = grep('^G',xml_text(xml_find_all(a,'//a/@href')),value=TRUE)
+    return(fnames)
+  }
+  
+  getFileUrl <- function(GEO,filetype){
+    geotype <- toupper(substr(GEO,1,3))
+    fileinfo <- list()
+    stub = gsub('\\d{1,3}$','nnn',GEO,perl=TRUE)
+    if(geotype=='GSM') {
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/samples/%s/%s/%s/",stub,GEO,filetype)
+    }
+    if(geotype=='GSE') {
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/%s/",stub,GEO,filetype)
+    }
+    if(geotype=='GPL') {
+      url <- sprintf("https://ftp.ncbi.nlm.nih.gov/geo/platform/%s/%s/%s/",stub,GEO,filetype)
+    }
+    return(url)
+  }
+  
+  getFiles <- function(url) {
+    
+    fnames <- try(getDirListing(url),silent=TRUE)
+    
+    if(inherits(fnames,'try-error')) {
+      message('No supplemental files found.')
+      message('Check URL manually if in doubt')
+      message(url)
+      return(NULL)
+    }
+    return(fnames)
+    
+    
+  }
+  
+  downloadFile <- function(url,fname){
+    storedir <- getwd()
+    #suppressWarnings(dir.create(storedir <- file.path(getwd(),GEO)))
+    if(!file.exists(file.path(getwd(),input$file_name_button))){
+    download.file(paste(file.path(url,fname),'tool=geoquery',sep="?"),
+                  destfile=file.path(storedir,fname),
+                  mode='wb',
+                  method=getOption('download.file.method.GEOquery'))
+    }
+    #acc_data <- read.table(file.path(storedir,fname))
+    #return(acc_data)
+    
+  }
+  
+  check_file_type <- function(){
+    parts <- strsplit(input$file_name_button, ".", fixed = TRUE)
+    type <- parts[[1]][length(parts[[1]])]
+    print("before")
+    print(value_var$geo_file_type)
+    if (type == "gz"){
+      
+      value_var$geo_file_type<-"rnaseq"
+      output$help_text_geo <- renderUI({
+        HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          GEO Data Import Complete. Please go to the preprocessing tab of RnaSeq and proceed with the analysis.
+          </b>
+        </p>
+      </center>
+    ")
+      })
+    }
+    else if(type == "tar"){
+      file_list <- untar(file.path(getwd(),input$file_name_button),list=TRUE)
+      print(file_list[1])
+      parts <- strsplit(file_list[1], ".", fixed = TRUE)
+      type <- parts[[1]][length(parts[[1]])-1]
+      print(type)
+      if(type == "cel" || type == "CEL"){
+        value_var$geo_file_type<-"microarray"
+        output$help_text_geo <- renderUI({
+          HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Its Microarray file. Please go to the preprocessing tab of Microarray and proceed with the analysis.
+          </b>
+        </p>
+      </center>
+    ")
+        })
+      }
+      #df_micro()
+    }
+    
+    
+  }
+  
+  observeEvent(input$submit_geo_acc_no, {
+    
+    url<-getFileUrl(input$geo_acc_no,"suppl")
+    fname <- getFiles(url)
+    updateRadioButtons(session, "file_name_button",
+                       choices = fname,
+                       selected = fname[1]
+    )
+    
+    updateTabsetPanel(session, "geo_tab",
+                      selected = "geo_pre")
+    
+  })
+  
+  observeEvent(input$submit_geo_preprocessing,{
+    value_var$geo_file_type<-"none"
+    url<-getFileUrl(input$geo_acc_no,"suppl")
+    print(input$file_name_button)
+    downloadFile(url,input$file_name_button)
+    check_file_type()
+    df_geo <- read.table(file.path(getwd(),input$file_name_button) ,header=TRUE, stringsAsFactors = TRUE)
+    output$geo_box_plot <- renderPlot({# load series and platform data from GEO
+      
+      # box-and-whisker plot
+      par(mar=c(7,4,2,1))
+      title <- paste (input$geo_acc_no, "/",input$file_name_button , sep ="")
+      boxplot(df_geo, boxwex=0.7, notch=FALSE, main=title, outline=FALSE, las=2)})
+    
+    output$geo_expr_plot <- renderPlot({
+
+      par(mar=c(4,4,2,1))
+      title <- paste (input$geo_acc_no, "/", input$file_name_button, " value distribution", sep ="")
+      plotDensities(df_geo, main=title, legend=F)
+
+    })
+    output$geo_mean_plot <- renderPlot({
+      
+      # mean-variance trend
+      ex <- na.omit(df_geo) # eliminate rows with NAs
+      plotSA(lmFit(ex), main="Mean variance trend")
+      
+    })
+   
+    output$geo_umap_plot <- renderPlot({
+      
+      ex <- df_geo[!duplicated(df_geo), ]  # remove duplicates
+      ump <- umap(t(ex), n_neighbors = 5, random_state = 123)
+      plot(ump$layout, main="UMAP plot, nbrs=5", xlab="", ylab="", pch=20, cex=1.5)
+        # point labels without overlaps
+      pointLabel(ump$layout, labels = rownames(ump$layout), method="SANN", cex=0.6)
+        
+    })
+  })
+  
+ 
   ###############################################################
   
   # get gene length
   gene_length <- reactive({
-    if (is.null(input$length1)) {
+    if (is.null(input$length1)&&is.null(input$length2)) {
       return(NULL)
     }
+    else if (!is.null(input$length1)){
     lengths_df <- read.csv(input$length1$datapath)
+    }else{
+      lengths_df <- read.csv(input$length2$datapath)
+    }
     lengths_df2 <- data.frame("len" = lengths_df[, 2])
     rownames(lengths_df2) <- as.character(lengths_df[, 1])
     return(lengths_df2)
@@ -2346,10 +4024,13 @@ server <- function(input, output, session) {
   
   # get spikes / negative control genes
   neg_control <- reactive({
-    if (is.null(input$spikes1)) {
+    if (is.null(input$spikes1)&&is.null(input$spikes2)) {
       return(NULL)
-    }
+    }else if (!is.null(input$spikes1)){
     spikes <- read.csv(input$spikes1$datapath, header = F)
+    }else{
+      spikes <- read.csv(input$spikes2$datapath, header = F)
+    }
     spikes <- as.character(spikes[, 1])
     # print(spikes[1:10])
     return(spikes)
@@ -2401,6 +4082,7 @@ server <- function(input, output, session) {
     }
     parts <- strsplit(input$filego$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -2432,6 +4114,7 @@ server <- function(input, output, session) {
     }
     parts <- strsplit(input$filebg$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -2487,6 +4170,13 @@ server <- function(input, output, session) {
     method <- input$norm_method
     
     if (method %in% c("TPM", "RPKM", "FPKM")) {
+      if (is.null(input$length1)&&is.null(input$length2)) {
+        showModal(modalDialog(
+          title = "Error",
+          "Please Enter a Gene Length File first!"
+        ))
+      }
+      
       lengths_df <- gene_length()
       merge_DS <- merge(raw_DS, lengths_df, by = "row.names")
       rownames(merge_DS) <- merge_DS[, 1]
@@ -2518,6 +4208,12 @@ server <- function(input, output, session) {
     } else if (method == "None") {
       return(raw_DS)
     } else if (method == "RUV") {
+      if (is.null(input$spikes1)&&is.null(input$spikes2)) {
+        showModal(modalDialog(
+          title = "Error",
+          "Please Enter a Negative Control File first!"
+        ))
+      }
       spikes <- neg_control()
       if (!is.null(spikes)) {
         spikes <- intersect(spikes, rownames(raw_DS))
@@ -2725,6 +4421,7 @@ server <- function(input, output, session) {
     } else if (type == "raw") {
       DS <- df_raw_shiny()
     }
+
     if (trans == "None") {
       scatter.data <- DS
     } else if (trans == "Natural log") {
@@ -2764,20 +4461,24 @@ server <- function(input, output, session) {
     
     # plot heat scatter w/ ggplot
     p <- ggplot(df, aes(x = t1, y = t2, color = density, text = paste(xval, ": ", round(t1, 4), "\n", yval, ": ", round(t2, 4), sep = ""), group = 1)) +
-      geom_point(shape = 19, size = 0.25) +
+      geom_point(shape = 19, size =    0.25) +
       scale_color_viridis()
     
     # modify label and fill defaults
-    p <- p + xlab(xval) + ylab(yval) + labs(color = "KDE", title = paste("R=", round(cor(scatter.data[, xval], scatter.data[, yval]), 3)))
+    p <- p + xlab(xval) + ylab(yval) + labs(color = "KDE", title = paste("Scatter Plot, R=", round(cor(scatter.data[, xval], scatter.data[, yval]), 3)))
     
     # if checkbox is ticked, display regression line
     if (input$regline == TRUE) {
       p <- p + geom_smooth(method = lm, se = FALSE, size = 0.5, color = "blue")
     }
-    p
     
+   
+    hide("help_text_scatter")
     # add interactivity w/ plotly
+    p
     ggplotly(p, tooltip = c("text"))
+    
+    
   }
   
   scatterplot_collage <- function() {
@@ -2798,8 +4499,11 @@ server <- function(input, output, session) {
     }
   }
   
-  output$scatter.plot <- renderPlotly({
-    scatterplot()
+  observeEvent(input$submit_scatter, {
+    output$scatter.plot <- renderPlotly({
+      scatterplot()
+    })
+    
   })
   
   output$downloadscatter_collage <- downloadHandler(
@@ -2818,9 +4522,8 @@ server <- function(input, output, session) {
       paste("heatscatter", ".pdf", sep = "")
     },
     content = function(file) {
-      pdf(file)
-      scatterplot()
-      dev.off()
+      htmlwidgets::saveWidget(widget = scatterplot(), file = "scatterplot.html")
+      webshot(url = "scatterplot.html", file = file)
     }
   )
   
@@ -2842,6 +4545,7 @@ server <- function(input, output, session) {
   ############################
   ######## distfit ###########
   ############################
+  
   
   output$downloaddist <- downloadHandler(
     filename = function() {
@@ -2915,10 +4619,6 @@ server <- function(input, output, session) {
     return(list(fits, distrs, numcol, var, fit_range))
   })
   
-  output$dist.plot <- renderPlot({
-    distplot()
-  })
-  
   distaic <- reactive({
     dist.start <- Sys.time()
     DS <- distfit_df()
@@ -2941,15 +4641,9 @@ server <- function(input, output, session) {
     dist.end <- Sys.time()
     print("distribution fitting time")
     print(dist.end - dist.start)
+    
     return(AIC.df)
   })
-  
-  output$dist.aic <- renderTable(
-    {
-      distaic()
-    },
-    rownames = TRUE
-  )
   
   distplot <- function() {
     li <- plotDist()
@@ -2966,6 +4660,7 @@ server <- function(input, output, session) {
               legendtext = distrs, cex = 0.5, main = var, fitcol = rainbow(6)[which(numcol == 1)], fitlty = line_types[which(numcol == 1)]
       )
     }
+    
   }
   
   output$downloaddistaic <- downloadHandler(
@@ -2976,6 +4671,19 @@ server <- function(input, output, session) {
       write.csv(distaic(), file, row.names = TRUE)
     }
   )
+  
+  observeEvent(input$submit_distfit, {
+    output$dist.plot <- renderPlot({
+      distplot()
+    })
+    output$dist.aic <- renderTable({
+      distaic()
+    },
+    rownames = TRUE
+    )
+    
+  })
+  
   
   output$help_text_dis_fit <- renderUI({
     HTML("
@@ -3012,9 +4720,12 @@ server <- function(input, output, session) {
     } else if (type == "raw") {
       DS <- df_raw_shiny()
     }
+    
+    
     method <- input$cor_method
     if (method == "Pearson correlation") {
       Cor2 <- data.frame(COR((DS), 1:length(DS), "pearson"))
+      
     } else if (method == "Spearman correlation") {
       Cor2 <- data.frame(COR((DS), 1:length(DS), "spearman"))
     }
@@ -3025,21 +4736,23 @@ server <- function(input, output, session) {
     return(Cor2)
   })
   
-  output$corr.plot <- renderPlot({
-    corrplot1()
+  observeEvent(input$submit_corr, {
+    output$corr.plot <- renderPlot({
+      corrplot1()
+    })
+    
+    output$corr.plot2 <- renderPlot({
+      corrplot2()
+    })
+    
+    output$corr.matrix <- renderTable(
+      {
+        cor_df()
+      },
+      rownames = TRUE
+    )
+    #shinyjs::show("downloadcorrAll")
   })
-  
-  output$corr.plot2 <- renderPlot({
-    corrplot2()
-  })
-  
-  output$corr.matrix <- renderTable(
-    {
-      cor_df()
-    },
-    rownames = TRUE
-  )
-  
   corrplot1 <- function() {
     corr <- as.matrix(cor_df())
     corr <- apply(corr, 2, as.numeric)
@@ -3049,7 +4762,8 @@ server <- function(input, output, session) {
     } else {
       fontsize <- 20 / ncol(corr)
     }
-    corrplot(corr, method = "shade", shade.col = NA, tl.col = "black", cl.lim = c(min(corr), 1), is.corr = FALSE, tl.cex = fontsize)
+    corrplot(corr, method = "shade", shade.col = NA, tl.col = "black", cl.lim = c(min(corr), 1), is.corr = FALSE,tl.cex = fontsize)
+    hide("help_text_correlation")
   }
   
   corrplot2 <- function() {
@@ -3062,7 +4776,8 @@ server <- function(input, output, session) {
       fontsize <- 20 / ncol(corr)
     }
     corrplot(corr, type = "upper", tl.col = "black", cl.lim = c(min(corr), 1), is.corr = FALSE, tl.cex = fontsize)
-  }
+    
+    }
   
   output$downloadcorrplot <- downloadHandler(
     filename = function() {
@@ -3095,6 +4810,7 @@ server <- function(input, output, session) {
     }
   )
   
+  
   output$help_text_correlation <- renderUI({
     HTML("
     <br>
@@ -3124,7 +4840,7 @@ server <- function(input, output, session) {
           test does not carry any assumptions about the distribution of the data and is the appropriate correlation 
           analysis when the variables are measured on a scale that is at least ordinal.
           The following formula is used to calculate the Spearman rank correlation:<br>
-          <img src='https://i.ibb.co/rkjbg1d/Spearman-correlation.png' alt='Spearman-correlation' border='0'><br>
+          <img src='https://www.dataanalytics.org.uk/wp-content/uploads/2019/06/Figure-8.5.png' alt='Spearman-correlation' border='0'><br>
           ρ = Spearman rank correlation<br>
           r<sub>x,i</sub>, r<sub>y,i</sub> = ranks of corresponding variables (or gene)<br>
           n = number of observations
@@ -3205,6 +4921,7 @@ server <- function(input, output, session) {
       kmeans.data <- data.frame(x = PR$x[, col_val_x], y = PR$x[, col_val_y])
       print(kmeans.data)
       ####################################################################################
+      set.seed(1)
       kmeans.result <- kmeans(kmeans.data, num)
       return(list(PR, PCA.var, PCA.var.per, rindex, cindex, xlabel, ylabel, cluster_flag, kmeans.result))
     }
@@ -3237,7 +4954,7 @@ server <- function(input, output, session) {
       name = "PCA variance",
       type = "bar"
     ) %>% layout(xaxis = xform)
-    
+    hide("help_text_PCA")
     return(p)
   }
   
@@ -3256,7 +4973,8 @@ server <- function(input, output, session) {
         type = "scatter",
         mode = "markers"
       ) %>% layout(xaxis = list(title = xlabel), yaxis = list(title = ylabel))
-    } else if (cluster_flag == TRUE) {
+    } 
+    else if (cluster_flag == TRUE) {
       kmeans.result <- li[[9]]
       text_flag <- input$pca_text
       if (text_flag == TRUE) {
@@ -3342,46 +5060,51 @@ server <- function(input, output, session) {
       }
     }
   }
+ 
   
-  output$pcavar.plot <- renderPlotly({
-    pcavarplot()
-  })
-  
-  output$pca2d.plot <- renderPlotly({
-    pca2dplot()
-  })
-  
-  output$pca3d.plot <- renderPlotly({
-    pca3dplot()
+  observeEvent(input$submit_pca, {
+    output$pcavar.plot <- renderPlotly({
+      pcavarplot()
+    })
+    
+    output$pca2d.plot <- renderPlotly({
+      pca2dplot()
+    })
+    
+    output$pca3d.plot <- renderPlotly({
+      pca3dplot()
+    })
+    
+    
   })
   
   output$downloadpcavar <- downloadHandler(
     filename = function() {
-      paste("pca_variance", ".png", sep = "")
+      paste("pca_variance", ".pdf", sep = "")
     },
     content = function(file) {
-      p <- pcavarplot()
-      orca(p, file = "pca_variance.png")
+      htmlwidgets::saveWidget(widget = pcavarplot(), file = "pcavariance.html")
+      webshot(url = "pcavariance.html", file = file)
     }
   )
   
   output$downloadpca2d <- downloadHandler(
     filename = function() {
-      paste("pca2d", ".png", sep = "")
+      paste("pca2d", ".pdf", sep = "")
     },
     content = function(file) {
-      p <- pca2dplot()
-      orca(p, file = "pca2d.png")
+      htmlwidgets::saveWidget(widget = pca2dplot(), file = "pca2d.html")
+      webshot(url = "pca2d.html", file = file)
     }
   )
   
   output$downloadpca3d <- downloadHandler(
     filename = function() {
-      paste("pca3d", ".png", sep = "")
+      paste("pca3d", ".pdf", sep = "")
     },
     content = function(file) {
-      p <- pca3dplot()
-      plotly_IMAGE(p, format = "png", out_file = "pca3d.png")
+      htmlwidgets::saveWidget(widget = pca3dplot(), file = "pca3d.html")
+      webshot(url = "pca3d.html", file = file)
     }
   )
   
@@ -3561,6 +5284,8 @@ server <- function(input, output, session) {
       res.df.filt <- de_filt(res.df, p_val, fc, rep_number)
       res.df.filt
     }
+   
+    hide("help_text_DE_anal")
   })
   
   ##### volcano plot ######
@@ -3605,6 +5330,7 @@ server <- function(input, output, session) {
     volcano.end.time <- Sys.time()
     print("volcano time")
     print(volcano.end.time - volcano.start.time)
+    
   })
   
   output$volcano_plot <- renderPlot({
@@ -3634,6 +5360,8 @@ server <- function(input, output, session) {
     dispersion.end.time <- Sys.time()
     print("dispersion time")
     print(dispersion.end.time - dispersion.start.time)
+    
+    
   })
   
   output$dispersion_plot <- renderPlot({
@@ -3816,6 +5544,7 @@ server <- function(input, output, session) {
     # print(head(DS3))
     
     set.seed(110)
+    set.seed(1)
     a <- ComplexHeatmap::Heatmap(DS3,
                                  name = "Normalized expression",
                                  col = colorRamp2(c(min(DS3), 0, max(DS3)), c("red", "black", "green")),
@@ -3830,7 +5559,7 @@ server <- function(input, output, session) {
                                  heatmap_legend_param = list(title = "Normalized expression")
     )
     set.seed(110)
-    rcl.list <- row_order(a)
+    rcl.list <- ComplexHeatmap::row_order(a)
     DS3.1 <- as.matrix(rownames(DS3))
     
     # Cluster <- NULL
@@ -3877,7 +5606,7 @@ server <- function(input, output, session) {
     ll <- plotHeatmap()
     a <- ll[[1]]
     DS3 <- ll[[2]]
-    rcl.list <- row_order(a)
+    rcl.list <- ComplexHeatmap::row_order(a)
     DS3.1 <- as.matrix(rownames(DS3))
     
     Cluster <- NULL
@@ -3896,6 +5625,8 @@ server <- function(input, output, session) {
   mapPlot <- function() {
     myHeatmap <- plotHeatmap()[[1]]
     myHeatmap <- draw(myHeatmap)
+    
+    hide("help_text_heatmap")
   }
   
   output$heatmap.plot <- renderPlot({
@@ -3925,6 +5656,7 @@ server <- function(input, output, session) {
         dplyr::filter(gl, cluster == clusternum)
       }
     }
+    
   })
   
   output$downloadclusters <- downloadHandler(
@@ -4008,8 +5740,8 @@ server <- function(input, output, session) {
     }
     selectInput("noise_anchor_b", "Anchor genotype", choices = names)
   })
-  
-  noisePlot <- eventReactive(input$noise_plot, {
+  noisePlot <- function(){
+    
     noise.start.time <- Sys.time()
     type <- input$file_type
     if (type == "norm") {
@@ -4131,20 +5863,27 @@ server <- function(input, output, session) {
     noise.end.time <- Sys.time()
     print("noise time")
     print(noise.end.time - noise.start.time)
+    
+    hide("help_text_Noise")
     return(p)
+    
+  }
+  observeEvent(input$noise_plot, {
+    output$noise.plot <- renderPlotly({
+      noisePlot()
+    })
+    
   })
   
-  output$noise.plot <- renderPlotly({
-    noisePlot()
-  })
+
   
   output$downloadnoise <- downloadHandler(
     filename = function() {
-      paste("noise", ".png", sep = "")
+      paste("noise", ".pdf", sep = "")
     },
     content = function(file) {
-      p <- noisePlot()
-      export(p, file = "noise.png")
+      htmlwidgets::saveWidget(widget = noisePlot(), file = "noise.html")
+      webshot(url = "noise.html", file = file)
     }
   )
   
@@ -4271,21 +6010,28 @@ server <- function(input, output, session) {
       entropy.end.time <- Sys.time()
       print("entropy time")
       print(entropy.end.time - entropy.start.time)
+      
+     
+      hide("help_text_Entropy")
       return(p)
     }
   })
   
-  output$entropy.plot <- renderPlotly({
-    entropyPlot()
+  observeEvent(input$submit_entropy, {
+    output$entropy.plot <- renderPlotly({
+      entropyPlot()
+    })
+    
   })
+  
   
   output$downloadentropy <- downloadHandler(
     filename = function() {
-      paste("entropy", ".png", sep = "")
+      paste("entropy", ".pdf", sep = "")
     },
     content = function(file) {
-      p <- entropyPlot()
-      export(p, file = "entropy.png")
+      htmlwidgets::saveWidget(widget = entropyPlot(), file = "entropy.html")
+      webshot(url = "entropy.html", file = file)
     }
   )
   
@@ -4419,7 +6165,7 @@ server <- function(input, output, session) {
   ############# Python ##############
   ###################################
   # data for t-sne
-  plotTSNE2 <- eventReactive(input$submit_tsne2, {
+  plotTSNE2 <- function() {
     
     tsne2_trans <- input$tsne2_trans
     type <- input$file_type
@@ -4444,10 +6190,9 @@ server <- function(input, output, session) {
     tsne_cluster_flag <- input$tsne_cluster # ture or false
    
     return (list(tsne2.data, perplexity_value, no_of_pca, tsne_cluster_flag)) #, no_of_clusters
-  })
+  }
   
-  
-  tsne2plot <- function(){
+  tsne2plot <-eventReactive(input$submit_tsne2,{
     set.seed(13)
     tsne2.start <- Sys.time()
     # get data 
@@ -4477,8 +6222,8 @@ server <- function(input, output, session) {
         add_trace(type = "scatter", mode = 'markers', opacity = 0.5)
 
     } else { # tsne_cluster_flag == TRUE
-      set.seed(13)
       tsne_cluster_num <- as.numeric(input$tsne_cluster_num)
+      set.seed(1)
       tsne_kmeans_result <- kmeans(tsne_df[,1:2], tsne_cluster_num)
       tsne_df$cluster <- factor(tsne_kmeans_result$cluster, levels = 1:max(tsne_kmeans_result$cluster) )
       
@@ -4495,9 +6240,9 @@ server <- function(input, output, session) {
     tsne2.end <- Sys.time()
     print("t-SNE plot time")
     print(tsne2.end - tsne2.start)
-    
+    hide("help_text_tsne")
     return(list(p, tsne_df))
-  }
+  })
   
   output$tsne2.plot <- renderPlotly({
     li <- tsne2plot()
@@ -4508,6 +6253,7 @@ server <- function(input, output, session) {
   
   output$tsne_table <- DT::renderDataTable({
     tsne_table <- tsne2plot()[[2]] # get table
+    
     tsne_table
   })
   
@@ -4518,6 +6264,19 @@ server <- function(input, output, session) {
     content = function(file) {
       gl <- tsne2plot()[[2]]
       write.csv(gl, file, row.names = FALSE)
+    }
+  )
+  tsneplothtml<- function(){
+    tsne2plot()[[1]]
+  }
+  
+  output$download_tsne2 <- downloadHandler(
+    filename = function() {
+      paste("tsne_plot", ".pdf", sep = "")
+    },
+    content = function(file) {
+      htmlwidgets::saveWidget(widget = tsneplothtml(), file = "tsneplot.html")
+      webshot(url = "tsneplot.html", file = file)
     }
   )
   
@@ -4579,6 +6338,7 @@ server <- function(input, output, session) {
     rf.end <- Sys.time()
     print("Random forest plot time")
     print(rf.end - rf.start)
+    hide("help_text_rf")
     return(list(rf.data, num_trees, num_clusters))
   })
   
@@ -4615,6 +6375,7 @@ server <- function(input, output, session) {
     rf.end <- Sys.time()
     print("RFSIL plot time")
     print(rf.end - rf.start)
+    hide("help_text_rf")
     return(list(meta_df,DS))
   })
   
@@ -4832,6 +6593,7 @@ server <- function(input, output, session) {
     
     # some parameters
     som.data <- as.matrix(som.data)
+    set.seed(1)
     som_grid <- somgrid(xdim = grid_h, ydim = grid_v, topo = "hexagonal")
     som_model <- som(som.data, grid = som_grid)
     
@@ -4852,8 +6614,11 @@ server <- function(input, output, session) {
       rev(brewer.pal(n, alpha))
     }
     # use codes vectors (weight) for property plot
+    #shinyjs::show("downloadProperty")
+    hide("help_text_SOM")
     plot(som_model, type = "property", property = getCodes(som_model), main = "Property", palette.name = colors)
-  }
+  
+    }
   
   somcountplot <- function() {
     li <- plotSOM()
@@ -4863,7 +6628,7 @@ server <- function(input, output, session) {
     colors <- function(n, alpha = 'Set2') {
       rev(brewer.pal(n, alpha))
     }
-    
+    #shinyjs::show("downloadCount")
     # show how many genes are mapped to each node
     plot(som_model, type = "count", main = "Count", palette.name = colors)
   }
@@ -4874,6 +6639,7 @@ server <- function(input, output, session) {
     
     # plot type: codes
     # shows codebook vectors of genes
+    #shinyjs::show("downloadCodes")
     plot(som_model, type = "codes", main = "Codes")
   }
   
@@ -4885,7 +6651,7 @@ server <- function(input, output, session) {
     colors <- function(n, alpha = 'Set3') {
       rev(brewer.pal(n, alpha))
     }
-    
+    #shinyjs::show("downloadDistance")
     # show how close genes are from each other when they are mapped
     plot(som_model, type = "dist.neighbours", main = "Distance", palette.name = colors)
   }
@@ -4906,6 +6672,7 @@ server <- function(input, output, session) {
     
     # use hierarchical clustering to cluster the SOM
     som.hc <- cutree(hclust(object.distances(som_model, "codes")), cluster_size)
+    #shinyjs::show("downloadCluster")
     plot(som_model, type = "mapping", bgcol = col_vector[som.hc], main = "Clusters")
     add.cluster.boundaries(som_model, som.hc)
   }
@@ -5035,11 +6802,13 @@ server <- function(input, output, session) {
   
   df_complex <- reactive({
     print("running...")
-    if (is.null(input$file_complex_prot)) {
+    if (is.null(input$file_complex_prot)&& is.null(input$text_complex_prot)) {
       return(NULL)
     }
+    else if(!is.null(input$file_complex_prot)){
     parts <- strsplit(input$file_complex_prot$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -5051,6 +6820,24 @@ server <- function(input, output, session) {
     Accessions <- read.csv(input$file_complex_prot$datapath)
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+    }
+    else{
+      
+      Acessions<-strsplit(input$text_complex_prot,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_complex_prot," ")
+        
+      }
+      Accessions <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        Accessions<-rbind(Accessions,Acessions[[1]][x])
+      }
+      
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+      
+    }
     
     return(Accessions)
     
@@ -5149,11 +6936,13 @@ server <- function(input, output, session) {
   
   df_prot_func <- reactive({
     print("running...")
-    if (is.null(input$file_prot_func)) {
+    if (is.null(input$file_prot_func) && is.null(input$text_prot_func)) {
       return(NULL)
     }
+    else if(!is.null(input$file_prot_func)){
     parts <- strsplit(input$file_prot_func$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -5165,7 +6954,24 @@ server <- function(input, output, session) {
     Accessions <- read.csv(input$file_prot_func$datapath)
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
-    
+    }
+    else{
+      
+      Acessions<-strsplit(input$text_prot_func,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_func," ")
+        
+      }
+      Accessions <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        Accessions<-rbind(Accessions,Acessions[[1]][x])
+      }
+      
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+      
+    }
     return(Accessions)
     
   })
@@ -5245,11 +7051,12 @@ server <- function(input, output, session) {
   
   df_prot_expr <- reactive({
     print("running...")
-    if (is.null(input$file_prot_expr)) {
+    if (is.null(input$file_prot_expr)&& is.null(input$text_prot_expr)) {
       return(NULL)
-    }
+    }else if(!is.null(input$file_prot_expr)){
     parts <- strsplit(input$file_prot_expr$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -5261,6 +7068,20 @@ server <- function(input, output, session) {
     Accessions <- read.csv(input$file_prot_expr$datapath)
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+    }else{
+      Acessions<-strsplit(input$text_prot_expr," ")
+      print(Acessions)
+      Accessions <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        print(x)
+        Accessions<-rbind(Accessions,Acessions[[1]][x])
+      }
+      
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+      
+    }
     
     return(Accessions)
     
@@ -5342,11 +7163,13 @@ server <- function(input, output, session) {
   
   df_prot_local <- reactive({
     print("running...")
-    if (is.null(input$file_prot_local)) {
+    if (is.null(input$file_prot_local) && is.null(input$text_prot_local)) {
       return(NULL)
     }
+    else if(!is.null(input$file_prot_local)){
     parts <- strsplit(input$file_prot_local$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -5358,7 +7181,23 @@ server <- function(input, output, session) {
     Accessions <- read.csv(input$file_prot_local$datapath)
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
-    
+    }
+    else{
+      Acessions<-strsplit(input$text_prot_local,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_local," ")
+        
+      }
+      Accessions <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        Accessions<-rbind(Accessions,Acessions[[1]][x])
+      }
+      
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+      
+    }
     return(Accessions)
     
   })
@@ -5465,11 +7304,13 @@ server <- function(input, output, session) {
   
   df_prot_domain <- reactive({
     print("running...")
-    if (is.null(input$file_prot_domain)) {
+    if (is.null(input$file_prot_domain)&& is.null(input$text_prot_domain)) {
       return(NULL)
     }
+    else if(!is.null(input$file_prot_domain)){
     parts <- strsplit(input$file_prot_domain$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -5481,7 +7322,24 @@ server <- function(input, output, session) {
     Accessions <- read.csv(input$file_prot_domain$datapath)
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
-    
+    }
+    else{
+      
+      Acessions<-strsplit(input$text_prot_domain,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_domain," ")
+        
+      }
+      Accessions <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        Accessions<-rbind(Accessions,Acessions[[1]][x])
+      }
+      
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+      
+    }
     return(Accessions)
     
   })
@@ -5565,35 +7423,54 @@ server <- function(input, output, session) {
   
   df_path_enri_gene <- reactive({
     print("running pathway gene...")
-    if (is.null(input$file_path_enri_gene)) {
+    if (is.null(input$file_path_enri_gene) && is.null(input$text_path_enri_gene) ) {
       return(NULL)
+    }else if(!is.null(input$file_path_enri_gene)){
+      parts <- strsplit(input$file_path_enri_gene$datapath, ".", fixed = TRUE)
+      type <- parts[[1]][length(parts[[1]])]
+      type <- tolower(type)
+      if (type != "csv") {
+        showModal(modalDialog(
+          title = "Error",
+          "Please input a csv file!"
+        ))
+        return(NULL)
+      }
+      
+      Accessions <- read.csv(input$file_path_enri_gene$datapath)
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     }
-    parts <- strsplit(input$file_path_enri_gene$datapath, ".", fixed = TRUE)
-    type <- parts[[1]][length(parts[[1]])]
-    if (type != "csv") {
-      showModal(modalDialog(
-        title = "Error",
-        "Please input a csv file!"
-      ))
-      return(NULL)
+    else{
+     
+      Acessions<-strsplit(input$text_path_enri_gene," ")
+      print(Acessions)
+      Accessions <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        print(x)
+        Accessions<-rbind(Accessions,Acessions[[1]][x])
+      }
+      
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+      
     }
     
-    Accessions <- read.csv(input$file_path_enri_gene$datapath)
-    Accessions <- na.omit(Accessions)
-    Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
-    
-    return(Accessions)
-    
-  })
+      return(Accessions)
+      })
   
   
   df_path_enri_prot <- reactive({
     print("running...")
-    if (is.null(input$file_path_enri_prot)) {
+    if (is.null(input$file_path_enri_prot)&& is.null(input$text_path_enri_prot)) {
       return(NULL)
     }
+    else if(!is.null(input$file_path_enri_prot)){
     parts <- strsplit(input$file_path_enri_prot$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -5603,9 +7480,27 @@ server <- function(input, output, session) {
     }
     
     Accessions <- read.csv(input$file_path_enri_prot$datapath)
+    print(Accessions)
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
-    
+    }
+    else{
+      Acessions<-strsplit(input$text_path_enri_prot,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_path_enri_prot," ")
+        
+      }
+      Accessions <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        print(x)
+        Accessions<-rbind(Accessions,Acessions[[1]][x])
+      }
+      
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+      
+    }
     return(Accessions)
     
   })
@@ -5748,7 +7643,6 @@ server <- function(input, output, session) {
   observeEvent(input$fit_path_gene, ignoreInit=TRUE, {
     fit(session, 80)
   })
-  
   
   observeEvent(input$fit_path_prot, ignoreInit=TRUE, {
     fit(session, 80)
@@ -5917,8 +7811,12 @@ server <- function(input, output, session) {
     
     print("visualization")
     df_path_enri_id_gene()
-    Enrich <- gost(df_path_enri_id_gene(),evcodes = T, sources = c('KEGG', 'REAC'))
+    
+    Enrich <- gost(df_path_enri_id_gene()[,1],evcodes = T, sources = c('KEGG', 'REAC'))
+    
     Pathway <- Construct.COPathway(Enrich, input$overlap_min_gene)
+    
+
     nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
     
     
@@ -5950,9 +7848,12 @@ server <- function(input, output, session) {
     {
       inx <- which(grepl(accession, PathwayDF$intersection) == T)
       inx <- inx[-i] 
-      Source <- rep(PathwayDF$term_name[i], length(inx))
-      Target <- PathwayDF$term_name[c(inx)]
-      PathwayNetwork <- rbind(PathwayNetwork , cbind(Source, Target, accession))
+      if (length(inx) > 1)
+      {
+        Source <- rep(PathwayDF$term_name[i], length(inx))
+        Target <- PathwayDF$term_name[c(inx)]
+        PathwayNetwork <- rbind(PathwayNetwork , cbind(Source, Target, accession))
+      }
     }
     PathwayDF <- PathwayDF[-i,]
     CoEnrichment <- setNames(aggregate(PathwayNetwork$accession, by = list(PathwayNetwork$Source, PathwayNetwork$Target),
@@ -5968,7 +7869,7 @@ server <- function(input, output, session) {
     
     print("visualization")
     df_path_enri_id_prot()
-    Enrich <- gost(df_path_enri_id_prot(),evcodes = T, sources = c('KEGG', 'REAC'))
+    Enrich <- gost(df_path_enri_id_prot()[,1],evcodes = T, sources = c('KEGG', 'REAC'))
     Pathway <- Construct.COPathway(Enrich, input$overlap_min_prot)
     nodes_tot <- c(unique(Pathway[,1],unique(Pathway[,2])))
     
@@ -6011,7 +7912,67 @@ server <- function(input, output, session) {
   ###################################
   ###################################
   ###################################
+  output$help_text_protein_set <- renderUI({
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Please Upload or enter the Uniprot Accession Numbers.
+          </b>
+        </p>
+      </center>
+    ")
+  })
+  observeEvent(input$submit_protein_set,{
+    if (is.null(input$file_protein_set) && is.null(input$text_protein_set)) {
+      return(NULL)
+    }else if(!is.null(input$file_protein_set)){
+      parts <- strsplit(input$file_protein_set$datapath, ".", fixed = TRUE)
+      type <- parts[[1]][length(parts[[1]])]
+      type <- tolower(type)
+      if (type != "csv") {
+        showModal(modalDialog(
+          title = "Error",
+          "Please input a csv file!"
+        ))
+        return(NULL)
+      }
+      
+      Accessions <- read.csv(input$file_protein_set$datapath)
+      Accessions <- na.omit(Accessions)[,1]
+      Accessions <- unique(Accessions)
+      Accessions <- trimws(Accessions)
+    }else{
+      Accessions<-input$text_protein_set
+      print(Accessions)
+    }
+    
+    updateTextInput(session, "text_uniprot", value = paste(Accessions))
+    updateTextInput(session, "text_prot_Int", value = paste(Accessions))
+    updateTextInput(session, "text_prot_func", value = paste(Accessions))
+    updateTextInput(session, "text_prot_local", value = paste(Accessions))
+    updateTextInput(session, "text_prot_domain", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq_evol", value = paste(Accessions))
+    updateTextInput(session, "text_prot_seq_Patho", value = paste(Accessions))
+    updateTextInput(session, "text_complex_prot", value = paste(Accessions))
   
+    output$help_text_protein_set <- renderUI({
+      HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          Data Upload Complete. Please proceed with the analysis.
+          </b>
+        </p>
+      </center>
+    ")
+    })
+    })
   
   
   ###################################
@@ -6022,25 +7983,44 @@ server <- function(input, output, session) {
   
   df_uniprot <- reactive({
     print("running")
-    if (is.null(input$file_uniprot)) {
+    if (is.null(input$file_uniprot) && is.null(input$text_uniprot)) {
       return(NULL)
     }
-    parts <- strsplit(input$file_uniprot$datapath, ".", fixed = TRUE)
-    type <- parts[[1]][length(parts[[1]])]
-    if (type != "csv") {
-      showModal(modalDialog(
-        title = "Error",
-        "Please input a csv file!"
-      ))
-      return(NULL)
-    }
+   else if(!is.null(input$file_uniprot)){
+     parts <- strsplit(input$file_uniprot$datapath, ".", fixed = TRUE)
+     type <- parts[[1]][length(parts[[1]])]
+     type <- tolower(type)
+     if (type != "csv") {
+       showModal(modalDialog(
+         title = "Error",
+         "Please input a csv file!"
+       ))
+       return(NULL)
+     }
+     
+     Accessions <- read.csv(input$file_uniprot$datapath)
+     Accessions <- na.omit(Accessions)[,1]
+     Accessions <- unique(Accessions)
+     Accessions <- trimws(Accessions)
+     print(Accessions)
+   }else{
+     Acessions<-strsplit(input$text_uniprot,",")
+     print(length(Acessions[[1]]))
+     if(length(Acessions[[1]])==1){
+       Acessions<-strsplit(input$text_uniprot," ")
+       
+       }
+     
+     Accessions <- data.frame(Acessions[[1]][1])
+     for (x in 2:length(Acessions[[1]])) {
+       Accessions<-rbind(Accessions,Acessions[[1]][x])
+     }
+     
+     print(Accessions)
+     Accessions <- na.omit(Accessions)
+     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
     
-    Accessions <- read.csv(input$file_uniprot$datapath)
-    Accessions <- na.omit(Accessions)[,1]
-    Accessions <- unique(Accessions)
-    Accessions <- trimws(Accessions)
-    print(Accessions)
-    
+   }
     return(Accessions)
     
   })
@@ -6048,6 +8028,7 @@ server <- function(input, output, session) {
   plotUniprot <-  eventReactive(input$submit_uniprot, {
     
     Accessions <- df_uniprot()
+    print(Accessions)
     hide("help_text_bio_pr")
     #print("Please Wait... Fetching Taxa Object. It may take a while")
     #TaxaObj <- GetNamesTaxa(Accessions)
@@ -6229,11 +8210,13 @@ server <- function(input, output, session) {
   
   df_prot_Int <- reactive({
     print("running")
-    if (is.null(input$file_prot_Int)) {
+    if (is.null(input$file_prot_Int)&& is.null(input$text_prot_Int)) {
       return(NULL)
     }
+    else if(!is.null(input$file_prot_Int)){
     parts <- strsplit(input$file_prot_Int$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6245,6 +8228,22 @@ server <- function(input, output, session) {
     Accessions <- read.csv(input$file_prot_Int$datapath)
     Accessions <- na.omit(Accessions)
     Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+    }else{
+      Acessions<-strsplit(input$text_prot_Int,",")
+      print(length(Acessions[[1]]))
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_Int," ")
+        
+      }
+      Accessions <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        Accessions<-rbind(Accessions,Acessions[[1]][x])
+      }
+      
+      print(Accessions)
+      Accessions <- na.omit(Accessions)
+      Accessions <- Accessions[!duplicated(Accessions[, 1]), ]
+    }
     
     return(Accessions)
     
@@ -6706,11 +8705,12 @@ server <- function(input, output, session) {
   
   df_genemania <- reactive({
     print("running")
-    if (is.null(input$file_gene)) {
+    if (is.null(input$file_gene)&&is.null(input$text_gene)) {
       return(NULL)
-    }
+    }else if(!is.null(input$file_gene)){
     parts <- strsplit(input$file_gene$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6722,6 +8722,17 @@ server <- function(input, output, session) {
     gene_names <- read.csv(input$file_gene$datapath)
     gene_names <- na.omit(gene_names)
     gene_names <- gene_names[!duplicated(gene_names[, 1]), ]
+    }else{
+      gene_name<-strsplit(input$text_prot_Int," ")
+      gene_names <- data.frame(gene_name[[1]][1])
+      for (x in 2:length(gene_name[[1]])) {
+        gene_names<-rbind(gene_names,gene_name[[1]][x])
+      }
+      
+      print(gene_names)
+      gene_names <- na.omit(gene_names)
+      gene_names <- gene_names[!duplicated(gene_names[, 1]), ]
+    }
     
     return(gene_names)
     
@@ -6778,13 +8789,15 @@ server <- function(input, output, session) {
   ###################################
   ###################################
   Proteins <- NULL
-  df_prot_seq <- reactive({
+  df_prot_seq <- eventReactive(input$submit_prot_Seq, {
     print("running")
-    if (is.null(input$file_prot_seq)) {
+    if (is.null(input$file_prot_seq)&& is.null(input$text_prot_seq)) {
       return(NULL)
     }
+    else if(!is.null(input$file_prot_seq)){
     parts <- strsplit(input$file_prot_seq$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6795,6 +8808,23 @@ server <- function(input, output, session) {
     
     protein_Id <- unique(as.character(na.omit(read.csv(input$file_prot_seq$datapath)[,1])))
     Proteins <<- protein_Id
+    }
+    else{
+      Acessions<-strsplit(input$text_prot_seq,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq," ")
+        
+      }
+      Proteins <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        Proteins<-rbind(Proteins,Acessions[[1]][x])
+      }
+      
+      print(Proteins)
+      Proteins <- na.omit(Proteins)
+      Proteins <- Proteins[!duplicated(Proteins[, 1]), ]
+      
+    }
     
     shinyjs::show("downloadData")
     return(Proteins)
@@ -6804,16 +8834,43 @@ server <- function(input, output, session) {
   Seqdata <- NULL
   
   output$help_text_prot_seq <- renderUI({
-    HTML("<h3><b>This page retrieves the full protein sequences from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.</b></h3>")
+    HTML("<br>
+    <br>
+      <center>
+        <p>
+          <b>This page retrieves the full protein sequences from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.
+          </b>
+        </p>
+      </center>
+    ")
   })
   
   output$help_text_prot_seq_evol <- renderUI({
-    HTML("<h3><b>This page performs Evolutionary analysis of protein sequences retrieved from <a href ='https://www.uniprot.org/'>UniProt.org</a>, Please upload accessions to start analysis.</b></h3>")
+    HTML("<br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page performs Evolutionary analysis of protein sequences retrieved from <a href ='https://www.uniprot.org/'>UniProt.org</a>, Please upload accessions to start analysis.
+          </b>
+        </p>
+      </center>
+    ")
   })
   
   output$help_text_prot_seq_Patho <- renderUI({
-    HTML("<h3><b>This page retrieves protein's pathological information from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.</b></h3>")
-  })
+    HTML("
+    <br>
+    <br>
+      <center>
+        <p>
+          <b>
+          This page retrieves protein's pathological information from <a href ='https://www.uniprot.org/'>UniProt.org</a> of a given set of UniProt accessions, Please upload accessions to start analysis.
+          </b>
+        </p>
+      </center>
+    ")
+    })
   output$SequencePlot <- renderPlot(
     {
       if (!is.null(df_prot_seq()))
@@ -6829,8 +8886,7 @@ server <- function(input, output, session) {
     }
     
   )
-  output$GravyPlot <- renderPlot(
-    {
+  output$GravyPlot <- renderPlot({
       if (!is.null(df_prot_seq()))
       {
         hide("help_text_prot_seq")
@@ -6842,10 +8898,8 @@ server <- function(input, output, session) {
         PlotGravy(Seqdata)
       }
       
-    }
-  )
-  output$ChargePlot <- renderPlot(
-    {
+    })
+  output$ChargePlot <- renderPlot({
       if (!is.null(df_prot_seq()))
       {
         hide("help_text_prot_seq")
@@ -6857,10 +8911,8 @@ server <- function(input, output, session) {
         PlotCharge(Seqdata)
       }
       
-    }
-  )
-  output$AcidityPlot <- renderPlot(
-    {
+    })
+  output$AcidityPlot <- renderPlot({
       if (!is.null(df_prot_seq()))
       {
         hide("help_text_prot_seq")
@@ -6871,8 +8923,7 @@ server <- function(input, output, session) {
         }
         PlotAcidity(Seqdata)
       }
-    }
-  )
+    })
   
   output$downloadData <- downloadHandler(
     filename = function() {
@@ -6907,13 +8958,15 @@ server <- function(input, output, session) {
   ##################################
   ######## protein revolution ######
   
-  df_prot_seq_evol <- reactive({
+  df_prot_seq_evol <- eventReactive(input$submit_prot_seq_evol,{
     print("running")
-    if (is.null(input$file_prot_seq_evol)) {
+    if (is.null(input$file_prot_seq_evol)&& is.null(input$text_prot_seq_evol)) {
       return(NULL)
     }
+    else if(!is.null(input$file_prot_seq_evol)){
     parts <- strsplit(input$file_prot_seq_evol$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6924,7 +8977,23 @@ server <- function(input, output, session) {
     
     protein_Id <- unique(as.character(na.omit(read.csv(input$file_prot_seq_evol$datapath)[,1])))
     Proteins <- protein_Id
-    
+    }
+    else{
+      Acessions<-strsplit(input$text_prot_seq_evol,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq_evol," ")
+        
+      }
+      Proteins <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        Proteins<-rbind(Proteins,Acessions[[1]][x])
+      }
+      
+      print(Proteins)
+      Proteins <- na.omit(Proteins)
+      Proteins <- Proteins[!duplicated(Proteins[, 1]), ]
+      
+    }
     return(Proteins)
     
   })
@@ -6975,13 +9044,15 @@ server <- function(input, output, session) {
   ###################################
   
   #Pathogens
-  df_prot_seq_Patho <- reactive({
+  df_prot_seq_Patho <- eventReactive(input$submit_prot_seq_Patho,{
     print("running")
-    if (is.null(input$file_prot_seq_Patho)) {
+    if (is.null(input$file_prot_seq_Patho)&& is.null(input$text_prot_seq_Patho)) {
       return(NULL)
     }
+    else if(!is.null(input$file_prot_seq_Patho)){
     parts <- strsplit(input$file_prot_seq_Patho$datapath, ".", fixed = TRUE)
     type <- parts[[1]][length(parts[[1]])]
+    type <- tolower(type)
     if (type != "csv") {
       showModal(modalDialog(
         title = "Error",
@@ -6992,6 +9063,23 @@ server <- function(input, output, session) {
     
     protein_Id <- unique(as.character(na.omit(read.csv(input$file_prot_seq_Patho$datapath)[,1])))
     Proteins <- protein_Id
+    }
+    else{
+      Acessions<-strsplit(input$text_prot_seq_Patho,",")
+      if(length(Acessions[[1]])==1){
+        Acessions<-strsplit(input$text_prot_seq_Patho," ")
+        
+      }
+      Proteins <- data.frame(Acessions[[1]][1])
+      for (x in 2:length(Acessions[[1]])) {
+        Proteins<-rbind(Proteins,Acessions[[1]][x])
+      }
+      
+      print(Proteins)
+      Proteins <- na.omit(Proteins)
+      Proteins <- Proteins[!duplicated(Proteins[, 1]), ]
+      
+    }
     
     return(Proteins)
     

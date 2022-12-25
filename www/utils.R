@@ -389,14 +389,14 @@ loadPkg <- function() {
     library(dplyr)
   }
 
-  if (length(find.package(package = "ComplexHeatmap", quiet = T)) > 0) {
-    library(ComplexHeatmap)
-  } else {
-    print("Package ComplexHeatmap not installed")
-    BiocManager::install("ComplexHeatmap", update = FALSE)
-    print("Package ComplexHeatmap installed")
-    library(ComplexHeatmap)
-  }
+  # if (length(find.package(package = "ComplexHeatmap", quiet = T)) > 0) {
+  #   library(ComplexHeatmap)
+  # } else {
+  #   print("Package ComplexHeatmap not installed")
+  #   BiocManager::install("ComplexHeatmap", update = FALSE)
+  #   print("Package ComplexHeatmap installed")
+  #   library(ComplexHeatmap)
+  # }
 
   if (length(find.package(package = "circlize", quiet = T)) > 0) {
     library(circlize)
@@ -508,4 +508,4 @@ loadPkg <- function() {
 }
 
 #################### INSTALLATION SCRIPTS ###############
-#sudo su - -c "R -e \"BiocManager::install("c('RUVSeq','edgeR','DESeq2','NOISeq','NBPSeq','AnnotationForge','GOstats','ComplexHeatmap','Biobase','clusterProfiler','DOSE','AnnotationDbi'), update = FALSE)\""
+# sudo su - -c "R -e \"BiocManager::install("c('RUVSeq','edgeR','DESeq2','NOISeq','NBPSeq','AnnotationForge','GOstats','ComplexHeatmap','Biobase','clusterProfiler','DOSE','AnnotationDbi'), update = FALSE)\""
